@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 300px;
+        }
+
+        .container h2 {
+            color: #007BFF;
+            font-size: 24px;
+            margin: 0 0 20px;
+        }
+
+        .container p {
+            font-size: 18px;
+        }
+
+        .email-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007BFF;
+            margin: 20px 0;
+        }
+
+        .otp-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 20px;
+            margin: 5px;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border: 2px solid #0056b3;
+        }
+
+        #timer {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .submit-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>OTP Verification</h2>
+        <p>Enter the OTP sent to your email.</p>
+
+        <form id="otp-form" method="POST" action="{% url 'userauths:otp_verification' %}">
+            {% csrf_token %}
+
+            <p>Please check your email:</p>
+            <p class="email-text">{{ email }}</p>
+
+            <div class="form-wrapper">
+                <h4>Enter your one-time OTP</h4>
+            </div>
+
+            <div class="form-wrapper">
+                <input type="password" name="otp" class="otp-input" required>
+            </div>
+            <div id="countdown"></div>
+
+            {% for message in messages %}
+                <p class="error-message">{{ message }}</p>
+            {% endfor %}
+
+            <button type="submit" class="submit-button">Verify</button>
+        </form>
+
+        <p>Resend OTP in <span id="timer">60</span> seconds</p>
+    </div>
+
+    <script>
+        const timerElement = document.getElementById('timer');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        let seconds = 60;
+        let timer;
+
+        function updateTimer() {
+            timerElement.textContent = seconds;
+            if (seconds === 0) {
+                clearInterval(timer);
+                // Add logic to enable the Resend OTP button or handle it as needed
+            }
+            seconds--;
+        }
+
+        function startTimer() {
+            updateTimer();
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        startTimer();
+
+        function isOTPComplete() {
+            return otpInputs[0].value && otpInputs[1].value && otpInputs[2].value && otpInputs[3].value;
+        }
+
+        function handleOTPSubmission() {
+            if (isOTPComplete()) {
+                // Form submission will handle OTP validation
+            } else {
+                alert('Please enter a complete OTP.');
+            }
+        }
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (event) => {
+                if (event.target.value) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -17,6 +17,15 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'litleaves23@gmail.com'
+EMAIL_HOST_PASSWORD = 'niag iwel zzzw xcvh'  
+DEFAULT_FROM_EMAIL ='litleaves23@gmail.com'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -32,13 +41,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # custom apps
     'home',
+    'userauths',
+  
 ]
 
 MIDDLEWARE = [
@@ -133,3 +146,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# JAZZMIN_SETTINGS = {
+#     'site_header' : "Lit-Leaves",
+#     'site_brand' : "Pine of Knowledge",
+#     'site-logo' : "assets/images/logo",
+#     'copyright' : "Lit-Leaves private limited",
+# }
+
+AUTH_USER_MODEL = 'userauths.User'

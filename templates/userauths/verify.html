@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            margin: 100px auto;
+            width: 300px;
+        }
+        #verify-heading {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #verify-instructions {
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .verify-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="verify-heading">Account Verification</h2>
+        <p id="verify-instructions">Your account is not yet verified. Click the button below to send a verification link to your email:</p>
+        
+        <button class="verify-button" id="verify-button">Send Verification Link</button>
+    </div>
+
+    <script>
+        const verifyButton = document.getElementById('verify-button');
+
+        verifyButton.addEventListener('click', () => {
+            // Implement the logic to send a verification link to the user's email here
+            alert('Verification link sent. Please check your email.');
+        });
+    </script>
+</body>
+</html>
