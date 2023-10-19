@@ -7,3 +7,6 @@ db.sqlite3
 
 # Ignore the virtual environment directory
 env1/
+
+
+.env
