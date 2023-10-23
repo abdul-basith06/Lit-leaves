@@ -1,4 +1,7 @@
-{%load static %}<! DOCTYPE html>
+{%load static %}
+
+
+<! DOCTYPE html>
     <html lang="en">
 
     <head>
@@ -132,7 +135,7 @@
                     </li>
                     <!-- {% comment %} user management page  {% endcomment %} -->
                     <li class="nav-item menu-items">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'admin_panel:category' %}">
                             <span class="menu-icon">
                                 <i class="mdi mdi-table-large"></i>
                             </span>
@@ -140,7 +143,7 @@
                         </a>
                     </li>
                     <li class="nav-item menu-items">
-                        <a class="nav-link" href="{% url 'admin_panel:products' %}">
+                        <a class="nav-link" href="#">
                             <span class="menu-icon">
                                 <i class="mdi mdi-chart-bar"></i>
                             </span>
@@ -401,189 +404,98 @@
                         </button>
                     </div>
                 </nav>
-                <!-- partial -->
-                <!-- table comes here  -->
-                <!-- partial -->
                 <!-- basic table  -->
-             <!-- basic table -->
-<div class="main-panel">
-    <div class="content-wrapper">
-        <div class="row">
-            <div class="col-12 grid-margin">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h4 class="card-title">Category Management</h4>
-                        </div>
-                        <hr class="white-line my-4">
-                        <div class="mb-5">
-                            <ul class="navbar-nav w-100">
-                                <li class="nav-item w-100">
-                                    <form action="/admin/category/search" method="get"
-                                        class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
-                                        <input type="text" name="key"
-                                            class="form-control mb-1 text-light"
-                                            placeholder="Search Category">
-                                        <button type="submit"
-                                            class="btn-inverse-info mb-1">Search</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table text-center">
-                                <thead>
-                                    <tr>
-                                        <th>Icon</th> <!-- Add this column for the icon -->
-                                        <th>Category Name</th>  
-                                        <th>Remove</th>
-                                        <th>Edit</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for category in cat1 %}
-                                    <tr>
-                                        <td>
-                                            {% if category.icon %}
-                                                <img src="{{ category.icon.url }}" alt="{{ category.name }} Icon" width="50" height="50">
-                                            {% else %}
-                                                No Icon
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ category.name }}</td>
-                                        <td>
-                                            <form method="post"
-                                                action="{% url 'admin_panel:delete_category' category.id %}">
-                                                {% csrf_token %}
-                                                <button type="button" class="btn btn-inverse-danger"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#mod{{ category.id }}">
-                                                    Delete Item
-                                                </button>
+                <!-- table comes here  -->
+                <div class="main-panel">
+                    <div class="content-wrapper">
+                        <div class="row">
+                            <div class="col-12 grid-margin">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h4 class="card-title">All Products</h4>
+                                            <a href="{% url 'admin_panel:add_products' %}"
+                                                class="btn btn-outline-success">
+                                                &nbsp;<b>+</b>&nbsp;Add Product
+                                            </a>
+                                        </div>
 
-                                                <div class="modal fade" id="mod{{ category.id }}"
-                                                    tabindex="-1" aria-labelledby="exampleModalLabel"
-                                                    aria-hidden="true">
-                                                    <!-- Modal content for delete confirmation -->
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title"
-                                                                    id="exampleModalLabel">Delete
-                                                                    Category</h5>
-                                                                <button type="button" class="close"
-                                                                    data-bs-dismiss="modal"
-                                                                    aria-label="Close">
-                                                                    <span
-                                                                        aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <p>Are you sure you want to delete this
-                                                                    category: {{ category.name }}?</p>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button"
-                                                                    class="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="submit"
-                                                                    class="btn btn-danger">Delete</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </td>
-                                        <!-- delete modal ends -->
-                                    <!-- edit begins -->
-<td>
-    <button type="button" class="btn btn-inverse-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
-        Edit Item
-    </button>
-    <div class="modal fade" id="editModal{{ category.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ category.id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel{{ category.id }}">
-                        Edit Category
-                    </h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Add your edit form here -->
-                    <form method="post" action="{% url 'admin_panel:update_category' category.id %}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="category_name">Category Name</label>
-                            <input type="text" class="form-control" name="category_name" id="category_name" value="{{ category.name }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="category_icon">Category Icon</label>
-                            <input type="file" class="form-control" name="category_icon" id="category_icon">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</td>
-<!-- edit setup ends -->
 
-                                        <td>
-                                            {% if category.is_active == True %}
-                                                <a href="{% url 'admin_panel:block_category' category.id %}" class="badge badge-danger">Block</a>
-                                            {% else %}
-                                                <a href="{% url 'admin_panel:unblock_category' category.id %}" class="badge badge-success">Unblock</a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+
+
+                                        <hr class="white-line my-4">
+                                        <div class="mb-5">
+                                            <ul class="navbar-nav w-100">
+                                                <li class="nav-item w-100">
+                                                    <form action="#" method="get"
+                                                        class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
+                                                        <input type="text" name="key"
+                                                            class="form-control mb-1 text-light"
+                                                            placeholder="Search Products">
+                                                        <button type="submit"
+                                                            class="btn-inverse-info mb-1">Search</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Image</th>
+                                                        <th>Title</th>
+                                                        <th>Category</th>
+                                                        <th>Price</th>
+                                                        <th>Stock Status</th>
+                                                        <th>Edit</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for product in pro1 %}
+                                                    <tr>
+                                                        <td>
+                                                            <img class="rounded product-img-preview"
+                                                                src="{% if product.productimage_set.all %}{{ product.productimage_set.first.image.url }}{% endif %}"
+                                                                alt="{{ product.name }}" />
+                                                        </td>
+                                                        <td>{{ product.name }}</td>
+                                                        <td>{{ product.category.name }}</td>
+                                                        <td>{{ product.price }}</td>
+                                                        <td>
+                                                            {% if product.stock <= 0 %} <span
+                                                                class="text-danger text-center">Out Of Stock</span>
+                                                                {% else %}
+                                                                <span
+                                                                    class="text-success text-center">{{product.stock}}</span>
+                                                                {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'admin_panel:edit_products' product.id %}" class="btn btn-inverse-info">Edit Product</a>
+                                                        </td>
+                                                        
+                                                        
+                                                        <td>
+                                                            {% if product.is_active %}
+                                                                <a href="{% url 'admin_panel:unlist_product' product.id %}" class="badge badge-danger">Unlist</a>
+                                                            {% else %}
+                                                                <a href="{% url 'admin_panel:list_product' product.id %}" class="badge badge-success">List</a>
+                                                            {% endif %}
+                                                        </td>
+                                                        
+
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- add category setup starts -->
-        <div class="col-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Add New Category</h4>
-                    <hr class="white-line">
-                    <form class="forms-sample" action="{% url 'admin_panel:add_category' %}"
-                        method="post" enctype="multipart/form-data">
-
-                        {% csrf_token %}
-                        <div class="form-group row">
-                            <div class="col-12 col-md-9 mt-2">
-                                <label for="exampleInputName1">Category Name</label>
-                                <input type="text" class="form-control text-light" name="category_name"
-                                    id="exampleInputName1" placeholder="Name" required>
-                                <label for="exampleInputIcon1">Category Icon</label>
-                                <input type="file" class="form-control" name="category_icon" id="exampleInputIcon1">
-                                <button type="submit"
-                                    class="btn btn-lg btn-inverse-primary mr-2 mt-5">Add
-                                    Category</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <!-- add category setup ends -->
-    </div>
-</div>
-
-
-
+              
                 <!-- table comes here  -->
                 <!-- basic table  -->
 

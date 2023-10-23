@@ -1,0 +1,206 @@
+{%load static %}<!
+DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Corona Admin</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/vendors/css/vendor.bundle.base.css' %}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href={% static "admin_panel/assets/vendors/jvectormap/jquery-jvectormap.css" %}>
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/vendors/owl-carousel-2/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/vendors/owl-carousel-2/owl.theme.default.min.css' %}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="{% static 'admin_panel/assets/css/style.css' %}">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="assets/images/favicon.png" />
+    <style>
+      .product-form {
+          margin-top: 20px;
+          padding: 20px;
+          background-color: #12151e; 
+          border-radius: 5px;
+          box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+  </style>
+  
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- partial:partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
+          <!-- <a class="sidebar-brand brand-logo" href="index.html"><img src="{% static 'admin_panel/assets/images/logo.svg' %}" alt="logo" /></a> -->
+          <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="{% static 'admin_panel/assets/images/logo-mini.svg' %}" alt="logo" /></a>
+        </div>
+        <ul class="nav">
+          <li class="nav-item profile">
+            <div class="profile-desc">
+              <div class="profile-pic">
+                <div class="count-indicator">
+                  <img class="img-xs rounded-circle " src="{% static 'admin_panel/assets/images/faces/face15.jpg' %}" alt="">
+                  <span class="count bg-success"></span>
+                </div>
+                <div class="profile-name">
+                  <h5 class="mb-0 font-weight-normal">Basith</h5>
+                  <span>Admin</span>
+                </div>
+              </div>
+              <a href="#" id="profile-dropdown" data-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>
+              <div class="dropdown-menu dropdown-menu-right sidebar-dropdown preview-list" aria-labelledby="profile-dropdown">
+                <a href="#" class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-settings text-primary"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1 text-small">Account settings</p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-onepassword  text-info"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1 text-small">Change Password</p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-calendar-today text-success"></i>
+                    </div>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1 text-small">To-do list</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item nav-category">
+            <span class="nav-link">Navigation</span>
+          </li>
+          <!-- dash board link -->
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="{% url 'admin_panel:admin_dash' %}">
+              <span class="menu-icon">
+                <i class="mdi mdi-speedometer"></i>
+              </span>
+              <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="{% url 'admin_panel:products' %}">
+                <span class="menu-icon">
+                    <i class="mdi mdi-chart-bar"></i>
+                </span>
+                <span class="menu-title">Products</span>
+            </a>
+        </li>
+            <!-- dashboard link ends  -->
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        
+        <!-- table comes here  -->
+      <!-- Wrap the form in a div and apply Bootstrap classes to control the width -->
+      <div class="col-md-8">
+        <div class="product-form">
+            <form method="post" action="{% url 'admin_panel:addd_products' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Product Name -->
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                
+                <!-- Product Description -->
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" class="form-control" required></textarea>
+                </div>
+                
+                <!-- Product Price -->
+                <div class="form-group">
+                    <label for "price">Price</label>
+                    <input type="number" name="price" class="form-control" required>
+                </div>
+                
+                <!-- Product Category -->
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" class="form-control" required>
+                        <option value="" disabled selected>Select a category</option>
+                        {% for category in all_cat %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Product Stock -->
+                <div class="form-group">
+                    <label for="stock">Stock</label>
+                    <input type="number" name="stock" class="form-control" required>
+                </div>
+                
+                <!-- Product Image Upload -->
+                <div class="form-group">
+                    <label for="image">Product Images</label>
+                    <input type="file" name="image" class="form-control" multiple>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Add Product</button>
+            </form>
+        </div>
+    </div>
+    
+
+        
+        <!-- basic table -->
+
+         <!-- table comes here  -->
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="{% static 'admin_panel/assets/vendors/js/vendor.bundle.base.js' %}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="{% static 'admin_panel/assets/vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/vendors/progressbar.js/progressbar.min.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/vendors/jvectormap/jquery-jvectormap.min.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/vendors/owl-carousel-2/owl.carousel.min.js' %}"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'admin_panel/assets/js/off-canvas.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/js/misc.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/js/settings.js' %}"></script>
+    <script src="{% static 'admin_panel/assets/js/todolist.js' %}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="{% static 'admin_panel/assets/js/dashboard.js' %}"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>

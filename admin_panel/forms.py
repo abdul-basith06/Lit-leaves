@@ -1,4 +1,13 @@
 # from django import forms
 
-# class CategoryEditForm(forms.Form):
-#     category_name = forms.CharField(label='New Category Name', max_length=100)
+# from .models import Product, ProductImage
+
+# class ProductForm(forms.ModelForm):
+#     class Meta:
+#         model = Product
+#         fields = ['name', 'description', 'price', 'category', 'stock', 'is_active']
+
+# class ProductImageForm(forms.ModelForm):
+#     class Meta:
+#         model = ProductImage
+#         fields = ['image']

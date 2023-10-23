@@ -18,8 +18,14 @@ urlpatterns = [
     path('block_category/<int:category_id>/', views.block_category, name='block_category'),
     path('unblock_category/<int:category_id>/', views.unblock_category, name='unblock_category'),
 
-
-
+    # Product management begins  
+    path('products', views.products, name='products'),
+    path('add_products', views.add_products, name='add_products'),
+    path('addd_products', views.addd_products, name='addd_products'),
+    path('edit_products/<int:product_id>/', views.edit_products, name='edit_products'),
+    path('update_products/<int:product_id>/', views.update_products, name='update_products'),
+    path('unlist_product/<int:product_id>/', views.unlist_product, name='unlist_product'),
+    path('list_product/<int:product_id>/', views.list_product, name='list_product'),
    
 
  ]
