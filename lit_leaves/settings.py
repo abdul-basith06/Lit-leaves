@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'home',
     'userauths',
     'admin_panel',
+    'shop',
   
 ]
 

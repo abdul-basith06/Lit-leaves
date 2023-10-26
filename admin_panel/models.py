@@ -13,6 +13,7 @@ class Categories(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
+    author = models.CharField(max_length=100, default='basi')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
     stock = models.PositiveIntegerField(default=0)

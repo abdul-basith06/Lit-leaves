@@ -8,7 +8,9 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .models import *
 
-
+# def product_details(request):
+#     return render(request, 'shop/product.html')
+    
 
 def unlist_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -80,6 +82,7 @@ def addd_products(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
+        author = request.POST.get('author')
         price = request.POST.get('price')
         category_id = request.POST.get('category')
         stock = request.POST.get('stock')
@@ -89,6 +92,7 @@ def addd_products(request):
         product = Product.objects.create(
             name=name,
             description=description,
+            author=author,
             price=price,
             category=category,
             stock=stock

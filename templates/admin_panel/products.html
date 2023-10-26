@@ -445,6 +445,7 @@
                                                         <th>Image</th>
                                                         <th>Title</th>
                                                         <th>Category</th>
+                                                        <th>Author</th>
                                                         <th>Price</th>
                                                         <th>Stock Status</th>
                                                         <th>Edit</th>
@@ -461,6 +462,7 @@
                                                         </td>
                                                         <td>{{ product.name }}</td>
                                                         <td>{{ product.category.name }}</td>
+                                                        <td>{{ product.author }}</td>
                                                         <td>{{ product.price }}</td>
                                                         <td>
                                                             {% if product.stock <= 0 %} <span
