@@ -9,6 +9,7 @@ urlpatterns = [
     path('otp_verification2/', views.otp_verification2, name='otp_verification2'),
     path('sign-in/', views.user_sign, name='sign-in'),
     # path('verify/', views.user_verify, name='verify'),
+    path('logout/', views.user_logout, name='logout'),
 
 
  ]

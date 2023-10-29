@@ -1,16 +1,42 @@
 from django.shortcuts import render,redirect
 from .models import *
 from userauths.models import User
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 # from .forms import CategoryEditForm
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .models import *
 
-# def product_details(request):
-#     return render(request, 'shop/product.html')
+
+def admin_login(request):
+    if request.user.is_authenticated and request.user.username == 'basi':
+        return redirect('admin_panel:admin_dash')
+    if request.method == 'POST':
+        admin_name = request.POST['username']
+        password = request.POST['password']
+        if admin_name == 'basi' and password == '12369':
+            user = authenticate(request, username=admin_name, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('admin_panel:admin_dash')
+        else:
+            # Authentication failed, show an error message
+            messages.error(request, 'Invalid username or password.')
+
+    return render(request, 'admin_panel/admin_login.html')
     
+@never_cache
+def admin_logout(request):
+    if request.user.is_authenticated:
+        request.session.flush()
+    return redirect('admin_panel:admin_login')
+       
 
 def unlist_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -111,27 +137,54 @@ def addd_products(request):
 
     
 def add_products(request):
-    all_cat = Categories.objects.all() 
+    all_cat = Categories.objects.filter(is_active=True)
     context = {
         'all_cat' : all_cat
     } 
     return render(request, 'admin_panel/add_products.html',context)
 
-
-def products(request):
-    pro1 = Product.objects.all()
+# @login_required(login_url='admin_panel:admin_login')
+# def products(request):
+#     pro1 = Product.objects.all()
     
+#     context = {
+#         'pro1': pro1,
+#     }
+#     return render(request, 'admin_panel/products.html',context)
+
+@login_required(login_url='admin_panel:admin_login')
+def products(request):
+    search_query = request.GET.get('key')  # Get the search query from the URL parameters
+    pro1 = Product.objects.all()
+
+    if search_query:
+        pro1 = pro1.filter(Q(name__icontains=search_query))
+
     context = {
         'pro1': pro1,
+       'search_query': search_query,
+        
     }
-    return render(request, 'admin_panel/products.html',context)
+    return render(request, 'admin_panel/products.html', context)
+
+
+
+@login_required(login_url='admin_panel:admin_login')
 
 def category(request):
+    search_query = request.GET.get('key')  # Get the search query from the request
     cat1 = Categories.objects.all()
+
+    if search_query:
+        # If there's a search query, filter categories based on name
+        cat1 = cat1.filter(name__icontains=search_query)
+
     context = {
-        'cat1': cat1
+        'cat1': cat1,
+        'search_query': search_query,  # Pass the search query back to the template
     }
-    return render(request, 'admin_panel/category.html',context)
+    return render(request, 'admin_panel/category.html', context)
+
 
 
 
@@ -164,12 +217,14 @@ def block_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     category.is_active = False
     category.save()
+    Product.objects.filter(category=category).update(is_active=False)
     return redirect('admin_panel:category')
 
 def unblock_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     category.is_active = True
     category.save()
+    Product.objects.filter(category=category).update(is_active=True)
     return redirect('admin_panel:category')
 
 
@@ -202,19 +257,34 @@ def update_category(request, category_id):
     return render(request, 'edit_category_modal.html', context)
 
 
- 
+
+@login_required(login_url='admin_panel:admin_login')
 def delete_category(request, category_id):
     if request.method == 'POST':
-        try:
-            category = Categories.objects.get(pk=category_id)
-            category.delete()
-            messages.success(request, 'Category deleted successfully.')
-        except Categories.DoesNotExist:
-            messages.error(request, 'Category not found.')
+        category = get_object_or_404(Categories, pk=category_id)
+
+        # Update is_active for products in this category
+        Product.objects.filter(category=category).update(is_active=False)
+
+        category.delete()
+        messages.success(request, 'Category and associated products deactivated successfully.')
     else:
-        messages.error(request, 'Invalid request method')  # Add this line for debugging
+        messages.error(request, 'Invalid request method')
 
     return redirect('admin_panel:category')
+ 
+# def delete_category(request, category_id):
+#     if request.method == 'POST':
+#         try:
+#             category = Categories.objects.get(pk=category_id)
+#             category.delete()
+#             messages.success(request, 'Category deleted successfully.')
+#         except Categories.DoesNotExist:
+#             messages.error(request, 'Category not found.')
+#     else:
+#         messages.error(request, 'Invalid request method')  # Add this line for debugging
+
+#     return redirect('admin_panel:category')
 
     
 def block_user(request, user_id):
@@ -229,12 +299,35 @@ def unblock_user(request, user_id):
     user.save()
     return redirect('admin_panel:user_management')
 
+@login_required(login_url='admin_panel:admin_login')
 def admin_dash(request):
     return render(request, 'admin_panel/admin_dash.html')
 
+
+# def search_users(request):
+#     search_query = request.GET.get('search_query')
+#     users = User.objects.filter(Q(username__icontains=search_query) | Q(email__icontains=search_query))
+#     context = {'users': users}
+#     return render(request, 'admin_panel/search_users.html', context)
+
+# @login_required(login_url='admin_panel:admin_login')
+# def user_management(request):
+#     cus = User.objects.all()
+#     context = {
+#         'cus' : cus,
+#     }
+#     return render(request, 'admin_panel/user_manage.html',context)
+
+@login_required(login_url='admin_panel:admin_login')
 def user_management(request):
+    search_query = request.GET.get('key')
     cus = User.objects.all()
+    
+    if search_query:
+        cus = cus.filter(Q(username__icontains=search_query) | Q(email__icontains=search_query))
+
     context = {
-        'cus' : cus,
+        'cus': cus,
+        'search_query': search_query,
     }
-    return render(request, 'admin_panel/user_manage.html',context)
+    return render(request, 'admin_panel/user_manage.html', context)

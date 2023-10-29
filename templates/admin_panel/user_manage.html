@@ -355,8 +355,8 @@ DOCTYPE html>
                       </div>
                     </div>
                     <div class="preview-item-content">
-                      <p class="preview-subject mb-1">Log out</p>
-                    </div>
+                      <a href="{% url 'admin_panel:admin_logout' %}" class="btn btn-logout">Log out</a>
+                  </div>
                   </a>
                   <div class="dropdown-divider"></div>
                   <p class="p-3 mb-0 text-center">Advanced settings</p>
@@ -371,55 +371,60 @@ DOCTYPE html>
         <!-- partial -->
         <!-- table comes here  -->
        <!-- partial -->
-        <!-- basic table  -->
-        <div class="main-panel">
-            <div class="content-wrapper">
-                <div class="row">
-                    <div class="col-lg-12 grid-margin stretch-card">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Customers</h4>
-                                <p class="card-description">"Happy customers, happy business."</p>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Username</th>
-                                                <th>First Name</th>
-                                                <th>Last Name</th>
-                                                <th>Email</th>
-                                                <th>Mobile Number</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for i in cus %}
-                                            <tr>
-                                                <td>{{i.username}}</td>
-                                                <td>{{i.first_name}}</td>
-                                                <td>{{i.last_name}}</td>
-                                                <td>{{i.email}}</td>
-                                                <td>{{i.mobile_number}}</td>
-                                                <td>
-                                                  {% if i.is_active == False %}
-                                                      <a href="{% url 'admin_panel:unblock_user' i.id %}" class="badge badge-danger">Unblock</a>
-                                                  {% else %}
-                                                      <a href="{% url 'admin_panel:block_user' i.id %}" class="badge badge-success">Block</a>
-                                                  {% endif %}
-                                              </td>
-                                              
-                                            </tr>
-                                          
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- basic table  --><div class="main-panel">
+    <div class="content-wrapper">
+      <div class="row">
+          <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                  <div class="card-body">
+                      <h4 class="card-title">Customers</h4>
+                      <p class="card-description">"Happy customers, happy business."</p>
+                      <div class="table-responsive">
+                          <div class="search-bar">
+                            <form action="{% url 'admin_panel:user_management' %}" method="get" class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
+                              {% csrf_token %}
+                              <input type="text" name="key" class="form-control mb-1 text-light" placeholder="Search User">
+                              <button type="submit" class="btn-inverse-info mb-1">Search</button>
+                          </form>
+                          </div>
+                          <table class="table">
+                              <thead>
+                                  <tr>
+                                      <th>Username</th>
+                                      <th>First Name</th>
+                                      <th>Last Name</th>
+                                      <th>Email</th>
+                                      <th>Mobile Number</th>
+                                      <th>Status</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for i in cus %}
+                                  <tr>
+                                      <td>{{i.username}}</td>
+                                      <td>{{i.first_name}}</td>
+                                      <td>{{i.last_name}}</td>
+                                      <td>{{i.email}}</td>
+                                      <td>{{i.mobile_number}}</td>
+                                      <td>
+                                          {% if i.is_active == False %}
+                                              <a href="{% url 'admin_panel:unblock_user' i.id %}" class="badge badge-danger">Unblock</a>
+                                          {% else %}
+                                              <a href="{% url 'admin_panel:block_user' i.id %}" class="badge badge-success">Block</a>
+                                          {% endif %}
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
         
         <!-- basic table -->
 

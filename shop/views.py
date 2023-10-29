@@ -8,9 +8,10 @@ from django.shortcuts import render, get_object_or_404
 # Create your views here.
 
 
+
 def store(request):
-    products = Product.objects.all()  # Fetch all products
-    paginator = Paginator(products, 9)  # Show 10 products per page
+    products = Product.objects.filter(is_active=True)  # Fetch only active products
+    paginator = Paginator(products, 9)  # Show 9 active products per page
 
     page = request.GET.get('page')
     try:
@@ -21,6 +22,7 @@ def store(request):
         products = paginator.page(paginator.num_pages)
 
     return render(request, 'shop/store.html', {'products': products})
+
 
 
 

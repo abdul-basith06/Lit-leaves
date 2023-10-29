@@ -13,9 +13,13 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate
 from django.db.models import Q  # Import the Q object for OR queries
 
-
+def user_logout(request):
+    logout(request)
+    return redirect('home:index')
 
 def user_sign(request):
+    if request.user.is_authenticated:
+        return redirect('home:index') 
     if request.method == 'POST':
         # Get the username and password from the form data
         username = request.POST.get('userName')
@@ -70,6 +74,8 @@ def otp_verification2(request):
         
 
 def user_register(request):
+    if request.user.is_authenticated:
+        return redirect('home:index') 
     form = UserRegisterForm
     if request.method == "POST":
         form = UserRegisterForm(request.POST)

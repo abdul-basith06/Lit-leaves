@@ -119,20 +119,23 @@
                 </div><!-- End .icon-boxes-container -->
             </div><!-- End .intro-section -->
 
+
+
+
+
             <div class="bestseller-products bg-light pt-5 pb-5 mb-5">
                 <div class="block">
-                    <div class="block-wrapper ">
+                    <div class="block-wrapper">
                         <div class="container">
                             <div class="heading heading-flex">
                                 <div class="heading-left">
-                                    <h2 class="title">Bestsellers</h2><!-- End .title -->
-                                </div><!-- End .heading-left -->
-
+                                    <h2 class="title">Bestsellers</h2>
+                                </div>
                                 <div class="heading-right">
-                                    <a href="category.html" class="title-link">View more Products <i class="icon-long-arrow-right"></i></a>
-                                </div><!-- End .heading-right -->
-                            </div><!-- End .header-flex -->
-
+                                    <a href="{% url 'shop:store' %}" class="title-link">View more Products <i class="icon-long-arrow-right"></i></a>
+                                </div>
+                            </div>
+            
                             <div class="owl-carousel carousel-equal-height owl-simple" data-toggle="owl" 
                                 data-owl-options='{
                                     "nav": false, 
@@ -141,216 +144,86 @@
                                     "loop": false,
                                     "responsive": {
                                         "0": {
-                                            "items":2
+                                            "items": 2
                                         },
                                         "480": {
-                                            "items":2
+                                            "items": 2
                                         },
                                         "768": {
-                                            "items":3
+                                            "items": 3
                                         },
                                         "992": {
-                                            "items":4
+                                            "items": 4
                                         },
                                         "1440": {
-                                            "items":5
+                                            "items": 5
                                         }
                                     }
                                 }'>
+                                {% for product in products %}
                                 <div class="product">
-                                    <span class="product-label label-sale">Sale</span>
+                                    {% if product.is_active %}
+                                        <span class="product-label label-sale">Sale</span>
+                                    {% endif %}
                                     <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-1.jpg' %}" alt="Product image" class="product-image">
+                                        <a href="{% url 'shop:product' product.id %}">
+                                            <img src="{{ product.productimage_set.first.image.url }}" alt="{{ product.name }}" class="product-image">
                                         </a>
-                                    </figure><!-- End .product-media -->
-
+                                    </figure>
                                     <div class="product-body">
                                         <div class="product-cat">
-                                            by <a href="#">Michelle Obama</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Becoming</a></h3><!-- End .product-title -->
+                                            by <a href="#">{{ product.author }}</a>
+                                        </div>
+                                        <h3 class="product-title">
+                                            <a href="{% url 'shop:product' product.id %}">{{ product.name }}</a>
+                                        </h3>
                                         <div class="product-price">
-                                            <span class="new-price">$19.50</span>
-                                            <span class="old-price">Was $32.50</span>
-                                        </div><!-- End .product-price -->
-
+                                            {% if product.is_active %}
+                                                <span class="new-price">${{ product.price }}+3</span>
+                                                <span class="old-price">Was ${{ product.price }}</span>
+                                            {% else %}
+                                                ${{ product.price }}
+                                            {% endif %}
+                                        </div>
                                         <div class="product-footer">
                                             <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 10 Reviews )</span>
-                                            </div><!-- End .rating-container -->
+                                               
+                                                <span class="ratings-text">(3 Reviews )</span>
+                                            </div>
                                             <div class="product-action">
                                                 <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
                                                 <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
 
-                                <div class="product">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-2.jpg' %}" alt="Product image" class="product-image">
-                                        </a>
-                                    </figure><!-- End .product-media -->
 
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            by <a href="#">Jordan B. Peterson</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">The Secret Barrister: Stories <br>of the Law and How It's ...</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            $17.34
-                                        </div><!-- End .product-price -->
 
-                                        <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 7 Reviews )</span>
-                                            </div><!-- End .rating-container -->
-                                            <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
 
-                                <div class="product">
-                                    <span class="product-label label-sale">Sale</span>
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-3.jpg' %}" alt="Product image" class="product-image">
-                                        </a>
-                                    </figure><!-- End .product-media -->
 
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            by <a href="#">Rachael Lippincott</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Five Feet Apart</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            <span class="new-price">$14.95</span>
-                                            <span class="old-price">Was $18.99</span>
-                                        </div><!-- End .product-price -->
 
-                                        <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 60%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 6 Reviews )</span>
-                                            </div><!-- End .rating-container -->
-                                            <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
 
-                                <div class="product">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-4.jpg' %}" alt="Product image" class="product-image">
-                                        </a>
-                                    </figure><!-- End .product-media -->
 
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            by <a href="#">Karen M. McManus </a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">One of Us Is Lying</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            $17.99
-                                        </div><!-- End .product-price -->
 
-                                        <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 10 Reviews )</span>
-                                            </div><!-- End .rating-container -->
-                                            <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
 
-                                <div class="product">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-5.jpg' %}" alt="Product image" class="product-image">
-                                        </a>
-                                    </figure><!-- End .product-media -->
 
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            by <a href="#">Matt Haig</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">How to Stop Time</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            $11.68
-                                        </div><!-- End .product-price -->
 
-                                        <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 10 Reviews )</span>
-                                            </div><!-- End .rating-container -->
-                                            <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
 
-                                <div class="product">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="{% static 'assets/images/demos/demo-20/products/product-6.jpg' %}" alt="Product image" class="product-image">
-                                        </a>
-                                    </figure><!-- End .product-media -->
 
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            by <a href="#">John Gray</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">The Durrells of Corfu: Exclusive Edition</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            $24.48
-                                        </div><!-- End .product-price -->
 
-                                        <div class="product-footer">
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                </div><!-- End .ratings -->
-                                                <span class="ratings-text">( 10 Reviews )</span>
-                                            </div><!-- End .rating-container -->
-                                            <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
-                                            </div><!-- End .product-action -->
-                                        </div><!-- End .product-footer -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .owl-carousel -->
-                        </div><!-- End .container -->
-                    </div><!-- End .block-wrapper -->
-                </div><!-- End .block -->
-            </div><!-- End .bg-light pt-4 pb-4 -->
+
+
+
+
+
 
             <div class="container">
                 <div class="heading heading-flex">

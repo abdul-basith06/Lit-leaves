@@ -4,8 +4,11 @@ from . import views
 app_name = 'admin_panel'
 
 urlpatterns = [
+    path('admin_login/', views.admin_login, name='admin_login'),
+    path('admin_logout/', views.admin_logout, name='admin_logout'),
     path('dash/', views.admin_dash, name='admin_dash'),
-    path('user_management/', views.user_management, name='user_management'),
+    path('user_management/', views.user_management, name='user_management'), 
+    # path('search_users/', views.search_users, name='search_users'),
     path('block_user/<int:user_id>/', views.block_user, name='block_user'),
     path('unblock_user/<int:user_id>/', views.unblock_user, name='unblock_user'),
     
