@@ -1,4 +1,6 @@
 {%load static %}
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,6 +24,19 @@
     <link rel="stylesheet" href="{% static 'admin_panel/assets/css/style.css' %}">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="assets/images/favicon.png" />
+
+ 
+      <!-- ... other head content ... -->
+      {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.js"></script> {% endcomment %}
+ 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css"> 
+    </head>
+    
+  
     <style>
       .product-form {
           margin-top: 20px;
@@ -121,91 +136,131 @@
       <!-- Wrap the form in a div and apply Bootstrap classes to control the width -->
       <div class="col-md-8">
         <div class="product-form">
-            <form method="post" action="{% url 'admin_panel:addd_products' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <!-- Product Name -->
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" name="name" class="form-control" required>
-                </div>
-                
-                <!-- Product Description -->
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea name="description" class="form-control" required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label for="name">Author</label>
-                  <input type="text" name="author" class="form-control" required>
-              </div>
-                
-                <!-- Product Price -->
-                <div class="form-group">
-                    <label for "price">Price</label>
-                    <input type="number" name="price" class="form-control" required>
-                </div>
-                
-                <!-- Product Category -->
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select name="category" class="form-control" required>
-                        <option value="" disabled selected>Select a category</option>
-                        {% for category in all_cat %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <!-- Product Stock -->
-                <div class="form-group">
-                    <label for="stock">Stock</label>
-                    <input type="number" name="stock" class="form-control" required>
-                </div>
-                
-                <!-- Product Image Upload -->
-                <div class="form-group">
-                    <label for="image">Product Images</label>
-                    <input type="file" name="image" class="form-control" multiple>
-                </div>
-                
-                <button type="submit" class="btn btn-success">Add Product</button>
-            </form>
-        </div>
-    </div>
-    
-
-        
-        <!-- basic table -->
-
-         <!-- table comes here  -->
-          <!-- partial -->
-        </div>
-        <!-- main-panel ends -->
-      </div>
-      <!-- page-body-wrapper ends -->
-    </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
-    <script src="{% static 'admin_panel/assets/vendors/js/vendor.bundle.base.js' %}"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <script src="{% static 'admin_panel/assets/vendors/chart.js/Chart.min.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/vendors/progressbar.js/progressbar.min.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/vendors/jvectormap/jquery-jvectormap.min.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/vendors/owl-carousel-2/owl.carousel.min.js' %}"></script>
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="{% static 'admin_panel/assets/js/off-canvas.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/js/hoverable-collapse.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/js/misc.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/js/settings.js' %}"></script>
-    <script src="{% static 'admin_panel/assets/js/todolist.js' %}"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <script src="{% static 'admin_panel/assets/js/dashboard.js' %}"></script>
-    <!-- End custom js for this page -->
-  </body>
-</html>
+          <form method="post" action="{% url 'admin_panel:addd_products' %}" enctype="multipart/form-data" id="productForm">
+            {% csrf_token %}
+            {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+      
+            <!-- Product Name -->
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+      
+            <!-- Product Description -->
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" class="form-control" required></textarea>
+            </div>
+      
+            <!-- Product Author -->
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" name="author" class="form-control" required>
+            </div>
+      
+            <!-- Product Price -->
+            <div class="form-group">
+                <label for="price">Price</label>
+                <input type="number" name="price" class="form-control" required>
+            </div>
+      
+            <!-- Product Category -->
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select name="category" class="form-control" required>
+                    <option value="" disabled selected>Select a category</option>
+                    {% for category in all_cat %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+      
+            <!-- Product Stock -->
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input type="number" name="stock" class="form-control" required>
+            </div>
+      
+            <!-- Product Image Upload -->
+            <div class="form-group">
+                <label for="image">Product Images</label>
+                <input type="file" name="image" class="form-control" accept="image/*" multiple required id="imageInput">
+            </div>
+      
+            <div class="form-group" id="imagePreviewGroup">
+                <img id="imagePreview" src="" alt="Image Preview">
+            </div>
+      
+            <button id="cropButton" class="btn btn-primary" disabled>Crop Images</button>
+      
+            <input type="hidden" name="cropped_images" id="croppedImages" value="">
+      
+            <button type="submit" class="btn btn-success" id="addProductButton">Add Product</button>
+          </form>
+      
+          <!-- JavaScript code for image cropping -->
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const imageInput = document.getElementById('imageInput');
+              const imagePreview = document.getElementById('imagePreview');
+              const cropButton = document.getElementById('cropButton');
+              const addProductButton = document.getElementById('addProductButton');
+              const productForm = document.getElementById('productForm');
+              let cropper;
+      
+              imageInput.addEventListener('change', (e) => {
+                  if (e.target.files.length > 0) {
+                      // Check if a file was selected
+                      const selectedImage = e.target.files[0];
+      
+                      // Create a URL for the selected image and set it as the source of the image preview
+                      imagePreview.src = URL.createObjectURL(selectedImage);
+      
+                      // Enable the "Crop Image" button
+                      cropButton.removeAttribute('disabled');
+      
+                      // Initialize Cropper.js with the image element
+                      cropper = new Cropper(imagePreview, {
+                          aspectRatio: 1, // You can adjust this as needed
+                          viewMode: 1,
+                          autoCropArea: 1,
+                          checkCrossOrigin: false,
+                          ready: function () {
+                              // This function is called when the cropper is ready
+                          },
+                      });
+                  }
+              });
+      
+              cropButton.addEventListener('click', (e) => {
+                  e.preventDefault(); // Prevent form submission
+      
+                  // Check if the cropper has been initialized
+                  if (cropper) {
+                      // Crop the image and send data to the server
+                      const croppedImageData = cropper.getCroppedCanvas().toDataURL('image/jpeg');
+      
+                      // Set the cropped image data in the hidden input
+                      document.getElementById('croppedImages').value = croppedImageData;
+      
+                      // Enable the "Add Product" button if needed
+                      // addProductButton.removeAttribute('disabled');
+                  }
+              });
+      
+              // Prevent the default form submission when the "Crop Image" button is clicked
+              productForm.addEventListener('submit', (e) => {
+                  if (e.target === cropButton) {
+                      e.preventDefault();
+                  }
+              });
+            });
+          </script>
+        </body>
+      </html>

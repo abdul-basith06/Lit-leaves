@@ -14,7 +14,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     author = models.CharField(max_length=100, default='basi')
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)

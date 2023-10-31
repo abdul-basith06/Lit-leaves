@@ -151,11 +151,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# JAZZMIN_SETTINGS = {
-#     'site_header' : "Lit-Leaves",
-#     'site_brand' : "Pine of Knowledge",
-#     'site-logo' : "assets/images/logo",
-#     'copyright' : "Lit-Leaves private limited",
-# }
 
 AUTH_USER_MODEL = 'userauths.User'

@@ -162,9 +162,12 @@
                                 }'>
                                 {% for product in products %}
                                 <div class="product">
-                                    {% if product.is_active %}
-                                        <span class="product-label label-sale">Sale</span>
+                                    {% if product.stock < 1 %}
+                                        <span class="product-label label-sale">Out of stock</span>
                                     {% endif %}
+                                    {% if product.stock <= 5 and product.stock > 0 %}
+                                                <span class="product-label label-sale">Only Few Unites Left</span>
+                                            {% endif %}
                                     <figure class="product-media">
                                         <a href="{% url 'shop:product' product.id %}">
                                             <img src="{{ product.productimage_set.first.image.url }}" alt="{{ product.name }}" class="product-image">

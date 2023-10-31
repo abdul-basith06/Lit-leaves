@@ -1,6 +1,8 @@
 from imaplib import _Authenticator
 import random
 from django.shortcuts import render, redirect
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -31,18 +33,21 @@ def user_sign(request):
         if user_exists:
             # User exists; attempt to log in
             user = User.objects.get(Q(username=username) | Q(email=username)) 
-           
-            if user.check_password(password):
+            if user.is_active:
+                if user.check_password(password):
                 # Password is correct; log in the user
-                request.session['username'] = username
-                request.session['authenticated'] = True
-                # login(request, user)
-                request.session['email'] = user.email
-                send_otp(request)  # Implement the send_otp function
-                return render(request, 'userauths/otp2.html', {'email': user.email})
+                    request.session['username'] = username
+                    request.session['authenticated'] = True
+                    # login(request, user)
+                    request.session['email'] = user.email
+                    send_otp(request)  # Implement the send_otp function
+                    return render(request, 'userauths/otp2.html', {'email': user.email})
+                else:
+                    # Password is incorrect; set an error message
+                    messages.error(request, 'Invalid password.')
             else:
-                # Password is incorrect; set an error message
-                messages.error(request, 'Invalid password.')
+                # User is blocked (is_active is False); set a block message
+                messages.error(request, 'You are blocked from signing in.')        
         else:
             # User does not exist; set an error message
             messages.error(request, 'User does not exist.')
@@ -101,32 +106,42 @@ def send_otp(request):
     for x in range(0, 4):
         s += str(random.randint(0, 9))
     request.session["otp"] = s
+    request.session["otp_generated_time"] = timezone.now().isoformat()
     send_mail("otp for sign up", s, "litleaves23@gmail.com", [request.session['email']], fail_silently=False)
 
-from django.contrib.auth import authenticate, login
+
 
 @never_cache
 def otp_verification(request):
     if request.method == 'POST':
         otp_ = request.POST.get("otp")
-        if otp_ == request.session["otp"]:
-            encrypted_password = make_password(request.session['password'])
-            user = User(
-                username=request.session['username'],
-                email=request.session['email'],
-                password=encrypted_password,
-                first_name=request.session.get("first_name"),
-                last_name=request.session.get("last_name"),
-                mobile_number=request.session.get("mobile_number")
-            )
-            user.save()
-            login(request, user)
-            messages.info(request, 'Signed in successfully...')
-            user.is_active = True
-            return redirect('home:index')  # Assuming 'home:index' is the URL name for the home page
+        
+        # Get the OTP generation time from the session
+        otp_generated_time = request.session.get("otp_generated_time")
+
+        # Check if OTP generation time exists and is within the last 1 minute
+        if otp_generated_time and timezone.now() - timezone.datetime.fromisoformat(otp_generated_time) < timedelta(minutes=1):
+            if otp_ == request.session["otp"]:
+                encrypted_password = make_password(request.session['password'])
+                user = User(
+                    username=request.session['username'],
+                    email=request.session['email'],
+                    password=encrypted_password,
+                    first_name=request.session.get("first_name"),
+                    last_name=request.session.get("last_name"),
+                    mobile_number=request.session.get("mobile_number")
+                )
+                user.save()
+                login(request, user)
+                messages.info(request, 'Signed in successfully...')
+                user.is_active = True
+                return redirect('home:index')  # Assuming 'home:index' is the URL name for the home page
+            else:
+                messages.error(request, "OTP doesn't match")
         else:
-            messages.error(request, "OTP doesn't match")
-            return render(request, 'userauths/otp.html')
+            messages.error(request, "OTP has expired. Please request a new OTP.")
+            
+        return render(request, 'userauths/otp.html')
 
         
        

@@ -62,34 +62,67 @@
 
                         <div class="tab-pane fade show active" id="register-2" role="tabpanel"
                             aria-labelledby="register-tab-2">
-                            {% if form.errors %}
+                            <!-- {% if form.errors %}
                             <div class="alert alert-danger" >
                              <strong>{{form.errors}}</strong>
                             </div>
-                            {% endif %}
+                            {% endif %} -->
                             <form action="" method="post">
-                               {% csrf_token %}
+                                {% csrf_token %}
+                            
                                 <div class="form-group">
-                                    {{form.username}}
-                                </div> 
-                   
-                                <div class="form-group">
-                                    {{form.first_name}}
-                                </div> 
-                                <div class="form-group">
-                                    {{form.last_name}}
-                                </div> 
-                                <div class="form-group">
-                                    {{form.email}}
-                                </div> 
-                                <div class="form-group">
-                                    {{form.password1}}
-                                </div> 
-                                <div class="form-group">
-                                    {{form.password2}}
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                        <span class="error-message text-danger">{{ form.username.errors }}</span>
+                                    {% endif %}
                                 </div>
+                            
                                 <div class="form-group">
-                                    {{form.mobile_number}}
+                                    
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <span class="error-message text-danger">{{ form.first_name.errors }}</span>
+                                    {% endif %}
+                                </div>
+                            
+                                <div class="form-group">
+                                   
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <span class="error-message text-danger">{{ form.last_name.errors }}</span>
+                                    {% endif %}
+                                </div>
+                            
+                                <div class="form-group">
+                                
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <span class="error-message text-danger">{{ form.email.errors }}</span>
+                                    {% endif %}
+                                </div>
+                            
+                                <div class="form-group">
+                                  
+                                    {{ form.password1 }}
+                                    {% if form.password1.errors %}
+                                        <span class="error-message text-danger">{{ form.password1.errors }}</span>
+                                    {% endif %}
+                                </div>
+                            
+                                <div class="form-group">
+                                   
+                                    {{ form.password2 }}
+                                    {% if form.password2.errors %}
+                                        <span class="error-message text-danger">{{ form.password2.errors }}</span>
+                                    {% endif %}
+                                </div>
+                            
+                                <div class="form-group">
+                                   
+                                    {{ form.mobile_number }}
+                                    {% if form.mobile_number.errors %}
+                                        <span class="error-message text-danger">{{ form.mobile_number.errors }}</span>
+                                    {% endif %}
                                 </div>
                             
                                 <div class="form-footer">
@@ -97,15 +130,9 @@
                                         <span>SIGN UP</span>
                                         <i class="icon-long-arrow-right"></i>
                                     </button>
-
-
-
-
-
-
-
                                 </div><!-- End .form-footer -->
                             </form>
+                            
                             <div class="text-center">
                                 <span>&nbsp;&nbsp;&nbsp;&nbsp;Already have an account?</span>
                                 <a href="{% url 'userauths:sign-in' %}">Login</a>
@@ -119,11 +146,6 @@
     </div><!-- End .login-page section-bg -->
 </main><!-- End .main -->
 
-<!-- <form action="" method="POST">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">Register</button>
-</form> -->
 
 
 <footer class="footer footer-2">

@@ -112,7 +112,16 @@ def addd_products(request):
         price = request.POST.get('price')
         category_id = request.POST.get('category')
         stock = request.POST.get('stock')
-
+        
+        if int(price) <= 0:
+            messages.error(request, "Enter a valid price !")
+            return redirect('admin_panel:add_products')
+        
+        if int(stock) < 0:
+            messages.error(request, "Invalid Stock Entry !")
+            return redirect('admin_panel:add_products')
+      
+       
         category = Categories.objects.get(pk=category_id)
 
         product = Product.objects.create(
@@ -273,19 +282,6 @@ def delete_category(request, category_id):
 
     return redirect('admin_panel:category')
  
-# def delete_category(request, category_id):
-#     if request.method == 'POST':
-#         try:
-#             category = Categories.objects.get(pk=category_id)
-#             category.delete()
-#             messages.success(request, 'Category deleted successfully.')
-#         except Categories.DoesNotExist:
-#             messages.error(request, 'Category not found.')
-#     else:
-#         messages.error(request, 'Invalid request method')  # Add this line for debugging
-
-#     return redirect('admin_panel:category')
-
     
 def block_user(request, user_id):
     user = User.objects.get(pk=user_id)

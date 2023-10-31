@@ -33,6 +33,19 @@
     <link rel="stylesheet" href="{% static 'assets/css/plugins/nouislider/nouislider.css' %}">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <style>
+        .out-of-stock {
+            color: red; /* Style the out of stock text in red */
+            font-weight: bold; /* Make it bold */
+        }
+        .units-left {
+            color: red; /* Style the few units left text in orange */
+            font-weight: bold; /* Make it bold */
+        }
+    </style>
+    
+
 </head>
 
 <body>
@@ -384,7 +397,7 @@
 
                             <div class="col-md-6">
                                 <div class="product-details">
-                                    <h1 class="product-title">{{ product.name }}</h1><!-- End .product-title -->
+                                    <h1 id="product-title">{{ product.name }}</h1><!-- End .product-title -->
 
                                     <div class="ratings-container">
                                         <div class="ratings">
@@ -394,31 +407,45 @@
                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price">
-                                        ${{ product.price }}
+                                        <span>$</span><span id="product-price" >{{ product.price }}</span>
                                     </div><!-- End .product-price -->
 
                                     <div class="product-content">
                                         <p>by {{ product.author }} </p>
                                     </div><!-- End .product-content -->
 
+                                    <div class="product-content">
+                                        <input type="hidden" value="{{ product.id }}" class="product-id" >
+                                    </div><!-- End .product-content -->
+
                                    
-
-
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                            {% if product.stock > 0 %}
+                                                <input type="number" id="product-quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" step="1" data-decimals="0" required>
+                                            {% else %}
+                                                <p class="out-of-stock">Out of Stock</p>
+                                            {% endif %}
+                                            {% if product.stock <= 5 and product.stock > 0 %}
+                                                <p class="units-left">Only a Few Units Left</p>
+                                            {% endif %}
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
-
-                                    <div class="product-details-action">
-                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-
+                                    
+                                    <div class="product-details-action" style="{% if product.stock <= 0 %}display: none;{% endif %}">
+                                        <a href="#" class="btn-product btn-cart " id="add-to-cart-btn">
+                                            <span  id="add-to-cart-btn" >add to cart</span>
+                                        </a>
+                                    
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                             <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
+                                    
+                                    
+                                    
 
                                     <div class="product-details-footer">
                                         <div class="product-cat">
@@ -884,6 +911,8 @@
 
     <!-- Plugins JS File -->
     <script src="{% static '/assets/js/jquery.min.js' %}"></script>
+    {% comment %} arshad link akkiya saanam {% endcomment %}
+    <script src="{% static '/assets/js/script.js' %}"></script>
     <script src="{% static '/assets/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static '/assets/js/jquery.hoverIntent.min.js' %}"></script>
     <script src="{% static '/assets/js/jquery.waypoints.min.js' %}"></script>
