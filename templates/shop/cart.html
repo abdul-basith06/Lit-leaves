@@ -40,13 +40,13 @@
 											<td class="product-col">
 												<div class="product">
 													<figure class="product-media">
-														<a href="#">
+														<a href="{% url 'shop:product' i.product.id %}">
 															<img src="{{ i.product.productimage_set.first.image.url }}" alt="Product image">
 														</a>
 													</figure>
 
 													<h3 class="product-title">
-														<a href="#">{{ i.product.name }}</a>
+														<a href="{% url 'shop:product' i.product.id %}">{{ i.product.name }}</a>
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
@@ -72,7 +72,12 @@
 											
                                             
 											<td class="total-col mx-auto">${{ i.get_total }}</td>
-											<td class="remove-col"><button class="btn-remove"><i class="icon-close"></i></button></td>
+											<td class="remove-col">
+												<button class="btn-remove" data-product="{{ i.product.id }}">
+													<i class="icon-close"></i>
+												</button>
+											</td>
+											
 										</tr>
                                         {% endfor  %}
 									</tbody>

@@ -1,6 +1,7 @@
 import json
 from django.http import JsonResponse
 from .models import *
+from django.db import transaction
 from imaplib import _Authenticator
 import random
 from django.shortcuts import render, redirect
@@ -87,6 +88,7 @@ def cart(request):
 
     return render(request, 'shop/cart.html', context)
     
+@transaction.atomic    
 def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
@@ -100,17 +102,49 @@ def updateItem(request):
     
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
     if action == 'add':
-        orderItem.quantity += 1
+            orderItem.quantity += 1
+            product.stock -= 1
     elif action == 'remove':
-         orderItem.quantity -= 1
+        orderItem.quantity -= 1
+        product.stock += 1
          
-    orderItem.save()     
+    orderItem.save()   
+    product.save()  
     
     if orderItem.quantity <= 0:
         orderItem.delete() 
         
     return JsonResponse("Item was added", safe=False)
-#  return render(request, 'shop/maanyam.html')
+
+  
+  
+
+def clearItem(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            productId = data['productId']
+
+            # Fetch the user's cart
+            customer = request.user
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
+
+            # Get the specific item to be removed
+            product = Product.objects.get(pk=productId)
+
+            # Check if the item exists in the cart
+            try:
+                orderItem = OrderItem.objects.get(order=order, product=product)
+
+                product.stock += orderItem.quantity
+                product.save()
+                orderItem.delete()
+                return JsonResponse("Item was removed from the cart", safe=False)
+
+            except OrderItem.DoesNotExist:
+                return JsonResponse("Item not found in the cart", safe=False)
+
+    return JsonResponse("You must be logged in to perform this action", safe=False)
   
   
 

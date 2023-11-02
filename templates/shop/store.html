@@ -60,10 +60,13 @@
                                                         title="Compare"><span>Compare</span></span>
                                                 </div><!-- End .product-action-vertical -->
                                                 <div class="product-action">
-                                                    <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">
-                                                        Add to Cart
-                                                    </button>
-                                                </div><!-- End .product-action -->
+                                                    {% if product.stock > 0 %}
+                                                        <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">
+                                                            Add to Cart
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                                
                                                 
                                             </figure><!-- End .product-media -->
                                             <div class="product-body">

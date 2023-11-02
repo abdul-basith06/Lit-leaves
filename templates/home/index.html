@@ -194,7 +194,12 @@
                                                 <span class="ratings-text">(3 Reviews )</span>
                                             </div>
                                             <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                {% comment %} <a href="#" class="btn-product btn-cart">
+                                                    <button data-product="{{product.id}}" data-action="add" class="update-cart">
+                                                        Add to Cart
+                                                    </button>
+                                                </a> {% endcomment %}
+                                                
                                                 <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
                                             </div>
                                         </div>
