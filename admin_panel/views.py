@@ -300,20 +300,6 @@ def admin_dash(request):
     return render(request, 'admin_panel/admin_dash.html')
 
 
-# def search_users(request):
-#     search_query = request.GET.get('search_query')
-#     users = User.objects.filter(Q(username__icontains=search_query) | Q(email__icontains=search_query))
-#     context = {'users': users}
-#     return render(request, 'admin_panel/search_users.html', context)
-
-# @login_required(login_url='admin_panel:admin_login')
-# def user_management(request):
-#     cus = User.objects.all()
-#     context = {
-#         'cus' : cus,
-#     }
-#     return render(request, 'admin_panel/user_manage.html',context)
-
 @login_required(login_url='admin_panel:admin_login')
 def user_management(request):
     search_query = request.GET.get('key')

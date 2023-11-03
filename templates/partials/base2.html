@@ -34,6 +34,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
    
     <style>
+        .image-label {
+            text-align: center;
+        }
+    
+        .btn-update-avatar {
+            font-size: 14px; /* Adjust the font size to make the button smaller */
+            margin-top: 5px; /* Adjust margin-top to align it below the label image */
+        }
         .out-of-stock {
             color: red; /* Style the out of stock text in red */
             font-weight: bold; /* Make it bold */
@@ -42,6 +50,24 @@
             color: red; /* Style the few units left text in orange */
             font-weight: bold; /* Make it bold */
         }
+       
+            .profile-nav-tabs{
+             background: #F3F3F9;
+             color: #000;
+             border-radius: 7px;
+             padding-left: 2rem;
+             margin-bottom: 5px;
+             border: 0.1px solid #c0bfbf;
+            }
+            
+            .profile-inputs{
+                color: #000;
+                border: 0.1px solid #c0bfbf; 
+                border-radius: 7px;
+                background: #F3F3F9;
+            }
+            
+            
         
     </style>
 <script>
@@ -631,6 +657,7 @@
 
 {% comment %} arshad link akkiya saanam {% endcomment %}
 <script src="{% static '/assets/js/cart.js' %}"></script>
+<script src="{% static '/assets/js/dashboard.js' %}"></script>
 <script src="{% static '/assets/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static '/assets/js/jquery.hoverIntent.min.js' %}"></script>
 <script src="{% static '/assets/js/jquery.waypoints.min.js' %}"></script>
@@ -642,6 +669,8 @@
 <script src="{% static '/assets/js/jquery.magnific-popup.min.js' %}"></script>
 <!-- Main JS File -->
 <script src="{% static '/assets/js/main.js' %}"></script>
+
+
 </body>
 
 
