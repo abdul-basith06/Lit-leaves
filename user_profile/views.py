@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, render
 from admin_panel.models import *
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
 from .forms import *
 from shop.models import *
 from .models import *
@@ -31,6 +33,27 @@ def update_avatar(request):
 
     return render(request, 'user_profile/dashboard.html')
 
+
+def editpassword(request):
+    if request.method == 'POST':
+        old_password = request.POST['oldPassword']
+        new_password = request.POST['newPassword']
+
+        user = request.user
+
+        # Check if the old password is correct
+        if user.check_password(old_password):
+            # Set the new password and update the session
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)  # To prevent the user from being logged out
+
+            messages.success(request, 'Password changed successfully.')
+            return redirect('user_profile:dashboard')
+        else:
+            messages.error(request, 'Incorrect old password. Password not changed.')
+
+    return render(request, 'user_profile/dashboard.html')  # You can change the template to where you want to redirect
 
 def editprofile(request):
     if request.method == 'POST':

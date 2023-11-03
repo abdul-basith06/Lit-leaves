@@ -251,34 +251,28 @@
                                         <h6 class=" fs-1 font-monospace  ">Change Password</h6>
 
                                         <!-- display the user data on profile page -->
-                                        <form action="" method="post">
+                                        <form action="{% url 'user_profile:editpassword' %}" method="post">
+                                            {% csrf_token %}
                                             <div class="form-group">
-                                                <!-- Hidden file input -->
-
-
-                                                <!-- Dummy user profile image, which is also a clickable link to trigger file input -->
-
-
                                                 <div class="row">
                                                     <div class="col-sm-6">
-                                                        <label>Current Password </label>
-                                                        <input type="password" name="oldPassword" class="profile-inputs form-control"
-                                                            required>
-
+                                                        <label>Current Password</label>
+                                                        <input type="password" name="oldPassword" class="profile-inputs form-control" required>
                                                     </div><!-- End .col-sm-6 -->
-
+                                        
                                                     <div class="col-sm-6">
-                                                        <label>Create New Password </label>
-                                                        <input type="password" name="newPassword" class="form-control profile-inputs"
-                                                            required>
+                                                        <label>New Password</label>
+                                                        <input type="password" name="newPassword" class="form-control profile-inputs" required>
                                                     </div><!-- End .col-sm-6 -->
                                                 </div><!-- End .row -->
-
+                                        
                                                 <button type="submit" class="btn btn-outline-primary-login">
                                                     <span>CHANGE PASSWORD</span>
                                                     <i class="icon-long-arrow-right"></i>
                                                 </button>
+                                            </div>
                                         </form>
+                                        
                                     </div><!-- .End .tab-pane -->
 
 
