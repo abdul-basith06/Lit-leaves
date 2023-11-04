@@ -1,6 +1,7 @@
 import json
 from django.http import JsonResponse
 from .models import *
+from user_profile.models import *
 from django.db import transaction
 from imaplib import _Authenticator
 import random
@@ -147,4 +148,48 @@ def clearItem(request):
     return JsonResponse("You must be logged in to perform this action", safe=False)
   
   
+def checkout(request):
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()  # Correctly access order items
+        cartItems = order.get_cart_items
+        address = ShippingAddress.objects.filter(user=customer)
+        context = {
+            'address' : address,
+            'items' : items,
+            'order' : order,
+            'cartItems': cartItems,
+        }
+    return render(request, 'shop/checkout.html', context)
 
+def addaddress(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        address_line = request.POST.get('address_line')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        pin_code = request.POST.get('pin_code')
+        country = request.POST.get('country')
+        mobile = request.POST.get('mobile')
+        status = request.POST.get('status') == 'on'
+        
+        new_address = ShippingAddress(
+            user=request.user, 
+            full_name=full_name,
+            address_lines=address_line,
+            city=city,
+            state=state,
+            pin_code=pin_code,
+            country=country,
+            mobile=mobile,
+            status=status
+        )
+        new_address.save()
+        return redirect('shop:checkout')
+
+    
+    context = {
+        
+    }
+    return render(request, 'shop/checkout.html', context)

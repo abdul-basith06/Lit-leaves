@@ -24,3 +24,17 @@ class UserProfile(models.Model):
                 img.thumbnail(output_size)
                 img.save(self.dp.path)
     
+class ShippingAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    full_name = models.CharField(max_length=255)
+    address_lines = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=255, null=True, blank=True)
+    state = models.CharField(max_length=255, null=True, blank=True)
+    pin_code = models.CharField(max_length=10, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    mobile = models.CharField(max_length=15)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.full_name
+    

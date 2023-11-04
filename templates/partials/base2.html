@@ -32,8 +32,24 @@
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/nouislider/nouislider.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-   
+   <!-- Add these to your HTML header -->
+{% comment %} <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> {% endcomment %}
+
     <style>
+        #add-address-button {
+            max-width: 150px; /* Adjust the value as needed */
+            width: auto; /* Allow the width to adapt to the text */
+        }
+        
+            .address-box {
+                border: 1px solid #ccc;
+                padding: 20px;
+                margin: 10px 0;
+            }
+        
         .image-label {
             text-align: center;
         }
