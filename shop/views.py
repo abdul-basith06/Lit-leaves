@@ -44,7 +44,7 @@ def store(request):
         
     context = {
         'products': products,
-        'cartItems': cartItems,
+        # 'cartItems': cartItems,
     }    
 
     return render(request, 'shop/store.html', context)
@@ -163,6 +163,7 @@ def checkout(request):
         }
     return render(request, 'shop/checkout.html', context)
 
+
 def addaddress(request):
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
@@ -193,3 +194,90 @@ def addaddress(request):
         
     }
     return render(request, 'shop/checkout.html', context)
+
+def generate_transaction_id():
+    return random.randint(1000000000, 9999999999)
+
+def place_order(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            # Get form data
+            selected_address_id = request.POST.get('selected_address')
+            order_notes = request.POST.get('order_notes')
+            selected_address = ShippingAddress.objects.get(id=selected_address_id)
+
+            # Generate a transaction ID (you can customize this part)
+            transaction_id = generate_transaction_id()
+
+            # Create the order
+            order = Order(
+                customer=request.user,  # Assuming you have an authenticated user
+                payment_method='COD',  # Change this to the actual payment method
+                order_notes=order_notes,
+                shipping_address=selected_address,
+                transaction_id=transaction_id
+            )
+            cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
+            order.save()
+            order.complete = True
+            order.save()
+            
+            # Move cart items to the new order
+            for cart_item in cart_items:
+                cart_item.order = order  # Change the order to the new one
+                cart_item.save()
+           
+            messages.success(request, 'Your order has been placed successfully!')
+            return redirect('shop:orderplaced')
+
+    return render(request, "checkout.html")
+
+def order_placed_view(request):
+    return render(request, 'shop/orderplaced.html')
+
+# def place_order(request):
+#     if request.user.is_authenticated:
+#         if request.method == 'POST':
+#         # Get form data
+#             selected_address_id = request.POST.get('selected_address')
+#             order_notes = request.POST.get('order_notes')
+#             selected_address = ShippingAddress.objects.get(id=selected_address_id)
+
+#         # Generate a transaction ID (you can customize this part)
+#             transaction_id = generate_transaction_id()
+
+#         # Create the order
+#             order = Order(
+#                 customer=request.user,  # Assuming you have an authenticated user
+#             # Use the selected_address here if you have an Address model
+#                 payment_method='COD',  # Change this to the actual payment method
+#                 order_notes=order_notes,
+#                 shipping_address=selected_address,
+#                 transaction_id=transaction_id
+#             # You may need to set other fields here
+#             )
+#             order.save()
+#             order.complete = True
+#             order.save()
+            
+#             cart_items =OrderItem.objects.filter(order=order)
+            
+#             for cart_item in cart_items:
+#                 order_item = OrderItem(
+#                     product=cart_item.product,
+#                     order=order,
+#                     quantity=cart_item.quantity
+#                 )
+#                 order_item.save()
+
+#             # Clear the user's cart (you need to implement this part)
+#             OrderItem.objects.filter(order=order).delete()
+
+#         # Optionally, you can add the ordered items to the order here
+
+#         # After creating the order, you can display a success message or redirect to an order summary page
+#             messages.success(request, 'Your order has been placed successfully!')
+#             return redirect('shop:store')  # Redirect to the order summary page
+   
+
+#     return render(request, "checkout.html")

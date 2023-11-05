@@ -68,3 +68,11 @@ function clearCartItem(productId) {
 }
 
 
+
+    var animation = bodymovin.loadAnimation({
+        container: document.getElementById('animContainer'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'https://lottie.host/87abf9d2-a834-4f06-b667-26985786b0ba/0vh9JAhgi8.json' // lottie file path
+    })

@@ -179,7 +179,6 @@ def products(request):
 
 
 @login_required(login_url='admin_panel:admin_login')
-
 def category(request):
     search_query = request.GET.get('key')  # Get the search query from the request
     cat1 = Categories.objects.all()
@@ -295,9 +294,6 @@ def unblock_user(request, user_id):
     user.save()
     return redirect('admin_panel:user_management')
 
-@login_required(login_url='admin_panel:admin_login')
-def admin_dash(request):
-    return render(request, 'admin_panel/admin_dash.html')
 
 
 @login_required(login_url='admin_panel:admin_login')
@@ -313,3 +309,8 @@ def user_management(request):
         'search_query': search_query,
     }
     return render(request, 'admin_panel/user_manage.html', context)
+
+
+@login_required(login_url='admin_panel:admin_login')
+def admin_dash(request):
+    return render(request, 'admin_panel/admin_dash.html')

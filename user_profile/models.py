@@ -10,10 +10,6 @@ class UserProfile(models.Model):
     dp = models.ImageField(upload_to='images/dp/', blank=True, null=True)
     bio = models.CharField(max_length=200, null=True, blank=True)
     
-    
-    def __str__(self):
-        return self.full_name
-    
     def save(self, *args, **kwargs):
         super(UserProfile, self).save(*args, **kwargs)
 

@@ -7,18 +7,12 @@ from shop.models import *
 from .models import *
 from django.http import HttpResponse  # Import HttpResponse from django.http
 
-def dashboard(request):
-    if request.user.is_authenticated:
-        customer = request.user
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()  # Correctly access order items
-        cartItems = order.get_cart_items
+def dashboard(request):   
     try:
         profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
         profile = None   
     context = {
-        'cartItems' : cartItems,
         'profile' : profile,
     }
     return render(request, 'user_profile/dashboard.html', context)
