@@ -32,6 +32,10 @@ def store(request):
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     products = Product.objects.filter(is_active=True)  # Fetch only active products
+    
+    for product in products:
+        product.in_cart = any(item.product == product for item in items)
+
     paginator = Paginator(products, 9)  # Show 9 active products per page
 
     page = request.GET.get('page')
@@ -44,7 +48,7 @@ def store(request):
         
     context = {
         'products': products,
-        # 'cartItems': cartItems,
+        'cartItems': cartItems,
     }    
 
     return render(request, 'shop/store.html', context)
@@ -61,13 +65,25 @@ def product(request, product_id):
     selected_product = Product.objects.get(pk=product_id)
     category = selected_product.category
 
-    # Query related products from the same category, excluding the selected product
+    
     related_products = Product.objects.filter(category=category).exclude(pk=selected_product.id)[:4]
-
+    is_in_cart = False
+    for item in items:
+        if item.product.id == selected_product.id:
+            is_in_cart = True
+            break
+    related_products_in_cart = []
+    for related_product in related_products:
+        for item in items:
+            if item.product.id == related_product.id:
+                related_products_in_cart.append(related_product)
+                break    
     context = {
         'product': selected_product,
         'related_products': related_products,
         'cartItems': cartItems,
+        'is_in_cart': is_in_cart,
+        'related_products_in_cart': related_products_in_cart,
     }
 
     return render(request, 'shop/product.html', context)
@@ -165,6 +181,11 @@ def checkout(request):
 
 
 def addaddress(request):
+
+    return render(request, 'shop/addaddress.html')
+
+
+def update_address(request):
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
         address_line = request.POST.get('address_line')
@@ -174,9 +195,11 @@ def addaddress(request):
         country = request.POST.get('country')
         mobile = request.POST.get('mobile')
         status = request.POST.get('status') == 'on'
+
         
-        new_address = ShippingAddress(
-            user=request.user, 
+        user = request.user  
+        address = ShippingAddress(
+            user=user,
             full_name=full_name,
             address_lines=address_line,
             city=city,
@@ -186,14 +209,12 @@ def addaddress(request):
             mobile=mobile,
             status=status
         )
-        new_address.save()
+        address.save()
+        messages.success(request, 'Address added successfully.')
+
         return redirect('shop:checkout')
 
-    
-    context = {
-        
-    }
-    return render(request, 'shop/checkout.html', context)
+    return render(request, 'addaddress.html')
 
 def generate_transaction_id():
     return random.randint(1000000000, 9999999999)

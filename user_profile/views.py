@@ -5,17 +5,22 @@ from django.contrib import messages
 from .forms import *
 from shop.models import *
 from .models import *
-from django.http import HttpResponse  # Import HttpResponse from django.http
+from django.http import Http404, HttpResponse  # Import HttpResponse from django.http
 
-def dashboard(request):   
-    try:
-        profile = UserProfile.objects.get(user=request.user)
-    except UserProfile.DoesNotExist:
-        profile = None   
-    context = {
-        'profile' : profile,
-    }
-    return render(request, 'user_profile/dashboard.html', context)
+def dashboard(request):
+    if request.user.is_authenticated:
+        profile = None  # Initialize to None to handle exceptions
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            pass  # Handle the case when the profile does not exist
+
+        context = {
+            'profile': profile,
+        }
+        return render(request, 'user_profile/dashboard.html', context)
+
+    raise Http404("User is not authenticated")  # Handle the case when the user is not authenticated
 
 
 def update_avatar(request):

@@ -45,7 +45,7 @@
                                                 <span class="product-label label-sale">Out of stock</span>
                                                 {% endif %}
                                                 {% if product.stock <= 5 and product.stock > 0 %}
-                                                <span class="product-label label-sale">Only Few Unites Left</span>
+                                                <span class="product-label label-sale">Only Few Units Left</span>
                                             {% endif %}
                                                 <a href="{% url 'shop:product' product.id %}">
                                                 <img src="{{ product.productimage_set.first.image.url }}"
@@ -61,11 +61,14 @@
                                                 </div><!-- End .product-action-vertical -->
                                                 <div class="product-action">
                                                     {% if product.stock > 0 %}
-                                                        <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">
-                                                            Add to Cart
-                                                        </button>
+                                                        {% if product.in_cart %}
+                                                            <button class="btn">&#10004; Item already in cart</button>
+                                                        {% else %}
+                                                            <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">Add to Cart</button>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </div>
+                                                
                                                 
                                                 
                                             </figure><!-- End .product-media -->

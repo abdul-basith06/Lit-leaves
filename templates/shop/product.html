@@ -80,7 +80,7 @@
                                     </div><!-- End .product-content -->
 
                                     <div class="product-content">
-                                        <input  value="{{ product.id }}" class="product-id" >
+                                        <input type='hidden' value="{{ product.id }}" class="product-id" >
                                     </div><!-- End .product-content -->
 
                                    
@@ -88,7 +88,7 @@
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
                                             {% if product.stock > 0 %}
-                                                <input type="number" id="product-quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" step="1" data-decimals="0" required>
+                                                <input type="hidden" id="product-quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" step="1" data-decimals="0" required>
                                             {% else %}
                                                 <p class="out-of-stock">Out of Stock</p>
                                             {% endif %}
@@ -99,14 +99,18 @@
                                     </div><!-- End .details-filter-row -->
                                     
                                     <div class="product-details-action" style="{% if product.stock <= 0 %}display: none;{% endif %}">
-                                        <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">
-                                            Add to Cart
-                                        </button>
-                                        
+                                        {% if is_in_cart %}
+                                            <button class="btn">&#10004; Item already in cart</button>
+                                        {% else %}
+                                            <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">Add to Cart</button>
+                                        {% endif %}
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
+                                    
+                                    
+                                    
                                     
                                     
                                     
@@ -269,12 +273,16 @@
                                 <img src="{{ related_product.productimage_set.first.image.url }}" alt="{{ related_product.name }}" class="product-image">
                             </a>
                             <div class="product-action-vertical">
-                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
                                 <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
                                 <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
                             </div><!-- End .product-action-vertical -->
                             <div class="product-action">
-                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                {% if related_product in related_products_in_cart %}
+                                    <button class="btn">&#10004; Item already in cart</button>
+                                {% else %}
+                                    <a href="#" data-product="{{related_product.id}}" data-action="add" class="btn-product btn-cart update-cart"><span>Add to Cart</span></a>
+                                {% endif %}
                             </div><!-- End .product-action -->
                         </figure><!-- End .product-media -->
                         <div class="product-body">
@@ -287,10 +295,43 @@
                             </div>
                         </div><!-- End .product-body -->
                     </div><!-- End .product -->
-                    {% endfor %}
+                {% endfor %}
+                
+                
                 </div>
                 
-                
+         <!-- Sticky Bar -->
+<div class="sticky-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <figure class="product-media">
+                    <a href="product.html">
+                        <img src="{{ product.productimage_set.first.image.url }}" alt="Product image">
+                    </a>
+                </figure><!-- End .product-media -->
+                <h4 class="product-title"><a href="product.html">{{ product.name }}</a></h4><!-- End .product-title -->
+            </div><!-- End .col-6 -->
+    
+            <div class="col-6 justify-content-end">
+                <div class="product-price">
+                    ${{ product.price }}
+                </div><!-- End .product-price -->
+               
+    
+                <div class="product-details-action">
+                    {% if is_in_cart %}
+                        <button class="btn">&#10004; Item already in cart</button>
+                    {% else %}
+                        <a href="#" data-product="{{ product.id }}" data-action="add" class="btn-product btn-cart update-cart"><span>Add to Cart</span></a>
+                    {% endif %}
+                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                </div><!-- End .product-details-action -->
+            </div><!-- End .col-6 -->
+        </div><!-- End .row -->
+    </div><!-- End .container -->
+</div><!-- End .sticky-bar -->
+
                 
             </div><!-- End .page-content -->
         </main><!-- End .main -->

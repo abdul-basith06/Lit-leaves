@@ -1,0 +1,51 @@
+{% extends 'partials/base2.html' %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form action="{% url 'shop:update_address' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="address_line" class="form-label">Address Line</label>
+                    <textarea class="form-control" id="address_line" name="address_line"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city">
+                </div>
+
+                <div class="mb-3">
+                    <label for "state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state" name="state">
+                </div>
+
+                <div class="mb-3">
+                    <label for="pin_code" class="form-label">Pin Code</label>
+                    <input type="text" class="form-control" id="pin_code" name="pin_code" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country *</label>
+                    <input type="text" class="form-control" id="country" name="country" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="mobile" class="form-label">Mobile *</label>
+                    <input type="text" class="form-control" id="mobile" name="mobile" required>
+                </div>
+
+                <div class="modal-footer">
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" data-dismiss="modal">Close</a>
+                    <button type="submit" class="btn btn-outline-primary-2" style="border-radius: 7px; background: #000; color: #fff;">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
