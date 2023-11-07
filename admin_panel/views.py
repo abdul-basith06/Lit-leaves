@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render,redirect
 from .models import *
 from userauths.models import User
@@ -153,14 +154,50 @@ def add_products(request):
     } 
     return render(request, 'admin_panel/add_products.html',context)
 
-# @login_required(login_url='admin_panel:admin_login')
-# def products(request):
-#     pro1 = Product.objects.all()
+@login_required(login_url='admin_panel:admin_login')
+
+
+def product_variation(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    languages = Language.objects.all()  # Query all languages
+    context = {
+        'product': product,
+        'languages' : languages,
+    }
     
-#     context = {
-#         'pro1': pro1,
-#     }
-#     return render(request, 'admin_panel/products.html',context)
+    return render(request, 'admin_panel/product_variation.html', context)
+
+def edit_stock_variation(request, variation_id):
+    try:
+        product_variation = ProductLanguageVariation.objects.get(pk=variation_id)
+    except ProductLanguageVariation.DoesNotExist:
+        raise Http404("Product Variation does not exist")
+
+    if request.method == 'POST':
+        # Update the stock and language fields
+        product_variation.stock = request.POST['stock']
+        product_variation.language_id = request.POST['language']
+        product_variation.save()
+        return redirect('admin_panel:product_variation', product_id=product_variation.product.id)  # Redirect to the product variations page
+
+    context = {
+        'product_variation': product_variation,
+    }
+
+    return render(request, 'admin_panel/product_variation.html', context)
+
+
+def add_variant(request, product_id):
+    if request.method == 'POST':
+        product = Product.objects.get(pk=product_id)
+        language_id = request.POST['language']
+        stock = request.POST['stock']
+        ProductLanguageVariation.objects.create(product=product, language_id=language_id, stock=stock)
+        return redirect('admin_panel:product_variation', product_id=product_id)
+
+    return render(request, 'admin_panel/product_variation.html')  
+
+
 
 @login_required(login_url='admin_panel:admin_login')
 def products(request):
@@ -169,6 +206,11 @@ def products(request):
 
     if search_query:
         pro1 = pro1.filter(Q(name__icontains=search_query))
+        
+        
+     # Fetch ProductLanguageVariation data for each product
+    # for product in pro1:
+    #     product.variations = product.productlanguagevariation_set.all()    
 
     context = {
         'pro1': pro1,

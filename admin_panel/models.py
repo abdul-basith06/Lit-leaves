@@ -22,6 +22,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     author = models.CharField(max_length=100, default='basi')
+    price = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
     is_active = models.BooleanField(default=True)
     
@@ -32,8 +33,7 @@ class Product(models.Model):
 
 class ProductLanguageVariation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
-    price = models.PositiveIntegerField(default=1)
+    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)  
     stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):

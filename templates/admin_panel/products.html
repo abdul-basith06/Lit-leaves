@@ -414,22 +414,20 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <h4 class="card-title">All Products</h4>
-                                            <a href="{% url 'admin_panel:add_products' %}"
-                                                class="btn btn-outline-success">
+                                            <a href="{% url 'admin_panel:add_products' %}" class="btn btn-outline-success">
                                                 &nbsp;<b>+</b>&nbsp;Add Product
                                             </a>
                                         </div>
-
-
-
-
+                
                                         <hr class="white-line my-4">
                                         <div class="mb-5">
                                             <ul class="navbar-nav w-100">
                                                 <li class="nav-item w-100">
-                                                    <form action="{% url 'admin_panel:products' %}" method="get" class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
+                                                    <form action="{% url 'admin_panel:products' %}" method="get"
+                                                        class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
                                                         {% csrf_token %}
-                                                        <input type="text" name="key" class="form-control mb-1 text-light" placeholder="Search Products">
+                                                        <input type="text" name="key" class="form-control mb-1 text-light"
+                                                            placeholder="Search Products">
                                                         <button type="submit" class="btn-inverse-info mb-1">Search</button>
                                                     </form>
                                                 </li>
@@ -444,9 +442,9 @@
                                                         <th>Category</th>
                                                         <th>Author</th>
                                                         <th>Price</th>
-                                                        <th>Stock Status</th>
                                                         <th>Edit</th>
                                                         <th>Status</th>
+                                                        <th>Languages</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -462,27 +460,24 @@
                                                         <td>{{ product.author }}</td>
                                                         <td>{{ product.price }}</td>
                                                         <td>
-                                                            {% if product.stock <= 0 %} <span
-                                                                class="text-danger text-center">Out Of Stock</span>
-                                                                {% else %}
-                                                                <span
-                                                                    class="text-success text-center">{{product.stock}}</span>
-                                                                {% endif %}
+                                                            <a href="{% url 'admin_panel:edit_products' product.id %}"
+                                                                class="btn btn-inverse-info">Edit Product</a>
                                                         </td>
-                                                        <td>
-                                                            <a href="{% url 'admin_panel:edit_products' product.id %}" class="btn btn-inverse-info">Edit Product</a>
-                                                        </td>
-                                                        
-                                                        
+                
                                                         <td>
                                                             {% if product.is_active %}
-                                                                <a href="{% url 'admin_panel:unlist_product' product.id %}" class="badge badge-danger">Unlist</a>
+                                                                <a href="{% url 'admin_panel:unlist_product' product.id %}"
+                                                                    class="badge badge-danger">Unlist</a>
                                                             {% else %}
-                                                                <a href="{% url 'admin_panel:list_product' product.id %}" class="badge badge-success">List</a>
+                                                                <a href="{% url 'admin_panel:list_product' product.id %}"
+                                                                    class="badge badge-success">List</a>
                                                             {% endif %}
                                                         </td>
-                                                        
-
+                                                        <td>
+                                                            <a href="{% url 'admin_panel:product_variation' product.id %}" class="btn btn-inverse-info">
+                                                                View Languages
+                                                            </a>                                                                                                                                                                            
+                                                        </td>
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
@@ -494,7 +489,7 @@
                         </div>
                     </div>
                 </div>
-              
+                
                 <!-- table comes here  -->
                 <!-- basic table  -->
 
