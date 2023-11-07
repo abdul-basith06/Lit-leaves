@@ -23,6 +23,7 @@
 	                <div class="container">
 	                	<div class="row">
 	                		<div class="col-lg-9">
+								{% if items %}
 	                			<table class="table table-cart table-mobile">
 									<thead>
 										<tr>
@@ -82,6 +83,9 @@
                                         {% endfor  %}
 									</tbody>
 								</table><!-- End .table table-wishlist -->
+								{% else %}
+                                   <h1>Your cart is empty</h1>
+								{% endif %}
 
 	                			<div class="cart-bottom">
 			            			<div class="cart-discount">
@@ -155,10 +159,15 @@
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->
 
-	                				<a href="{% url 'shop:checkout' %}" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
+	                				<!-- Check if the cart is not empty to enable the button -->
+                                    {% if items %}
+                                    <a href="{% url 'shop:checkout' %}" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
+                                    {% else %}
+                                    <button class="btn btn-outline-primary-2 btn-order btn-block" disabled>PROCEED TO CHECKOUT</button>
+                                    {% endif %}
 	                			</div><!-- End .summary -->
 
-		            			<a href="category.html" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
+		            			<a href="{% url 'shop:store' %}" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
 	                		</aside><!-- End .col-lg-3 -->
 	                	</div><!-- End .row -->
 	                </div><!-- End .container -->

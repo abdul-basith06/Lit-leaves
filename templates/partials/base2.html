@@ -33,6 +33,9 @@
     <link rel="stylesheet" href="{% static 'assets/css/plugins/nouislider/nouislider.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
    <!-- Add these to your HTML header -->
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
  
 {% comment %} <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -660,6 +663,21 @@
 
 <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.5/lottie.min.js'></script>
+
+<script>
+    
+    {% if messages %}
+        var shouldDisplayError = true;
+    {% else %}
+        var shouldDisplayError = false;
+    {% endif %}
+
+    // Display the alert if necessary
+    if (shouldDisplayError) {
+        document.getElementById('error-message').style.display = 'block';
+    }
+</script>
+
 
 </body>
 

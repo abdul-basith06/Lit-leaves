@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(Categories)
 admin.site.register(Product)
 admin.site.register(ProductImage)
+admin.site.register(Language)
+admin.site.register(ProductLanguageVariation)

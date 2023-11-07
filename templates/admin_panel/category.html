@@ -1,4 +1,5 @@
-{%load static %}<! DOCTYPE html>
+{%load static %}
+<! DOCTYPE html>
     <html lang="en">
 
     <head>
@@ -435,7 +436,7 @@
                                         <th>Category Name</th>  
                                         <th>Remove</th>
                                         <th>Edit</th>
-                                        <th>Action</th>
+                                        <th>Action</th>                                     
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -539,7 +540,7 @@
                                             {% else %}
                                                 <a href="{% url 'admin_panel:unblock_category' category.id %}" class="badge badge-success">Unblock</a>
                                             {% endif %}
-                                        </td>
+                                        </td>                                                                            
                                     </tr>
                                     {% endfor %}
                                 </tbody>

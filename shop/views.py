@@ -1,5 +1,6 @@
 import json
 from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist 
 from .models import *
 from user_profile.models import *
 from django.db import transaction
@@ -141,15 +142,12 @@ def clearItem(request):
         if request.method == 'POST':
             data = json.loads(request.body)
             productId = data['productId']
-
-            # Fetch the user's cart
+           
             customer = request.user
             order, created = Order.objects.get_or_create(customer=customer, complete=False)
-
-            # Get the specific item to be removed
+        
             product = Product.objects.get(pk=productId)
-
-            # Check if the item exists in the cart
+           
             try:
                 orderItem = OrderItem.objects.get(order=order, product=product)
 
@@ -222,18 +220,27 @@ def generate_transaction_id():
 def place_order(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
-            # Get form data
+            
+            cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
+            if not cart_items:
+                messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
+                return redirect('shop:cart')
+            
             selected_address_id = request.POST.get('selected_address')
             order_notes = request.POST.get('order_notes')
-            selected_address = ShippingAddress.objects.get(id=selected_address_id)
-
-            # Generate a transaction ID (you can customize this part)
+            
+            try:
+                selected_address = ShippingAddress.objects.get(id=selected_address_id)
+            except ShippingAddress.DoesNotExist:
+                messages.error(request, "Please select a valid shipping address before placing your order.")
+                return redirect('shop:checkout')  # Adjust the URL to your checkout page
+           
             transaction_id = generate_transaction_id()
 
-            # Create the order
+            
             order = Order(
-                customer=request.user,  # Assuming you have an authenticated user
-                payment_method='COD',  # Change this to the actual payment method
+                customer=request.user, 
+                payment_method='COD', 
                 order_notes=order_notes,
                 shipping_address=selected_address,
                 transaction_id=transaction_id
@@ -243,9 +250,9 @@ def place_order(request):
             order.complete = True
             order.save()
             
-            # Move cart items to the new order
+           
             for cart_item in cart_items:
-                cart_item.order = order  # Change the order to the new one
+                cart_item.order = order 
                 cart_item.save()
            
             messages.success(request, 'Your order has been placed successfully!')
@@ -255,6 +262,8 @@ def place_order(request):
 
 def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')
+
+
 
 # def place_order(request):
 #     if request.user.is_authenticated:

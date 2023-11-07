@@ -19,7 +19,7 @@
 			<div class="page-content">
 				<div class="checkout">
 					<div class="container">
-						<form action="{% url 'shop:place_order' %}" method="post">
+						<form action="{% url 'shop:place_order' %}" method="post" id="checkout-form">
 							{% csrf_token %}
 						  <div class="checkout-discount">
 					
@@ -46,6 +46,10 @@
 										</div>
 										{% endfor %}
 									
+                                           <div id="error-message" class="alert alert-danger" style="display: none;">
+											<button type="button" class="close" data-dismiss="alert">&times;</button>
+											<strong>Error:</strong> Please select a valid shipping address before placing your order.
+										</div>
 									<hr>
 			
 									<!-- Add new address button -->
@@ -53,9 +57,8 @@
 
 					
 			
-									<div class="custom-control custom-checkbox">
-										<input type="checkbox" class="custom-control-input" id="checkout-diff-address">
-										<label class="custom-control-label" for="checkout-diff-address">Ship to a different address?</label>
+									<div class="custom-control">
+										
 									</div><!-- End .custom-checkbox -->
 			
 									<label>Order notes (optional)</label>
@@ -104,14 +107,14 @@
 										</table><!-- End .table table-summary -->
 										<div class="accordion-summary" id="accordion-payment">
 											<div class="card">
-												<div class="card-header" id="heading-1">
+												{% comment %} <div class="card-header" id="heading-1">
 													<h2 class="card-title">
 														<a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
 															Direct bank transfer
 														</a>
 													</h2>
-												</div><!-- End .card-header -->
-												<div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
+												</div><!-- End .card-header --> {% endcomment %}
+												{% comment %} <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
 													<div class="card-body">
 														Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
 													</div><!-- End .card-body -->
@@ -130,7 +133,7 @@
 														Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.
 													</div><!-- End .card-body -->
 												</div><!-- End .collapse -->
-											</div><!-- End .card -->
+											</div><!-- End .card --> {% endcomment %}
 											<div class="card">
 												<div class="card-header" id="heading-3">
 													<h2 class="card-title">
@@ -144,7 +147,7 @@
 													</div><!-- End .card-body -->
 												</div><!-- End .collapse -->
 											</div><!-- End .card -->
-											<div class="card">
+											{% comment %} <div class="card">
 												<div class="card-header" id="heading-4">
 													<h2 class="card-title">
 														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
@@ -169,11 +172,11 @@
 												</div><!-- End .card-header -->
 												<div id="collapse-5" class a collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
 													<div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-													</div><!-- End .card-body -->
+													</div><!-- End .card-body --> {% endcomment %}
 												</div><!-- End .collapse -->
 											</div><!-- End .card -->
 										</div><!-- End .accordion -->
-										<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
+										<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block"  id="place-order-button">
 											<span class="btn-text">Place Order</span>
 											<span class="btn-hover-text">Proceed to Checkout</span>
 										</button>

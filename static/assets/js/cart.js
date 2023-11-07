@@ -69,7 +69,6 @@ function clearCartItem(productId) {
 }
 
 
-
     // var animation = bodymovin.loadAnimation({
     //     container: document.getElementById('animContainer'),
     //     renderer: 'svg',

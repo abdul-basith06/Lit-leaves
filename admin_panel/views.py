@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
 from .models import *
 from userauths.models import User
+from collections import defaultdict
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
@@ -186,7 +187,7 @@ def category(request):
     if search_query:
         # If there's a search query, filter categories based on name
         cat1 = cat1.filter(name__icontains=search_query)
-
+     
     context = {
         'cat1': cat1,
         'search_query': search_query,  # Pass the search query back to the template
