@@ -35,6 +35,9 @@ def store(request):
     products = Product.objects.filter(is_active=True)  # Fetch only active products
     
     for product in products:
+        
+        product.variation = product.productlanguagevariation_set.first()
+        
         product.in_cart = any(item.product == product for item in items)
 
     paginator = Paginator(products, 9)  # Show 9 active products per page
@@ -56,6 +59,14 @@ def store(request):
 
 
 
+def get_variation_stock(request, variation_id):
+    try:
+        variation = ProductLanguageVariation.objects.get(id=variation_id)
+        stock = variation.stock
+        return JsonResponse({'stock': stock})
+    except ProductLanguageVariation.DoesNotExist:
+        return JsonResponse({'stock': 0})
+
 
 def product(request, product_id):
     if request.user.is_authenticated:
@@ -65,7 +76,17 @@ def product(request, product_id):
         cartItems = order.get_cart_items
     selected_product = Product.objects.get(pk=product_id)
     category = selected_product.category
+    variations = selected_product.productlanguagevariation_set.all()
+    
+     # Get the selected variation based on user's selection
+    selected_variation_id = request.GET.get('selected_variation_id')
+    selected_variation = None
 
+    if selected_variation_id:
+        try:
+            selected_variation = ProductLanguageVariation.objects.get(id=selected_variation_id)
+        except ProductLanguageVariation.DoesNotExist:
+            selected_variation = None
     
     related_products = Product.objects.filter(category=category).exclude(pk=selected_product.id)[:4]
     is_in_cart = False
@@ -82,9 +103,11 @@ def product(request, product_id):
     context = {
         'product': selected_product,
         'related_products': related_products,
+        'variations' : variations,
         'cartItems': cartItems,
         'is_in_cart': is_in_cart,
         'related_products_in_cart': related_products_in_cart,
+        'selected_variation': selected_variation,
     }
 
     return render(request, 'shop/product.html', context)
@@ -106,61 +129,92 @@ def cart(request):
 
     return render(request, 'shop/cart.html', context)
     
+
 @transaction.atomic    
 def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
     action = data['action']
-    print('Action:',action)
-    print('productId:',productId)
+    selectedVariationId = data['selectedVariationId']
+    print('Action:', action)
+    print('productId:', productId)
+    print('selectedVariationId:', selectedVariationId)
+    
     
     customer = request.user
     product = Product.objects.get(pk=productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     
-    orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
-    if action == 'add':
-            orderItem.quantity += 1
-            product.stock -= 1
-    elif action == 'remove':
-        orderItem.quantity -= 1
-        product.stock += 1
-         
-    orderItem.save()   
-    product.save()  
     
+    print("Here before id checking") 
+    if not selectedVariationId:
+        print("Hres the problem")      
+        return JsonResponse({"error": "No variation selected"}, status=400)
+    print("Here after id checking")  
+    try:
+        selected_variation = ProductLanguageVariation.objects.get(id=selectedVariationId)
+    except ProductLanguageVariation.DoesNotExist:
+        return JsonResponse({"error": "Selected variation does not exist"}, status=400)
+
+    if selected_variation.stock <= 0:
+        return JsonResponse({"error": "Selected variation is out of stock"}, status=400)
+    
+    orderItem, created = OrderItem.objects.get_or_create(order=order, product=product, variation=selected_variation)
+    if action == 'add':
+        if orderItem.quantity < selected_variation.stock:
+            orderItem.quantity += 1
+            selected_variation.stock -= 1
+            selected_variation.save()
+        else:
+            return JsonResponse("Item quantity exceeds available stock", status=400)
+    elif action == 'remove':
+        if orderItem.quantity > 0:
+            orderItem.quantity -= 1
+            selected_variation.stock += 1
+            selected_variation.save()
+        else:
+            return JsonResponse("Item quantity cannot be negative", status=400)
+
+    orderItem.save()
+
     if orderItem.quantity <= 0:
-        orderItem.delete() 
-        
+        orderItem.delete()
+
     return JsonResponse("Item was added", safe=False)
+    
+    
 
-  
-  
 
+@transaction.atomic
 def clearItem(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             data = json.loads(request.body)
             productId = data['productId']
-           
+            variationId = data['variationId']  # Get the variation ID from the data
+
             customer = request.user
             order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        
-            product = Product.objects.get(pk=productId)
-           
-            try:
-                orderItem = OrderItem.objects.get(order=order, product=product)
 
-                product.stock += orderItem.quantity
-                product.save()
+            product = Product.objects.get(pk=productId)
+
+            try:
+                orderItem = OrderItem.objects.get(order=order, product=product, variation=variationId)  # Use variation ID in the query
+
+                # Update variation stock here
+                selected_variation = ProductLanguageVariation.objects.get(id=variationId)
+                selected_variation.stock += orderItem.quantity
+                selected_variation.save()
+
                 orderItem.delete()
                 return JsonResponse("Item was removed from the cart", safe=False)
 
             except OrderItem.DoesNotExist:
                 return JsonResponse("Item not found in the cart", safe=False)
 
-    return JsonResponse("You must be logged in to perform this action", safe=False)
+    return JsonResponse("You must be logged in to perform this action", status=400)    
   
+
   
 def checkout(request):
     if request.user.is_authenticated:

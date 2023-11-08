@@ -41,10 +41,10 @@
                                                 {% if product.is_new %}
                                                 <span class="product-label label-new">New</span>
                                                 {% endif %}
-                                                {% if product.stock < 1 %}
+                                                {% if product.variation.stock < 1 %}
                                                 <span class="product-label label-sale">Out of stock</span>
                                                 {% endif %}
-                                                {% if product.stock <= 5 and product.stock > 0 %}
+                                                {% if  product.variation.stock <= 5 and product.variation.stock > 0 %}
                                                 <span class="product-label label-sale">Only Few Units Left</span>
                                             {% endif %}
                                                 <a href="{% url 'shop:product' product.id %}">
@@ -60,7 +60,7 @@
                                                         title="Compare"><span>Compare</span></span>
                                                 </div><!-- End .product-action-vertical -->
                                                 <div class="product-action">
-                                                    {% if product.stock > 0 %}
+                                                    {% if product.variation.stock > 0 %}
                                                         {% if product.in_cart %}
                                                             <button class="btn">&#10004; Item already in cart</button>
                                                         {% else %}

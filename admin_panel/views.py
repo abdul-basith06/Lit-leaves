@@ -62,14 +62,12 @@ def update_products(request, product_id):
         description = request.POST.get('description')
         price = request.POST.get('price')
         category_id = request.POST.get('category')
-        stock = request.POST.get('stock')
         
         # Update the product details
         product.name = name
         product.description = description
         product.price = price
         product.category_id = category_id
-        product.stock = stock
         
          # Handle image updates
         new_images = request.FILES.getlist('new_images')
@@ -113,14 +111,9 @@ def addd_products(request):
         author = request.POST.get('author')
         price = request.POST.get('price')
         category_id = request.POST.get('category')
-        stock = request.POST.get('stock')
         
         if int(price) <= 0:
             messages.error(request, "Enter a valid price !")
-            return redirect('admin_panel:add_products')
-        
-        if int(stock) < 0:
-            messages.error(request, "Invalid Stock Entry !")
             return redirect('admin_panel:add_products')
       
        
@@ -132,7 +125,6 @@ def addd_products(request):
             author=author,
             price=price,
             category=category,
-            stock=stock
         )
 
         images = request.FILES.getlist('image')  # Get a list of uploaded images

@@ -83,30 +83,44 @@
                                         <input type='hidden' value="{{ product.id }}" class="product-id" >
                                     </div><!-- End .product-content -->
 
-                                   
-                                    <div class="details-filter-row details-row-size">
-                                        <label for="qty">Qty:</label>
-                                        <div class="product-details-quantity">
-                                            {% if product.stock > 0 %}
-                                                <input type="hidden" id="product-quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" step="1" data-decimals="0" required>
-                                            {% else %}
-                                                <p class="out-of-stock">Out of Stock</p>
-                                            {% endif %}
-                                            {% if product.stock <= 5 and product.stock > 0 %}
-                                                <p class="units-left">Only a Few Units Left</p>
-                                            {% endif %}
-                                        </div><!-- End .product-details-quantity -->
-                                    </div><!-- End .details-filter-row -->
-                                    
+                                   {% comment %} <!-- Language selection dropdown -->
+<div class="product-content">
+    <label for="product-language">Select Language:</label>
+    <select id="product-language" class="form-control">
+        {% for variation in variations %}
+                <option value="{{ variation.id }}">{{ variation.language }}</option>
+        {% endfor %}
+    </select>
+</div> {% endcomment %}
+                         
+
+<!-- Language selection buttons -->
+<div class="product-content">
+    <label for="product-language">Select Language:</label>
+    <div class="language-buttons">
+        {% for variation in variations %}
+        <button class="language-button" data-variation-id="{{ variation.id }}">{{ variation.language }}</button>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+<div class="product-details-action">
+    <button id="add-to-cart" data-product="{{ product.id }}" data-action="add" class="btn-product btn-cart update-cart" style="display: none">Add to Cart</button>
+    <p class="out-of-stock" style="display: none">Out of Stock</p>
+</div><!-- End .product-details-action -->
+                         
+
+
                                     <div class="product-details-action" style="{% if product.stock <= 0 %}display: none;{% endif %}">
                                         {% if is_in_cart %}
                                             <button class="btn">&#10004; Item already in cart</button>
                                         {% else %}
                                             <button data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart">Add to Cart</button>
                                         {% endif %}
-                                        <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                        </div><!-- End .details-action-wrapper -->
+                                      
                                     </div><!-- End .product-details-action -->
                                     
                                     
@@ -123,7 +137,9 @@
                                             {% comment %} <a href="#">Dresses</a>,
                                             <a href="#">Yellow</a> {% endcomment %}
                                         </div><!-- End .product-cat -->
-
+                                        <div class="details-action-wrapper">
+                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                        </div><!-- End .details-action-wrapper -->
                                         <div class="social-icons social-icons-sm">
                                             <span class="social-label">Share:</span>
                                             <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>

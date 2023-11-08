@@ -29,6 +29,7 @@
 										<tr>
 											<th>Product</th>
 											<th>Price</th>
+											<th>Language</th>
 											<th>Quantity</th>
 											<th>Total</th>
 											<th></th>
@@ -52,19 +53,20 @@
 												</div><!-- End .product -->
 											</td>
 											<td class="price-col">${{ i.product.price }}</td>
+											<td>{{ i.variation.language }}</td> 
 
 
 
 											<td class="quantity-col1">
 												<div class="input-group input-spinner col-6">
 													<div class="input-group-prepend ">
-														<button data-product="{{i.product.id}}" data-action="remove" style="min-width: 26px" class="btn btn-decrement btn-spinner mx-3 update-cart" type="button">
+														<button data-product="{{i.product.id}}" data-action="remove" data-variation-id="{{ i.variation.id }}" style="min-width: 26px" class="btn btn-decrement btn-spinner mx-3 update-cart-minus-btn" type="button">
 															<i class="icon-minus"></i>
 														</button>
 													</div>
 													<input type="text" style="text-align: center" class="form-control" value="{{ i.quantity }}" required>
 													<div class="input-group-append">
-														<button data-product="{{i.product.id}}" data-action="add" style="min-width: 26px" class="btn btn-increment btn-spinner mx-3 update-cart" type="button">
+														<button data-product="{{i.product.id}}" data-action="add" data-variation-id="{{ i.variation.id }}" style="min-width: 26px" class="btn btn-increment btn-spinner mx-3 update-cart-plus-btn" type="button">
 															<i class="icon-plus"></i>
 														</button>
 													</div>
@@ -74,7 +76,7 @@
                                             
 											<td class="total-col mx-auto">${{ i.get_total }}</td>
 											<td class="remove-col">
-												<button class="btn-remove" data-product="{{ i.product.id }}">
+												<button class="clear-item" data-variation-id="{{i.variation.id}}" data-product="{{ i.product.id }}">
 													<i class="icon-close"></i>
 												</button>
 											</td>
