@@ -223,17 +223,30 @@ def checkout(request):
         items = order.orderitem_set.all()  # Correctly access order items
         cartItems = order.get_cart_items
         address = ShippingAddress.objects.filter(user=customer)
-        context = {
-            'address' : address,
-            'items' : items,
-            'order' : order,
-            'cartItems': cartItems,
-        }
+        default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
+        remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
+    context = {
+        'address' : address,
+        'items' : items,
+        'order' : order,
+        'cartItems': cartItems,
+        'da':default_address,
+        'ra' : remaining_addresses,
+    }
     return render(request, 'shop/checkout.html', context)
 
 
-def addaddress(request):
+def change_address(request, address_id):  
+    selected_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
+ 
+    selected_address.status = True
+    selected_address.save()
 
+    ShippingAddress.objects.filter(user=request.user).exclude(id=address_id).update(status=False)
+
+    return redirect('shop:checkout')
+
+def addaddress(request):
     return render(request, 'shop/addaddress.html')
 
 
@@ -262,8 +275,15 @@ def update_address(request):
             status=status
         )
         address.save()
-        messages.success(request, 'Address added successfully.')
 
+        # If the checkbox is selected, set this address as default
+        if status:
+            ShippingAddress.objects.filter(user=user).exclude(id=address.id).update(status=False)
+            address.status = True
+            address.save()
+        
+        
+        messages.success(request, 'Address added successfully.')
         return redirect('shop:checkout')
 
     return render(request, 'addaddress.html')

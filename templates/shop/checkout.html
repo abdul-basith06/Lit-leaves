@@ -35,32 +35,73 @@
 									<h4>Your Addresses</h4>
 									<!-- Display existing addresses with checkboxes -->
 									
-										{% for address in address %}
-										<div class="address-box">
-											<div class="form-check">
-												<input type="radio" class="form-check-input" id="address_{{ address.id }}" name="selected_address" value="{{ address.id }}">
-												<label class="form-check-label" for="address_{{ address.id }}">
-													{{ address.full_name }} - {{ address.address_lines }}, {{ address.city }}, {{ address.country }}
-												</label>
-											</div>
-										</div>
-										{% endfor %}
 									
-                                           <div id="error-message" class="alert alert-danger" style="display: none;">
-											<button type="button" class="close" data-dismiss="alert">&times;</button>
-											<strong>Error:</strong> Please select a valid shipping address before placing your order.
+									<div class="address-box">
+										<div class="form-check">
+											<input type="radio" class="form-check-input" id="address_{{ da.id }}" name="selected_address" value="{{ da.id }}" checked>
+											<label class="form-check-label" for="address_{{ da.id }}">
+												{{ da.full_name }} - {{ da.address_lines }}, {{ da.city }}, {{ da.country }}
+											</label>
 										</div>
-									<hr>
-			
-									<!-- Add new address button -->
-                                 <a href="{% url 'shop:addaddress' %}" class="btn btn-outline-primary-2 btn-order">Add Address</a>
-
-					
-			
-									<div class="custom-control">
+									</div>
+									
 										
-									</div><!-- End .custom-checkbox -->
+
+				
 			
+									<!-- Use another address modal -->
+<div class="modal fade" id="useAnotherAddressModal" tabindex="-1" role="dialog" aria-labelledby="useAnotherAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="useAnotherAddressModalLabel">Select Another Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Here, you can display the list of remaining addresses -->
+				{% for i in ra %}
+				<div class="form-check">
+					<input type="radio" class="form-check-input" id="address_{{ i.id }}" name="selected_address" value="{{ i.id }}">
+					<label class="form-check-label" for="address_{{ i.id }}">
+						{{ i.full_name }} - {{ i.address_lines }}, {{ i.city }}, {{ i.country }}
+					</label>
+					<button type="button" class="btn btn-link">
+						<a href="{% url 'shop:change_address' i.id %}">Make Default</a>
+					</button>
+					
+				</div>
+			{% endfor %}
+			
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+<!-- Trigger link for the modal -->
+<div class="custom-control">
+    <p class="text-primary btn btn-outline-primary-2 btn-order" data-toggle="modal" data-target="#useAnotherAddressModal">Use another address</p>
+</div><!-- End .custom-checkbox -->
+
+			
+<div class="custom-control">
+	<!-- Add new address button -->
+	<a href="{% url 'shop:addaddress' %}" class="btn btn-outline-primary-2 btn-order">Add Address</a>
+</div>
+</div>
+
+	
+
+
+
+
 									<label>Order notes (optional)</label>
 									<textarea class="form-control" cols="30" rows="4" name="order_notes" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
 								</div><!-- End .col-lg-9 -->
