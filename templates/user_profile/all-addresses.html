@@ -1,0 +1,127 @@
+{% extends 'partials/base2.html' %}
+{% block content %}
+
+
+<div class="container-fluid d-flex flex-column justify-content-center py-5">
+    <div class="row p-2 col-12 d-flex justify-content-center">
+
+        <div class="card m-2 col-md-3 col-10" data-bs-toggle="modal" data-bs-target="#addModal" id="addAddressBtn" style="background: #f9f9fc; border-radius: 10px; border: 1px dashed #777777; cursor: pointer;">
+            <div class="card-body p-0 d-flex justify-content-around align-items-center">
+                <div class="row d-flex flex-column pt-2">
+                    <i class="fa-solid fa-plus text-center mb-2" style="font-size: 40px;"></i>
+                    <h4 class="text-light">Add Address</h4>
+                    <button id="addBTN" data-bs-toggle="modal" data-bs-target="#addModal" type="button" hidden>add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Address Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header">
+                <h5 class="" id="exampleModalLabel">Add New Address</h5>
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <form action="{% url 'user_profile:add_address' %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+                        {{ form.full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.address_lines.id_for_label }}" class="form-label">Street</label>
+                        {{ form.address_lines }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
+                        {{ form.state }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.pin_code.id_for_label }}" class="form-label">Pincode</label>
+                        {{ form.pin_code }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.country.id_for_label }}" class="form-label">Country</label>
+                        {{ form.country }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.mobile.id_for_label }}" class="form-label">Mobile Number</label>
+                        {{ form.mobile }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.status }}
+                        <label for="{{ form.status.id_for_label }}" class="form-check-label">Set as default address</label>
+                    </div>                    
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" data-bs-dismiss="modal">Close</a>
+                    <button type="submit" class="btn btn-outline-primary-2" style="border-radius: 7px; background: #000; color: #fff;">Add now</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+        {% for i in address %}
+        <div class="card m-2 col-md-3 col-10 p-4" style="background:  {% if i.status %}#d5f5e3{% else %}#F3F3F9{% endif %}; border-radius: 10px;">
+            <div class="card-body">
+                <h6 class="card-title" style="font-size: 15px; color: #333;">{{ i.full_name }}</h6>
+                <p class="card-text" style="color: #555;">{{ i.address_lines }}</p>
+                <p class="card-text" style="color: #555;">{{ i.city }}, {{ i.state }}, {{ i.country }}</p>
+                <p class="card-text" style="color: #555;">Contact Number: {{ i.mobile }}</p>
+                <p class="card-text" style="color: #555;">Pincode: {{ i.pin_code }}</p>
+                <hr class="m-0 p-0 my-3">
+                <div class="d-flex justify-content-end">
+                    <a class="text-primary" href="{% url 'user_profile:edit_address' address_id=i.id %}">Edit</a>
+                    <p class="mx-3" style="color: #777;">|</p>
+                    <p class="mx-3" style="color: #777;">|</p>
+                    <p class="text-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal{{ i.id }}">Remove</p>
+                
+                  <!-- Remove Address Modal -->
+<div class="modal fade" id="deleteModal{{ i.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header">
+                <h5 class="" id="exampleModalLabel">Remove Address</h5>
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <form action="{% url 'user_profile:delete_address' address_id=i.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p>Are you sure that you want to delete this address?</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" data-bs-dismiss="modal">Cancel</a>
+                    <button type="submit" class="btn btn-outline-primary-2" style="border-radius: 7px; background: #000; color: #fff;">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</main>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock content %}

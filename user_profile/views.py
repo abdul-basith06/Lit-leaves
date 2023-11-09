@@ -1,11 +1,11 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from admin_panel.models import *
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from .forms import *
 from shop.models import *
 from .models import *
-from django.http import Http404, HttpResponse  # Import HttpResponse from django.http
+from django.http import Http404, HttpResponse, JsonResponse  # Import HttpResponse from django.http
 
 def dashboard(request):
     if request.user.is_authenticated:
@@ -31,6 +31,7 @@ def update_avatar(request):
         return redirect('user_profile:dashboard')
 
     return render(request, 'user_profile/dashboard.html')
+
 
 
 def editpassword(request):
@@ -77,3 +78,100 @@ def editprofile(request):
     else:
         # Handle GET requests to display the edit profile form
         return render(request, 'user_profile/editprofile.html')
+    
+
+def all_addresses(request):
+    form = AddressForm()
+    all_address = ShippingAddress.objects.filter(user=request.user)
+    
+     # Check if any address has status=True
+    has_default_address = any(all_address.status for all_address in all_address)
+
+    # If no default address, set the status of the first address to True
+    if not has_default_address and all_address:
+        all_address[0].status = True
+        all_address[0].save()
+        
+    context = {
+        'address' : all_address,
+        'form':form,
+    }
+    return render(request, 'user_profile/all-addresses.html', context)   
+ 
+ 
+ 
+def add_address(request):
+    form = AddressForm()  # Instantiate the form
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            print("Form is valid")
+            # Save the address and set the user
+            new_address = form.save(commit=False)
+            new_address.user = request.user
+            new_address.save()
+            if form.cleaned_data.get('status', False):
+                ShippingAddress.objects.filter(user=request.user).exclude(id=new_address.id).update(status=False)
+            print("Redirecting to all addresses")
+            return redirect('user_profile:all_addresses')
+        else:
+            print("Form is not valid")
+    else:
+        form = AddressForm()
+
+    context = {
+        'form': form
+    }
+    return render(request, 'user_profile/all-addresses.html', context)
+
+
+
+def edit_address(request, address_id):
+    # Retrieve the address from the database based on address_id
+    address = get_object_or_404(ShippingAddress, id=address_id)
+
+    # You should have a form to display the address details
+    # Replace 'YourForm' with the actual form you are using
+    form = AddressForm(instance=address)
+
+    context = {
+        'form': form,
+        'address_id': address_id,
+    }
+
+    return render(request, 'user_profile/edit-address.html', context)
+
+
+def update_address(request, address_id):
+    up_address = get_object_or_404(ShippingAddress, id=address_id)
+
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=up_address)
+        if form.is_valid():
+            form.save()
+            if form.cleaned_data.get('status', False):
+                ShippingAddress.objects.exclude(id=up_address.id).update(status=False)
+            return redirect('user_profile:all_addresses')
+    else:
+        form = AddressForm(instance=up_address)
+
+    context = {
+        'form': form,
+        'address_id': address_id,
+    }
+
+    return render(request, 'user_profile/edit-address.html', context)
+
+
+def delete_address(request, address_id):
+    # Retrieve the address from the database based on address_id
+    address_del = get_object_or_404(ShippingAddress, id=address_id)
+
+    # Check if it's a POST request (form submission)
+    if request.method == 'POST':
+        # Delete the address
+        address_del.delete()
+        return redirect('user_profile:all_addresses')
+
+
+    return render(request, 'user_profile/all-addresses.html')

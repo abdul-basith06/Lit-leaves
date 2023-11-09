@@ -276,7 +276,7 @@ def update_address(request):
         )
         address.save()
 
-        # If the checkbox is selected, set this address as default
+        
         if status:
             ShippingAddress.objects.filter(user=user).exclude(id=address.id).update(status=False)
             address.status = True

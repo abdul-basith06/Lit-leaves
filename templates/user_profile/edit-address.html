@@ -1,0 +1,45 @@
+{% extends 'partials/base2.html' %}
+{% block content %}
+ 
+ 
+<div class="container-fluid d-flex flex-column justify-content-center py-5">
+    <div class="row p-2 col-12 d-flex justify-content-center">
+        <form action="{% url 'user_profile:update_address' address_id=address_id %}" method="post">
+
+            {% csrf_token %}
+            <div class="card m-2 col-md-6 col-10 p-4" style="background: #F3F3F9; border-radius: 10px;">
+                <div class="card-body">
+                    {{ form.full_name.label_tag }}
+                    {{ form.full_name }}
+
+                    {{ form.address_lines.label_tag }}
+                    {{ form.address_lines }}
+
+                    {{ form.city.label_tag }}
+                    {{ form.city }}
+
+                    {{ form.state.label_tag }}
+                    {{ form.state }}
+
+                    {{ form.pin_code.label_tag }}
+                    {{ form.pin_code }}
+
+                    {{ form.country.label_tag }}
+                    {{ form.country }}
+
+                    {{ form.mobile.label_tag }}
+                    {{ form.mobile }}
+
+                    {{ form.status.label_tag }}
+                    {{ form.status }}
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" href="{% url 'user_profile:all_addresses' %}">Cancel</a>
+                    <button type="submit" class="btn btn-outline-primary-2 ml-2" style="border-radius: 7px;">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

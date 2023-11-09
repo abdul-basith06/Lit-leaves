@@ -147,8 +147,6 @@ def add_products(request):
     return render(request, 'admin_panel/add_products.html',context)
 
 @login_required(login_url='admin_panel:admin_login')
-
-
 def product_variation(request, product_id):
     product = Product.objects.get(pk=product_id)
     languages = Language.objects.all()  # Query all languages
