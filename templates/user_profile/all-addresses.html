@@ -26,9 +26,13 @@
             <form action="{% url 'user_profile:add_address' %}" method="post">
                 {% csrf_token %}
                 <div class="modal-body p-4">
+                  
                     <div class="mb-3">
                         <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
                         {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                                        <span class="error-message text-danger">{{ form.full_name.errors }}</span>
+                                    {% endif %}
                     </div>
                     <div class="mb-3">
                         <label for="{{ form.address_lines.id_for_label }}" class="form-label">Street</label>
@@ -45,6 +49,9 @@
                     <div class="mb-3">
                         <label for="{{ form.pin_code.id_for_label }}" class="form-label">Pincode</label>
                         {{ form.pin_code }}
+                        {% if form.pin_code.errors %}
+                                        <span class="error-message text-danger">{{ form.pin_code.errors }}</span>
+                                    {% endif %}
                     </div>
                     <div class="mb-3">
                         <label for="{{ form.country.id_for_label }}" class="form-label">Country</label>
@@ -53,6 +60,9 @@
                     <div class="mb-3">
                         <label for="{{ form.mobile.id_for_label }}" class="form-label">Mobile Number</label>
                         {{ form.mobile }}
+                        {% if form.mobile.errors %}
+                                        <span class="error-message text-danger">{{ form.mobile.errors }}</span>
+                                    {% endif %}
                     </div>
                     <div class="mb-3 form-check">
                         {{ form.status }}
@@ -110,6 +120,9 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div class="d-flex justify-content-end mt-3">
+        <a href="{% url 'user_profile:dashboard' %}" class="btn btn-outline-primary">Back to Profile</a>
     </div>
 </div>
 </main>
