@@ -7,8 +7,6 @@ class User(AbstractUser):
     mobile_number = models.CharField(max_length=15)
     # is_active = models.BooleanField(default=False)  # Add is_active field
 
-    # USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.username

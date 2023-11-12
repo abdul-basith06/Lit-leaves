@@ -327,6 +327,7 @@ def place_order(request):
            
             for cart_item in cart_items:
                 cart_item.order = order 
+                cart_item.delivery_status = 'PL'
                 cart_item.save()
            
             messages.success(request, 'Your order has been placed successfully!')

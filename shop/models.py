@@ -37,10 +37,21 @@ class Order(models.Model):
     
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)    
-    variation = models.ForeignKey(ProductLanguageVariation, on_delete=models.SET_NULL, null=True, blank=True)  # Add this field for the selected variation
+    variation = models.ForeignKey(ProductLanguageVariation, on_delete=models.SET_NULL, null=True, blank=True, related_name='variation') 
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True) 
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    ORDER_STATUS_CHOICES = [
+        ('PL', 'Order placed'),
+        ('DS', 'Dispatched'),
+        ('SH', 'Shipped'),
+        ('OFD', 'Out for Delivery'),
+        ('D', 'Delivered'),
+        ('CN', 'Order Cancelled'),
+    ]
+    
+    delivery_status = models.CharField(max_length=3, choices=ORDER_STATUS_CHOICES, default='PL')
+
     
     @property
     def get_total(self):

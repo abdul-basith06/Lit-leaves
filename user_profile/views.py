@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from admin_panel.models import *
 from django.contrib.auth import update_session_auth_hash
+from datetime import timedelta
 from django.contrib import messages
 from .forms import *
 from shop.models import *
@@ -175,3 +176,18 @@ def delete_address(request, address_id):
 
 
     return render(request, 'user_profile/all-addresses.html')
+
+
+
+def my_orders(request):
+    # Retrieve orders for the logged-in user
+    orders = Order.objects.filter(customer=request.user, complete=True).prefetch_related('orderitem_set__product')
+
+     # Calculate the expected delivery date for each order
+    for order in orders:
+        order.expected_delivery_date = order.date_ordered + timedelta(days=3)
+        
+    context = {
+        'orders':orders,
+    }
+    return render(request, 'user_profile/my-orders.html', context)

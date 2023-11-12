@@ -128,12 +128,12 @@
                                             <div class="card col-md-5 col-10 m-2 shadow-sm" id="allorder"
                                                 style="border-radius: 7px; background: #F3F3F9; cursor: pointer;">
                                                 <div class="card-body">
-                                                    <div class="d-flex justify-content-center mt-1 py-4">
-                                                        <i class="fa-solid fa-box-open mx-3"
-                                                            style="font-size: 35px;"></i>
-                                                        <h5 class=" m-0 align-self-center" style="font-weight: 300;">All
-                                                            Orders</h5>
-                                                    </div>
+                                                    <a href="{% url 'user_profile:my_orders' %}">
+                                                        <div class="d-flex justify-content-center mt-1 py-4">
+                                                            <i class="fa-solid fa-map-location-dot mx-3" style="font-size: 35px;"></i>
+                                                            <h5 class="m-0 align-self-center" style="font-weight: 300;">My orders</h5>
+                                                        </div>
+                                                    </a>
                                                 </div>
                                             </div>
 
