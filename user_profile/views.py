@@ -191,3 +191,20 @@ def my_orders(request):
         'orders':orders,
     }
     return render(request, 'user_profile/my-orders.html', context)
+
+
+def cancel_order(request, order_item_id):
+    order_item = get_object_or_404(OrderItem, id=order_item_id)
+    
+     # Increase stock quantity
+    order_item.variation.stock += 1
+    order_item.variation.save() 
+    
+    # Update delivery status to 'CN' (Cancelled)
+    order_item.delivery_status = 'CN'
+    order_item.save()
+    
+
+    messages.success(request, 'Order canceled successfully.')
+
+    return redirect('user_profile:my_orders')

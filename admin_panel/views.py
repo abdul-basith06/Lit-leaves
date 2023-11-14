@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 # from .forms import CategoryEditForm
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from .models import *
+from shop.models import *
 
 
 def admin_login(request):
@@ -347,3 +347,25 @@ def user_management(request):
 @login_required(login_url='admin_panel:admin_login')
 def admin_dash(request):
     return render(request, 'admin_panel/admin_dash.html')
+
+def order_management(request):
+    order = Order.objects.all()
+    context = {
+        'order' : order,
+    }
+    return render(request, 'admin_panel/orders.html', context)
+
+
+def manage_order(request, order_id, orderitem_id):
+    # Retrieve the specific order and order item
+    order = get_object_or_404(Order, id=order_id)
+    order_item = get_object_or_404(OrderItem, id=orderitem_id)
+
+    # Your existing logic for rendering the manage_order page
+
+    context = {
+        'order': order,
+        'order_item': order_item,
+    }
+
+    return render(request, 'admin_panel/manage_order.html', context)

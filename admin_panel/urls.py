@@ -38,5 +38,9 @@ urlpatterns = [
     
     # path('product_details/', views.product_details, name='product_details'),
    
+    path('order_management/', views.order_management, name='order_management'),
+    path('manage_order/<int:order_id>/<int:orderitem_id>/', views.manage_order, name='manage_order'),
+
+
 
  ]

@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/plugins/owl-carousel/owl.carousel.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/magnific-popup/magnific-popup.css' %}">
     <!-- Main CSS File -->
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/nouislider/nouislider.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
    <!-- Add these to your HTML header -->
@@ -109,12 +109,12 @@
               
               #progressbar li {
                 list-style-type: none;
-                font-size: .8rem;
-                width: 25%;
+                font-size: .1rem;
+                width: 20%;
                 float: left;
                 position: relative;
                 font-weight: 400;
-                color: #fff
+                color: #000
               }
               
               #progressbar #step1:before {
@@ -142,6 +142,14 @@
               }
               
               #progressbar #step4:before {
+                content: "";
+                color: rgb(151, 149, 149, .651);
+                width: 20px;
+                height: 20px;
+                margin-right: 0 !important
+              }
+              
+              #progressbar #step5:before {
                 content: "";
                 color: rgb(151, 149, 149, .651);
                 width: 20px;
@@ -209,6 +217,7 @@
                 }
               }
         
+              
     </style>
 <script>
     function getToken(name) {
@@ -827,7 +836,7 @@ document.querySelector('.language-buttons').addEventListener('click', function (
  </script>
 
 <script>
-console.log("This page is working");
+{% comment %} console.log("This page is working"); {% endcomment %}
 var languageButtons = document.getElementsByClassName('language-button');
 var selectedVariationId = null;
 
@@ -1031,6 +1040,7 @@ function clearCartItem(productId, variationId) {
         });
 }
 </script>  {% endcomment %}
+
 
 </body>
 

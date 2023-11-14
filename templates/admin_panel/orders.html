@@ -1,0 +1,152 @@
+{% extends 'partials/admin_base.html' %}
+{% block content %}
+
+<div class="main-panel">
+    <div class="content-wrapper">
+
+        <div class="row ">
+
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-5 ">
+                            <ul class="navbar-nav w-100">
+                                <li class="nav-item w-100">
+                                    <!-- d-none -->
+                                    <!-- <form action="" method="get" class="nav-link mt-2 mt-md-0 col-12 d-lg-flex search">
+                                        <input type="text" name="key" class="form-control mb-1 text-light" placeholder="Search Users">
+                                        <button type="submit" class="btn-inverse-info mb-1">search</button>
+                                    </form> -->
+                                </li>
+                            </ul>
+                        </div>
+                        <h4 class="card-title">All Orders</h4>
+                        <div class="table-responsive">
+                            <table class="table" id="user-table">
+                                <thead>
+                                    <tr>
+
+                                        <th> Product </th>
+                                        <th> User </th>
+                                        <th> Order Date</th>
+                                        <th> Quantity</th>
+                                        <th> Price</th>
+                                        <th> Pyament Status</th>
+                                        <th> Order Status</th>
+                                        <th> Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in order %}
+                                    {% for order_item in order.orderitem_set.all %}
+                                    <tr>
+                                        <!-- list -->
+                                        <td>
+                                           
+                                            <img alt="image" src="{{ order_item.product.productimage_set.first.image.url }}" />
+                                            <span class="pl-2">                                             
+                                                {{ order_item.product.name }}
+                                            </span>
+                                           
+                                        </td>
+                                        <td>                  
+                                            {{ order.customer.username }}                                          
+                                        </td>
+                                        <td>                                         
+                                            <span style="font-weight: 100;" class="pl-2 ">
+                                                {{ order.date_ordered }}
+                                            </span>
+
+                                        </td>
+
+                                        <td>                                  
+                                            {{ order_item.quantity }}
+                                        </td>
+                                        <td>
+                                            ₹{{ order_item.get_total }}
+                                        </td>
+
+                                        <td>
+                                            <button>
+                                                <p> Payment status </p>
+                                            {% comment %} {% if order.orderDetails.paymentStatus == "pending" %}
+                                                class="btn-inverse-warning" 
+                                            {% elif order.orderDetails.paymentStatus == "success" %}
+                                                class="btn-inverse-success" 
+                                            {% elif order.orderDetails.paymentStatus == "failed" %}
+                                                class="btn-inverse-danger" 
+                                            {% endif %}>        
+                                            {{ order.orderDetails.paymentStatus }} {% endcomment %}
+                                            </button>
+                                        </td>
+
+                                        <td>
+                                            <button class="btn
+                                                {% if order_item.delivery_status == "PL" %}
+                                                    btn-inverse-warning
+                                                {% elif order_item.delivery_status == "DS" %}
+                                                    btn-inverse-warning
+                                                {% elif order_item.delivery_status == "SH" %}
+                                                    btn-inverse-primary
+                                                {% elif order_item.delivery_status == "OFD" %}
+                                                    btn-inverse-info
+                                                {% elif order_item.delivery_status == "D" %}
+                                                    btn-inverse-success
+                                                {% elif order_item.delivery_status == "CN" %}
+                                                    btn-inverse-danger
+                                                {% elif order_item.delivery_status == "RT" %}
+                                                    btn-warning btn-sm
+                                                {% endif %}"
+                                            >
+                                                {% if order_item.delivery_status == "PL" %}
+                                                    Order placed
+                                                {% elif order_item.delivery_status == "DS" %}
+                                                    Dispatched
+                                                {% elif order_item.delivery_status == "SH" %}
+                                                    Shipped
+                                                {% elif order_item.delivery_status == "OFD" %}
+                                                    Out for Delivery
+                                                {% elif order_item.delivery_status == "D" %}
+                                                    Delivered
+                                                {% elif order_item.delivery_status == "CN" %}
+                                                    Order Cancelled
+                                                {% elif order_item.delivery_status == "RT" %}
+                                                    Returned
+                                                {% endif %}
+                                            </button>
+                                        </td>
+                                        
+                                        
+
+                                        <td>
+                                            <a href="{% url 'admin_panel:manage_order' order_id=order.id orderitem_id=order_item.id %}" class="btn btn-inverse-info">Manage</a>
+                                        </td>
+                                        
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                    <!-- list -->
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- content-wrapper ends -->
+    <!-- partial:partials/_footer.html -->
+    <footer class="footer">
+
+    </footer>
+    <!-- partial -->
+</div>
+
+
+
+
+{% endblock content %}
+       

@@ -48,6 +48,7 @@ class OrderItem(models.Model):
         ('OFD', 'Out for Delivery'),
         ('D', 'Delivered'),
         ('CN', 'Order Cancelled'),
+        ('RT', 'Returned'),
     ]
     
     delivery_status = models.CharField(max_length=3, choices=ORDER_STATUS_CHOICES, default='PL')
