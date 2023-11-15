@@ -65,9 +65,11 @@
                                                 {{ order.shipping_address.country }}
                                             </p>
                                             <hr class="m-0 p-0 my-3">
-                                            {% if product.orderDetails.OrderStatus != "canceled" %}
-                                                <button data-bs-toggle="modal" data-bs-target="#modCancel"
-                                                    class="btn btn-inverse-danger p-3">Cancel Order</button>
+                                            {% if order_item.delivery_status != "CN" %}
+                                                <button data-bs-toggle="modal" data-bs-target="#modCancel{{ order_item.id }}"
+                                                    class="btn btn-inverse-danger p-3">Cancel Order </button>
+                                            {% else %}        
+                                            <button class="btn btn-inverse-danger p-3">Order Cancelled</button>
                                             {% endif %}
                                             <div class="col-12">
                                                 <div class="col-12 text-light">
@@ -77,7 +79,7 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if product.orderDetails.OrderStatus != "canceled" %}
+                            {% if order_item.delivery_status != "CN" %}
                             <div class="container-fluid d-flex flex-column justify-content-center ">
                                 <div class="card row col-12 my-3 mx-auto p-2"
                                     style="border: 0.2px solid #494949; border-radius: 10px; ">
@@ -85,10 +87,10 @@
                                         <h3 class="text-center py-4">Order Status</h3>
                                         <div class="progress-track">
                                             <ul id="progressbar">
-                                                <li class="step0 {% if order_item.delivery_status == 'PL' %}active{% endif %}" id="step1">Order placed</li>
-                                                <li class="step0 text-center {% if order_item.delivery_status == 'DS' %}active{% endif %}" id="step2">Dispatched</li>
-                                                <li class="step0 text-right {% if order_item.delivery_status == 'SH' %}active{% endif %}" id="step3">Shipped</li>
-                                                <li class="step0 text-right {% if order_item.delivery_status == 'OFD' %}active{% endif %}" id="step4">Out for Delivery</li>
+                                                <li class="step0 {% if order_item.delivery_status == 'PL' or order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step1">Order placed</li>
+                                                <li class="step0 text-center {% if order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step2">Dispatched</li>
+                                                <li class="step0 text-right {% if order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step3">Shipped</li>
+                                                <li class="step0 text-right {% if order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step4">Out for Delivery</li>
                                                 <li class="step0 text-right {% if order_item.delivery_status == 'D' %}active{% endif %}" id="step5">Delivered</li>            
                                                 <!-- Add more steps if needed -->
                                             </ul>
@@ -98,23 +100,22 @@
                                     <hr class="  " style="background:#555555">
                                     <h4 class="text-center py-4">Change Order Status</h4>
                                     <div class="col-md-12 mx-auto d-flex justify-content-center py-3 mb-5">
-                                        <form action="" method="post">
-                                            {% csrf_token %}
-                                            <select name="status" class="mb-3 form-control text-light"
-                                                style="width: 15rem; border-radius: 7px;" required>
-                                                <option value="" disabled selected>Select Status</option>
-                                                <option value="DS">Dispatched</option>
-                                                <option value="SH">Shipped</option>
-                                                <option value="OFD">Out for Delivery</option>
-                                                <option value="D">Delivered</option>
-                                                <!-- Add more options if needed -->
-                                            </select>
-                                            <input type="text" name="orderId" value="{{ orderId }}" hidden>
-                                            <input type="text" name="productId" value="{{ productId }}" hidden>
-                                            <button type="submit"
-                                                class="btn-md btn-inverse-info mx-2 py-2 my-auto"
-                                                style="width: 12rem;">Update Now</button>
-                                        </form>
+                                       <!-- admin_panel/templates/admin_panel/update_order_status.html -->
+<form method="post" action="{% url 'admin_panel:update_order_status' order_item_id=order_item.id %}">
+    {% csrf_token %}
+    <label for="id_delivery_status">Delivery Status:</label>
+    <select name="delivery_status" id="id_delivery_status">
+        <option value="PL">Order placed</option>
+        <option value="DS">Dispatched</option>
+        <option value="SH">Shipped</option>
+        <option value="OFD">Out for Delivery</option>
+        <option value="D">Delivered</option>
+        <option value="CN">Order Cancelled</option>
+        <option value="RT">Returned</option>
+    </select>
+    <button type="submit">Update Order Status</button>
+</form>
+
                                     </div>
                                 </div>
                             </div>
@@ -145,12 +146,12 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="modCancel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modCancel{{ order_item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <p class="modal-title "> <b class="mdi mdi-comment-alert text-warning"></b>
-                        Are you sure you want to Cancel this order</p>
+                        Are you sure you want to Cancel this order </p>
                     <button type="button" class=" btn mdi mdi-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -159,16 +160,16 @@
                         <div class="row g-0 ">
                             <div class="col-md-3 d-flex align-items-center">
                                 <img style="width: 100px; height: 100px; border-radius: 7px;"
-                                    src="/products/images/{{ product.product.images.image1 }}" class="card-img-start"
+                                    src="{{ order_item.product.productimage_set.first.image.url }}" class="card-img-start"
                                     alt="...">
                             </div>
                             <div class="col-md-9">
                                 <div class="card-body">
                                     <h5 class="card-title">
-                                        {{ product.product.product_name }}
+                                        {{ order_item.product.name }}
                                     </h5>
                                     <p class="card-text"><small class="text-body-secondary"> Quantity :
-                                            {{ product.orderDetails.quantity }}
+                                            {{ order_item.quantity }}
                                         </small></p>
                                 </div>
                             </div>
@@ -176,8 +177,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Not Now</button>
-                        <a type="button" class="btn btn-inverse-danger"
-                            onclick="cancelOrder('{{ orderId }}','{{ productId }}')">Cancel Now</a>
+                        <a href="{% url 'admin_panel:cancel_order' order_item_id=order_item.id %}" class="btn btn-inverse-danger">Cancel Now</a>
+
                     </div>
                 </div>
             </div>

@@ -197,7 +197,7 @@ def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
      # Increase stock quantity
-    order_item.variation.stock += 1
+    order_item.variation.stock += order_item.quantity
     order_item.variation.save() 
     
     # Update delivery status to 'CN' (Cancelled)

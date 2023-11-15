@@ -68,7 +68,9 @@
 
                                         <td>
                                             <button>
-                                                <p> Payment status </p>
+                                                <p> COD </p>
+
+                                                {% comment %} <p> Payment status </p> {% endcomment %}
                                             {% comment %} {% if order.orderDetails.paymentStatus == "pending" %}
                                                 class="btn-inverse-warning" 
                                             {% elif order.orderDetails.paymentStatus == "success" %}

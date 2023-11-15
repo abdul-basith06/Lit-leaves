@@ -369,3 +369,32 @@ def manage_order(request, order_id, orderitem_id):
     }
 
     return render(request, 'admin_panel/manage_order.html', context)
+
+def cancel_order(request, order_item_id):
+    order_item = get_object_or_404(OrderItem, id=order_item_id)
+    
+     # Increase stock quantity
+    order_item.variation.stock += order_item.quantity
+    order_item.variation.save() 
+    
+    # Update delivery status to 'CN' (Cancelled)
+    order_item.delivery_status = 'CN'
+    order_item.save()
+    
+
+    messages.success(request, 'Order canceled successfully.')
+
+    return redirect('admin_panel:order_management')
+
+def update_order_status(request, order_item_id):
+    if request.method == 'POST':
+        delivery_status = request.POST.get('delivery_status')
+       
+        order_item = OrderItem.objects.get(id=order_item_id)
+
+        order_item.delivery_status = delivery_status
+        order_item.save()
+
+        return redirect('admin_panel:order_management')  
+
+    return render(request, 'admin_panel/order_management.html')
