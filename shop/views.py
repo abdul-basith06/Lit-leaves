@@ -405,7 +405,5 @@ def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')    
     
 
-
-
-
-#
+def shifana(request):
+    pass
