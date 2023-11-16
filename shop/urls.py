@@ -19,6 +19,10 @@ urlpatterns = [
     path('update_address/', views.update_address, name="update_address"),  
     path('place_order/', views.place_order, name='place_order'),
     path('orderplaced/', views.order_placed_view, name='orderplaced'),
+    
+    path('proceed_to_pay/', views.proceed_to_pay, name="proceed_to_pay"),
+    path('place_order_razorpay/', views.place_order_razorpay, name='place_order_razorpay'),
+
 
 
 ]

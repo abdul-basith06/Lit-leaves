@@ -299,7 +299,6 @@ def place_order(request):
             if not cart_items:
                 messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
                 return redirect('shop:cart')
-            
             selected_address_id = request.POST.get('selected_address')
             order_notes = request.POST.get('order_notes')
             
@@ -310,6 +309,7 @@ def place_order(request):
                 return redirect('shop:checkout')  # Adjust the URL to your checkout page
            
             transaction_id = generate_transaction_id()
+            
 
             
             order = Order(
@@ -330,59 +330,68 @@ def place_order(request):
                 cart_item.delivery_status = 'PL'
                 cart_item.save()
            
-            messages.success(request, 'Your order has been placed successfully!')
+            messages.success(request, 'Your order has been placed successfully!')                
             return redirect('shop:orderplaced')
 
     return render(request, "checkout.html")
+
+def place_order_razorpay(request):
+    if request.method == 'POST':
+        selected_address_id = request.POST.get('selectedAddressId')
+        order_notes = request.POST.get('orderNotes')
+        transaction_id = request.POST.get('transaction_id')
+
+        try:
+            selected_address = ShippingAddress.objects.get(id=selected_address_id)
+        except ShippingAddress.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Invalid shipping address'})
+
+        # You might want to add more validation and error handling here
+
+
+        # Create the order
+        order = Order(
+            customer=request.user,
+            payment_method='RAZ',
+            order_notes=order_notes,
+            shipping_address=selected_address,
+            transaction_id=transaction_id
+        )
+        order.save()
+
+        # Mark the order as complete
+        order.complete = True
+        order.save()
+
+        # Update order items (if needed)
+        cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
+        for cart_item in cart_items:
+            cart_item.order = order
+            cart_item.delivery_status = 'PL'
+            cart_item.save()
+            
+             # Empty the cart
+        cart_items.delete()
+
+        return JsonResponse({'status': 'success', 'message': 'Your order has been placed successfully!'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')
 
 
+def proceed_to_pay(request):
+    cart = Order.objects.filter(customer=request.user, complete=False).first()
+    total_price = cart.get_cart_total
+    
+    return JsonResponse({
+        'total_price':total_price,
+    })
+    
+    
 
-# def place_order(request):
-#     if request.user.is_authenticated:
-#         if request.method == 'POST':
-#         # Get form data
-#             selected_address_id = request.POST.get('selected_address')
-#             order_notes = request.POST.get('order_notes')
-#             selected_address = ShippingAddress.objects.get(id=selected_address_id)
 
-#         # Generate a transaction ID (you can customize this part)
-#             transaction_id = generate_transaction_id()
 
-#         # Create the order
-#             order = Order(
-#                 customer=request.user,  # Assuming you have an authenticated user
-#             # Use the selected_address here if you have an Address model
-#                 payment_method='COD',  # Change this to the actual payment method
-#                 order_notes=order_notes,
-#                 shipping_address=selected_address,
-#                 transaction_id=transaction_id
-#             # You may need to set other fields here
-#             )
-#             order.save()
-#             order.complete = True
-#             order.save()
-            
-#             cart_items =OrderItem.objects.filter(order=order)
-            
-#             for cart_item in cart_items:
-#                 order_item = OrderItem(
-#                     product=cart_item.product,
-#                     order=order,
-#                     quantity=cart_item.quantity
-#                 )
-#                 order_item.save()
 
-#             # Clear the user's cart (you need to implement this part)
-#             OrderItem.objects.filter(order=order).delete()
-
-#         # Optionally, you can add the ordered items to the order here
-
-#         # After creating the order, you can display a success message or redirect to an order summary page
-#             messages.success(request, 'Your order has been placed successfully!')
-#             return redirect('shop:store')  # Redirect to the order summary page
-   
-
-#     return render(request, "checkout.html")
+#

@@ -11,7 +11,8 @@ class Order(models.Model):
     complete = models.BooleanField(default=False,null=True,blank=False)
     transaction_id = models.CharField(max_length=200, null=True)
     PAYMENT_METHOD_CHOICES = (
-        ('COD', 'Cash on Delivery'),       
+        ('COD', 'Cash on Delivery'),
+        ('RAZ', 'Paid With Razorpay'),       
     )
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES,  null=True, blank=True)
     shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, blank=True)

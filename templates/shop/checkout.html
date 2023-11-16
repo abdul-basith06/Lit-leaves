@@ -148,33 +148,22 @@
 										</table><!-- End .table table-summary -->
 										<div class="accordion-summary" id="accordion-payment">
 											<div class="card">
-												{% comment %} <div class="card-header" id="heading-1">
-													<h2 class="card-title">
-														<a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-															Direct bank transfer
-														</a>
-													</h2>
-												</div><!-- End .card-header --> {% endcomment %}
-												{% comment %} <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
-													<div class="card-body">
-														Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-													</div><!-- End .card-body -->
-												</div><!-- End .collapse -->
-											</div><!-- End .card -->
+												
 											<div class="card">
 												<div class="card-header" id="heading-2">
 													<h2 class="card-title">
-														<a class="collapsed" role a button data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-															Check payments
+														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+															Pay with Razorpay
 														</a>
 													</h2>
 												</div><!-- End .card-header -->
 												<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
 													<div class="card-body">
-														Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.
-													</div><!-- End .card-body -->
+														<button type="button" class="btn btn-outline-primary-2 btn-order payWithrazorpay mt-2" data-value="razorpay">
+															Pay with Razorpay
+														</button>													</div><!-- End .card-body -->
 												</div><!-- End .collapse -->
-											</div><!-- End .card --> {% endcomment %}
+											</div><!-- End .card --> 
 											<div class="card">
 												<div class="card-header" id="heading-3">
 													<h2 class="card-title">
@@ -182,40 +171,16 @@
 															Cash on delivery
 														</a>
 													</h2>
+													<!-- Hidden input for payment method -->
+<input type="hidden" name="pay_mod" value="COD">
 												</div><!-- End .card-header -->
 												<div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
 													<div class="card-body">You can pay for Cash on Delivery orders using cash at the time of delivery. Cash on Delivery (COD) is available for your Order.
 													</div><!-- End .card-body -->
 												</div><!-- End .collapse -->
 											</div><!-- End .card -->
-											{% comment %} <div class="card">
-												<div class="card-header" id="heading-4">
-													<h2 class="card-title">
-														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-															PayPal <small class="float-right paypal-link">What is PayPal?</small>
-														</a>
-													</h2>
-												</div><!-- End .card-header -->
-												<div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-													<div class="card-body">
-														Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
-													</div><!-- End .card-body -->
-												</div><!-- End .collapse -->
-											</div><!-- End .card -->
-											<div class="card">
-												<div class="card-header" id="heading-5">
-													<h2 class="card-title">
-														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-															Credit Card (Stripe)
-															<img src="assets/images/payments-summary.png" alt="payments cards">
-														</a>
-													</h2>
-												</div><!-- End .card-header -->
-												<div id="collapse-5" class a collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-													<div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-													</div><!-- End .card-body --> {% endcomment %}
-												</div><!-- End .collapse -->
-											</div><!-- End .card -->
+											
+											
 										</div><!-- End .accordion -->
 										<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block"  id="place-order-button">
 											<span class="btn-text">Place Order</span>
@@ -232,3 +197,8 @@
         </main><!-- End .main -->
 
         {% endblock content %}
+
+		{% block scripts %}
+           <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+		   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		{% endblock scripts %}
