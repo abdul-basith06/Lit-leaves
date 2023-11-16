@@ -159,7 +159,7 @@
 												</div><!-- End .card-header -->
 												<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
 													<div class="card-body">
-														<button type="button" class="btn btn-outline-primary-2 btn-order payWithrazorpay mt-2" data-value="razorpay">
+														<button type="button" class="btn btn-outline-primary-2 btn-order payWithrazorpay mt-2" data-name="{{ user_info.name }}" data-email="{{ user_info.email }}" data-contact="{{ user_info.contact }}" data-value="razorpay">
 															Pay with Razorpay
 														</button>													</div><!-- End .card-body -->
 												</div><!-- End .collapse -->
@@ -172,7 +172,7 @@
 														</a>
 													</h2>
 													<!-- Hidden input for payment method -->
-<input type="hidden" name="pay_mod" value="COD">
+                                             <input type="hidden" name="pay_mod" value="COD">
 												</div><!-- End .card-header -->
 												<div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
 													<div class="card-body">You can pay for Cash on Delivery orders using cash at the time of delivery. Cash on Delivery (COD) is available for your Order.
@@ -199,6 +199,6 @@
         {% endblock content %}
 
 		{% block scripts %}
-           <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 		   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+           <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 		{% endblock scripts %}

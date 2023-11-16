@@ -1044,9 +1044,9 @@ function clearCartItem(productId, variationId) {
 {% block scripts %}
 
 {% endblock scripts %}
-{% comment %} <script src="{% static '/assets/js/checkout.js' %}"></script> {% endcomment %}
-<script>
-    $(document).ready(function (){
+<script src="{% static '/assets/js/checkout.js' %}"></script>
+{% comment %} <script> {% endcomment %}
+    {% comment %} $(document).ready(function (){
         $('.payWithrazorpay').click(function (e){
             e.preventDefault();
     
@@ -1071,7 +1071,7 @@ function clearCartItem(productId, variationId) {
                 "description": "Thank you for shopping from us",
                 "image": "https://example.com/your_logo",
              {% comment %} "order_id": "order_9A33XWu170gUtm", {% endcomment %}
-                "handler": function (responseb){
+                {% comment %} "handler": function (responseb){
                     alert(responseb.razorpay_payment_id);
                    data = {
                     'selectedAddressId':selectedAddressId,
@@ -1108,8 +1108,8 @@ function clearCartItem(productId, variationId) {
             
         });
     });
-    
-</script>
+     {% endcomment %}
+{% comment %} </script> {% endcomment %}
 
 
 </body>

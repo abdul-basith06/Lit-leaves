@@ -225,6 +225,15 @@ def checkout(request):
         address = ShippingAddress.objects.filter(user=customer)
         default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
+        
+    user_info = {
+        "name": request.user.get_full_name(),
+        "email": request.user.email,
+        "contact": request.user.mobile_number,
+    }
+        
+       
+        
     context = {
         'address' : address,
         'items' : items,
@@ -232,6 +241,7 @@ def checkout(request):
         'cartItems': cartItems,
         'da':default_address,
         'ra' : remaining_addresses,
+        'user_info':user_info,
     }
     return render(request, 'shop/checkout.html', context)
 
@@ -377,18 +387,22 @@ def place_order_razorpay(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
-def order_placed_view(request):
-    return render(request, 'shop/orderplaced.html')
+
 
 
 def proceed_to_pay(request):
     cart = Order.objects.filter(customer=request.user, complete=False).first()
     total_price = cart.get_cart_total
     
+    
     return JsonResponse({
         'total_price':total_price,
+        
     })
     
+    
+def order_placed_view(request):
+    return render(request, 'shop/orderplaced.html')    
     
 
 
