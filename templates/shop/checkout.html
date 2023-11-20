@@ -106,7 +106,7 @@
 									<textarea class="form-control" cols="30" rows="4" name="order_notes" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
 								</div><!-- End .col-lg-9 -->
 								{% comment %} Your order section {% endcomment %}
-								<aside class="col-lg-3">
+								<aside class="col-lg-3" >
 									<div class="summary">
 										<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
 										<table class="table table-summary">
@@ -149,43 +149,54 @@
 										<div class="accordion-summary" id="accordion-payment">
 											<div class="card">
 												
-											<div class="card">
+											<!-- <div class="card">
 												<div class="card-header" id="heading-2">
 													<h2 class="card-title">
 														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
 															Pay with Razorpay
 														</a>
 													</h2>
-												</div><!-- End .card-header -->
+												</div>
 												<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
 													<div class="card-body">
 														<button type="button" class="btn btn-outline-primary-2 btn-order payWithrazorpay mt-2" data-name="{{ user_info.name }}" data-email="{{ user_info.email }}" data-contact="{{ user_info.contact }}" data-value="razorpay">
 															Pay with Razorpay
-														</button>													</div><!-- End .card-body -->
-												</div><!-- End .collapse -->
-											</div><!-- End .card --> 
-											<div class="card">
-												<div class="card-header" id="heading-3">
-													<h2 class="card-title">
-														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-															Cash on delivery
-														</a>
-													</h2>
-													<!-- Hidden input for payment method -->
-                                             <input type="hidden" name="pay_mod" value="COD">
-												</div><!-- End .card-header -->
-												<div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-													<div class="card-body">You can pay for Cash on Delivery orders using cash at the time of delivery. Cash on Delivery (COD) is available for your Order.
-													</div><!-- End .card-body -->
-												</div><!-- End .collapse -->
-											</div><!-- End .card -->
+														</button>													</div>
+												</div>
+											</div> -->
+
+											<div class="form-check py-1 d-flex justify-content-between">
+												<div class="col-2 d-flex align-items-center"><input style="height:15px; width:15px; vertical-align: middle;" class="form-check-input  my-auto" onchange="managePlaceBTN()" type="radio" name="payment_method"  id="onlineRadio" ></div>
+												<!-- <div class=" "></div> -->
+												<label class="form-check-label col-10 my-auto" style="font-size: 16px;" for="onlineRadio">Online Payment</label>
+											  </div>
+
+											<div class="form-check py-1 d-flex justify-content-between">
+												<div class="col-2 d-flex align-items-center"><input value="cod" style="height:15px; width:15px; vertical-align: middle;" class="form-check-input  my-auto" onchange="managePlaceBTN()" type="radio" name="payment_method" id="codRadio" ></div>
+												<!-- <div class=" "></div> -->
+												<label class="form-check-label col-10 my-auto" style="font-size: 16px;" for="codRadio">COD</label>
+											  </div>
+
+											  <div class="form-check d-flex justify-content-between">
+												<div class="col-2 d-flex align-items-center"><input value="wallet" class="form-check-input  my-auto"  style="height:15px; width:15px; vertical-align: middle;" onchange="managePlaceBTN()" type="radio" name="payment_method" id="walletRadio"  {% if user_wallet.balance < order.get_cart_total %} disabled {% endif %}></div>
+												<!-- <div class=" "></div> -->
+												<label class="form-check-label col-10  " style="font-size: 16px;" for="walletRadio">Wallet</label>
+											  </div>
+											
+											
 											
 											
 										</div><!-- End .accordion -->
-										<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block"  id="place-order-button">
-											<span class="btn-text">Place Order</span>
-											<span class="btn-hover-text">Proceed to Checkout</span>
-										</button>
+										<div >
+											<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block"   id="place-order-button" style="display: none;">
+												<span class="btn-text">Place Order</span>
+												<span class="btn-hover-text">Proceed to Checkout</span>
+											</button>
+											<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block payWithrazorpay"   id="place-order-Online-button" style="display: none;" data-name="{{ user_info.name }}" data-email="{{ user_info.email }}" data-contact="{{ user_info.contact }}" data-value="razorpay">
+												<span class="btn-text">Place Order</span>
+												<span class="btn-hover-text">Proceed to Checkout</span>
+											</button>
+										</div>
 									</div><!-- End .summary -->
 								</aside><!-- End .col-lg-3 -->
 							</div><!-- End .row -->
@@ -195,10 +206,33 @@
 			</div><!-- End .page-content -->
 			
         </main><!-- End .main -->
+		
 
         {% endblock content %}
 
 		{% block scripts %}
+		
 		   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+		 
+<script>
+	function managePlaceBTN(){
+		const codRadio = document.getElementById("codRadio")
+		const walletRadio = document.getElementById("walletRadio")
+		const onlineRadio = document.getElementById("onlineRadio")
+
+		if(codRadio.checked || walletRadio.checked){
+			document.getElementById("place-order-button").style.display="block"
+			document.getElementById("place-order-Online-button").style.display="none"
+			
+		}else if(onlineRadio.checked){
+			document.getElementById("place-order-Online-button").style.display="block"
+			document.getElementById("place-order-button").style.display="none"
+		}else{
+			document.getElementById("place-order-Online-button").style.display="none"
+			document.getElementById("place-order-button").style.display="none"
+		}
+	}
+</script>
+
 		{% endblock scripts %}

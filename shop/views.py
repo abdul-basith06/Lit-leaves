@@ -6,6 +6,7 @@ from user_profile.models import *
 from django.db import transaction
 from imaplib import _Authenticator
 import random
+import razorpay
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from datetime import timedelta
@@ -225,6 +226,7 @@ def checkout(request):
         address = ShippingAddress.objects.filter(user=customer)
         default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
+        user_wallet = Wallet.objects.get(user=customer)
         
     user_info = {
         "name": request.user.get_full_name(),
@@ -242,6 +244,7 @@ def checkout(request):
         'da':default_address,
         'ra' : remaining_addresses,
         'user_info':user_info,
+        'user_wallet':user_wallet,
     }
     return render(request, 'shop/checkout.html', context)
 
@@ -304,7 +307,7 @@ def generate_transaction_id():
 def place_order(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
-            
+            selected_payment_method = request.POST.get('payment_method')
             cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
             if not cart_items:
                 messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
@@ -318,19 +321,33 @@ def place_order(request):
                 messages.error(request, "Please select a valid shipping address before placing your order.")
                 return redirect('shop:checkout')  # Adjust the URL to your checkout page
            
-            transaction_id = generate_transaction_id()
+            
             
 
             
             order = Order(
                 customer=request.user, 
-                payment_method='COD', 
                 order_notes=order_notes,
                 shipping_address=selected_address,
-                transaction_id=transaction_id
+                
             )
+            
+                
             cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
             order.save()
+            
+            if selected_payment_method == 'cod':
+                order.payment_method='COD'
+            elif selected_payment_method == 'wallet':
+                order.payment_method='WAL'
+                user_wallet = Wallet.objects.get(user=request.user)
+                print(user_wallet)
+                total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
+                print(total_amount)
+                user_wallet.balance -= total_amount
+                user_wallet.save()
+                
+                
             order.complete = True
             order.save()
             
@@ -342,14 +359,16 @@ def place_order(request):
            
             messages.success(request, 'Your order has been placed successfully!')                
             return redirect('shop:orderplaced')
-
     return render(request, "checkout.html")
+
 
 def place_order_razorpay(request):
     if request.method == 'POST':
         selected_address_id = request.POST.get('selectedAddressId')
         order_notes = request.POST.get('orderNotes')
         transaction_id = request.POST.get('transaction_id')
+        
+        
 
         try:
             selected_address = ShippingAddress.objects.get(id=selected_address_id)
@@ -357,6 +376,23 @@ def place_order_razorpay(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid shipping address'})
 
         # You might want to add more validation and error handling here
+        
+        # razorpay_order_id = request.POST.get('transaction_id')
+        # razorpay_payment_id = request.POST.get('razorpay_payment_id')
+        # razorpay_signature = request.POST.get('razorpay_signature')
+        
+        # client = razorpay.Client(auth=("rzp_test_NxtHpgxEKbJK1k", "4y3c4ry4B7dOSNu9mlFCtbHL"))
+        
+        # params_dict = {
+        #     'razorpay_order_id': razorpay_order_id,
+        #     'razorpay_payment_id': razorpay_payment_id,
+        #     'razorpay_signature': razorpay_signature,
+        # }
+        
+        # try:
+        #     client.utility.verify_payment_signature(params_dict)
+        # except razorpay.errors.SignatureVerificationError as e:
+        #     return JsonResponse({'status': 'error', 'message': 'Invalid Razorpay signature'})
 
 
         # Create the order
@@ -404,6 +440,3 @@ def proceed_to_pay(request):
 def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')    
     
-
-def shifana(request):
-    pass

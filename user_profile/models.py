@@ -1,9 +1,21 @@
+import uuid
 from django.db import models
-from userauths.models import *
+from userauths.models import User
 from PIL import Image
 
 
+
+
 # Create your models here.
+
+
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    card_id = models.CharField(max_length=12, unique=True)
+    balance = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username}'s Wallet"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -33,4 +45,7 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+
+    
     

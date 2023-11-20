@@ -12,7 +12,8 @@ class Order(models.Model):
     transaction_id = models.CharField(max_length=200, null=True)
     PAYMENT_METHOD_CHOICES = (
         ('COD', 'Cash on Delivery'),
-        ('RAZ', 'Paid With Razorpay'),       
+        ('RAZ', 'Paid With Razorpay'),
+        ('WAL', 'Paid With Wallet'),       
     )
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES,  null=True, blank=True)
     shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, blank=True)

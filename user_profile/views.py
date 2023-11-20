@@ -186,6 +186,8 @@ def my_orders(request):
      # Calculate the expected delivery date for each order
     for order in orders:
         order.expected_delivery_date = order.date_ordered + timedelta(days=3)
+        order.seven_days_after_delivery = order.expected_delivery_date + timedelta(days=7)
+
         
     context = {
         'orders':orders,
@@ -204,7 +206,56 @@ def cancel_order(request, order_item_id):
     order_item.delivery_status = 'CN'
     order_item.save()
     
+     # If payment method is Razorpay, refund amount to user's wallet
+    if order_item.order.payment_method == 'RAZ':
+        user_wallet = Wallet.objects.get(user=request.user)
+        total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
+        user_wallet.balance += total_amount
+        user_wallet.save()
+    
 
     messages.success(request, 'Order canceled successfully.')
 
     return redirect('user_profile:my_orders')
+
+def return_order(request, order_item_id):
+    order_item = get_object_or_404(OrderItem, id=order_item_id)
+    
+    
+    try:
+        # Check if the order is eligible for return (you can implement your logic here)
+
+        # Process the return
+        order_item.delivery_status = 'RT'
+        order_item.save()
+        
+         # Increase stock quantity
+        order_item.variation.stock += order_item.quantity
+        order_item.variation.save() 
+        
+        user_wallet = Wallet.objects.get(user=request.user)
+        # Check if get_total is a method or an attribute
+        total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
+        user_wallet.balance += total_amount
+        user_wallet.save()
+
+        messages.success(request, 'Return Item request success.')
+    except Exception as e:
+        # Handle exceptions, log errors, or display an error message to the user
+        messages.error(request, f'Error processing return request: {e}')
+    
+    return redirect('user_profile:my_orders')
+
+
+
+def wallet(request):
+    user_wallet = None
+
+    if request.user.is_authenticated:
+        user_wallet = Wallet.objects.get(user=request.user)
+
+    context = {
+        'user_wallet': user_wallet,
+    }
+
+    return render(request, 'user_profile/wallet.html', context)
