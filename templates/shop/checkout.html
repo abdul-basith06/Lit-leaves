@@ -19,6 +19,27 @@
 			<div class="page-content">
 				<div class="checkout">
 					<div class="container">
+						<div class="cart-bottom">
+							<div class="cart-discount "  data-order-id="{{ cur_order.id }}">
+								<form id="coupon-form" action="#" method="post">
+									{% csrf_token %}
+									<p id="couponAlert"  ></p>
+									<div class="input-group">
+										<input name="coupon" type="text" class="form-control coupon_code"  placeholder="coupon code">
+										<div class="input-group-append">
+											<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
+										</div><!-- .End .input-group-append -->
+										
+									</div><!-- End .input-group -->
+									<br>
+									{% if order.applied_coupon %}
+									<a href="" class="btn btn-success">{{ order.applied_coupon.code }} X</a>
+								{% endif %}
+								</form>
+							</div><!-- End .cart-discount -->
+
+							<a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
+						</div><!-- End .cart-bottom -->
 						<form action="{% url 'shop:place_order' %}" method="post" id="checkout-form">
 							{% csrf_token %}
 						  <div class="checkout-discount">
@@ -96,12 +117,6 @@
 	<a href="{% url 'shop:addaddress' %}" class="btn btn-outline-primary-2 btn-order">Add Address</a>
 </div>
 </div>
-
-	
-
-
-
-
 									<label>Order notes (optional)</label>
 									<textarea class="form-control" cols="30" rows="4" name="order_notes" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
 								</div><!-- End .col-lg-9 -->
@@ -233,6 +248,45 @@
 			document.getElementById("place-order-button").style.display="none"
 		}
 	}
+</script>
+<script>
+	$(document).ready(function () {
+		$('#coupon-form').submit(function (e) {
+			e.preventDefault();
+
+			var couponCode = $('input[name="coupon"]').val();
+			var orderId = {{ cur_order.id }};  
+			console.log(orderId)
+
+
+			$.ajax({
+				type: 'POST',
+				url: '/shop/apply_coupon/${orderId}/', 
+				data: {'coupon': couponCode, csrfmiddlewaretoken: '{{ csrf_token }}'},
+				dataType: 'json',
+				success: function (response) {
+
+					if(!response.success){
+						document.getElementById("couponAlert").classList.remove("text-success")
+						document.getElementById("couponAlert").classList.add("text-danger")
+						document.getElementById("couponAlert").innerHTML = response.message
+					}else{
+
+						document.getElementById("couponAlert").classList.remove("text-danger")
+						document.getElementById("couponAlert").classList.add("text-success")
+						document.getElementById("couponAlert").innerHTML = response.message
+					}
+					// Check if the coupon was applied successfully
+				//	if (response.success) {
+				//		location.reload();
+				//	}
+				},
+				error: function (error) {
+					console.error('Error:', error);
+				}
+			});
+		});
+	});
 </script>
 
 		{% endblock scripts %}

@@ -129,7 +129,47 @@ def cart(request):
         }
 
     return render(request, 'shop/cart.html', context)
+
+
+def apply_coupon(request, order_id):
+    cart = Order.objects.get(id=order_id)
+    if request.method == 'POST':
+        coupon_code = request.POST.get('coupon')
+        try:
+            coupon = Coupon.objects.get(code=coupon_code)
+            
+            if coupon.valid_till < timezone.now():
+                return JsonResponse({'success': False, 'message': 'Coupon has expired.'})
+            if cart.get_cart_total < coupon.min_purchase_amount:
+                return JsonResponse({'success': False, 'message': 'Amount should be greater than {coupon.min_purchase_amount}'})
+            if not coupon.is_user_eligible(request.user):
+                return JsonResponse({'success': False, 'message': 'You have already used this coupon.'})
+            if cart.applied_coupon:
+                return JsonResponse({'success': False, 'message': 'Coupon already applied.'})
+            
+            cart.applied_coupon=coupon
+            cart.save()
+            return JsonResponse({'success': True, 'message': 'Coupon successfully applied.'})
+
+        except Coupon.DoesNotExist:
+            # messages.error(request, 'Invalid coupon code. Please try again.')
+            return JsonResponse({'success': False, 'message': 'Invalid coupon code. Please try again.'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
     
+    
+# def remove_coupon(request):
+#     cart = get_object_or_404(Order, customer=request.user, complete=False)
+#     cart.applied_coupon = None
+#     cart.save()
+#     context = {
+#         'items': cart.orderitem_set.all(),
+#         'order': cart,
+#         'cartItems': cart.get_cart_items,
+#     }
+#     # return JsonResponse({'success': True, 'message': 'Coupon Removed'})
+#     return render(request, 'shop/cart.html',context)
+
+
 
 @transaction.atomic    
 def updateItem(request):
@@ -221,7 +261,8 @@ def checkout(request):
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()  # Correctly access order items
+        cur_order = Order.objects.get(id=order.id)
+        items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
         address = ShippingAddress.objects.filter(user=customer)
         default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
@@ -245,6 +286,7 @@ def checkout(request):
         'ra' : remaining_addresses,
         'user_info':user_info,
         'user_wallet':user_wallet,
+        'cur_order':cur_order,
     }
     return render(request, 'shop/checkout.html', context)
 
@@ -340,12 +382,17 @@ def place_order(request):
                 order.payment_method='COD'
             elif selected_payment_method == 'wallet':
                 order.payment_method='WAL'
-                user_wallet = Wallet.objects.get(user=request.user)
-                print(user_wallet)
-                total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
-                print(total_amount)
-                user_wallet.balance -= total_amount
-                user_wallet.save()
+                print('wallet working')
+                if order.applied_coupon:
+                    print('coupon apllied checked')
+                    user_wallet = Wallet.objects.get(user=request.user)
+                    print(user_wallet)
+                    total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
+                    print(total_amount)
+                    total_amount -= order.applied_coupon.discount_amount
+                    print("after discount",total_amount)
+                    user_wallet.balance -= total_amount
+                    user_wallet.save()
                 
                 
             order.complete = True

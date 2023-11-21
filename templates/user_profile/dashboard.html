@@ -72,9 +72,15 @@
 
                                             <div class="form-group text-center mx-3 mt-4"> <!-- Added mt-4 for top margin -->
                                                 <label class="image-label">
+                                                  
                                                     <div class="rounded-image-preview">
-                                                        <img src="{{ profile.dp.url }}" alt="User's Profile Picture" class="rounded-circle" style="width: 150px; height: 150px;">
+                                                        {% if profile.dp %}
+                                                            <img src="{{ profile.dp.url }}" alt="User's Profile Picture" class="rounded-circle" style="width: 150px; height: 150px;">
+                                                        {% else %}
+                                                            <img src="#" alt="" class="rounded-circle" style="width: 150px; height: 150px;">
+                                                        {% endif %}
                                                     </div>
+                                                    
                                                 </label>
                                             </div>
                                             <!-- <p><%= user %>  dfd</p> -->
@@ -175,9 +181,17 @@
                                                 <div class="form-group text-center ">
                                                     <label for="imageUpload" class="image-label">
                                                         <div class="form-group text-center mx-3 mt-4"> <!-- Added mt-4 for top margin -->
-                                                            <div class="rounded-image-preview">
+                                                            {% comment %} <div class="rounded-image-preview">
                                                                 <img src="{{ profile.dp.url }}" alt="User's Profile Picture" class="rounded-circle" style="width: 150px; height: 150px">
+                                                            </div> {% endcomment %}
+                                                            <div class="rounded-image-preview">
+                                                                {% if profile.dp %}
+                                                                    <img src="{{ profile.dp.url }}" alt="User's Profile Picture" class="rounded-circle" style="width: 150px; height: 150px;">
+                                                                {% else %}
+                                                                    <img src="#" alt="" class="rounded-circle" style="width: 150px; height: 150px;">
+                                                                {% endif %}
                                                             </div>
+                                                            
                                                         </div>
                                                         <button type="button" class="btn btn-outline-dark profile-inputs" id="updateAvatarButton">Update Avatar</button>
                                                     </label>
