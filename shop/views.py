@@ -2,6 +2,8 @@ import json
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist 
 from .models import *
+from django.urls import reverse
+from django.db import transaction
 from user_profile.models import *
 from django.db import transaction
 from imaplib import _Authenticator
@@ -131,43 +133,9 @@ def cart(request):
     return render(request, 'shop/cart.html', context)
 
 
-def apply_coupon(request, order_id):
-    cart = Order.objects.get(id=order_id)
-    if request.method == 'POST':
-        coupon_code = request.POST.get('coupon')
-        try:
-            coupon = Coupon.objects.get(code=coupon_code)
-            
-            if coupon.valid_till < timezone.now():
-                return JsonResponse({'success': False, 'message': 'Coupon has expired.'})
-            if cart.get_cart_total < coupon.min_purchase_amount:
-                return JsonResponse({'success': False, 'message': 'Amount should be greater than {coupon.min_purchase_amount}'})
-            if not coupon.is_user_eligible(request.user):
-                return JsonResponse({'success': False, 'message': 'You have already used this coupon.'})
-            if cart.applied_coupon:
-                return JsonResponse({'success': False, 'message': 'Coupon already applied.'})
-            
-            cart.applied_coupon=coupon
-            cart.save()
-            return JsonResponse({'success': True, 'message': 'Coupon successfully applied.'})
 
-        except Coupon.DoesNotExist:
-            # messages.error(request, 'Invalid coupon code. Please try again.')
-            return JsonResponse({'success': False, 'message': 'Invalid coupon code. Please try again.'})
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
     
-    
-# def remove_coupon(request):
-#     cart = get_object_or_404(Order, customer=request.user, complete=False)
-#     cart.applied_coupon = None
-#     cart.save()
-#     context = {
-#         'items': cart.orderitem_set.all(),
-#         'order': cart,
-#         'cartItems': cart.get_cart_items,
-#     }
-#     # return JsonResponse({'success': True, 'message': 'Coupon Removed'})
-#     return render(request, 'shop/cart.html',context)
+
 
 
 
@@ -256,12 +224,54 @@ def clearItem(request):
     return JsonResponse("You must be logged in to perform this action", status=400)    
   
 
+# def checkout(request):
+#     if request.user.is_authenticated:
+#         customer = request.user
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         cur_order = Order.objects.get(id=order.id)
+#         items = order.orderitem_set.all() 
+#         cartItems = order.get_cart_items
+#         address = ShippingAddress.objects.filter(user=customer)
+#         default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
+#         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
+#         user_wallet = Wallet.objects.get(user=customer)
+        
+#     user_info = {
+#         "name": request.user.get_full_name(),
+#         "email": request.user.email,
+#         "contact": request.user.mobile_number,
+#     }
+        
+       
+        
+#     context = {
+#         'address' : address,
+#         'items' : items,
+#         'order' : order,
+#         'cartItems': cartItems,
+#         'da':default_address,
+#         'ra' : remaining_addresses,
+#         'user_info':user_info,
+#         'user_wallet':user_wallet,
+#         'cur_order':cur_order,
+#     }
+#     return render(request, 'shop/checkout.html', context)
+  
+  
   
 def checkout(request):
     if request.user.is_authenticated:
         customer = request.user
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        cur_order = Order.objects.get(id=order.id)
+        
+        order = Order.objects.filter(customer=customer, complete=False).first()
+        
+        if not order:
+            
+            order = Order.objects.create(customer=customer)
+            
+        # cur_order = Order.objects.get(id=order.id)
+        order.applied_coupon = None
+        order.save()
         items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
         address = ShippingAddress.objects.filter(user=customer)
@@ -286,74 +296,42 @@ def checkout(request):
         'ra' : remaining_addresses,
         'user_info':user_info,
         'user_wallet':user_wallet,
-        'cur_order':cur_order,
+        # 'cur_order':cur_order,
     }
     return render(request, 'shop/checkout.html', context)
 
 
-def change_address(request, address_id):  
-    selected_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
- 
-    selected_address.status = True
-    selected_address.save()
+def apply_coupon(request, order_id):
+    cart = get_object_or_404(Order, id=order_id)
+    
+    if request.method == 'POST':
+        coupon_code = request.POST.get('coupon')
+        try:
+            coupon = Coupon.objects.get(code=coupon_code)
+            
+            if coupon.valid_till < timezone.now():
+                messages.error(request, 'Coupon has expired.', extra_tags='danger')
+            elif cart.get_cart_total < coupon.min_purchase_amount:
+                messages.error(request, f'Amount should be greater than {coupon.min_purchase_amount}', extra_tags='danger')
+            elif not coupon.is_user_eligible(request.user):
+                messages.error(request, 'You have already used this coupon.', extra_tags='danger')
+            elif cart.applied_coupon:
+                messages.error(request, 'Coupon already applied.', extra_tags='danger')
+            else:
+                cart.applied_coupon = coupon
+                coupon.mark_as_used(request.user)
+                cart.save()
+                messages.success(request, 'Coupon successfully applied.', extra_tags='success')
 
-    ShippingAddress.objects.filter(user=request.user).exclude(id=address_id).update(status=False)
-
+        except Coupon.DoesNotExist:
+            messages.error(request, 'Invalid coupon code. Please try again.', extra_tags='danger')
     return redirect('shop:checkout')
 
-def addaddress(request):
-    return render(request, 'shop/addaddress.html')
-
-
-def update_address(request):
-    if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        address_line = request.POST.get('address_line')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        pin_code = request.POST.get('pin_code')
-        country = request.POST.get('country')
-        mobile = request.POST.get('mobile')
-        status = request.POST.get('status') == 'on'
-
-        
-        user = request.user  
-        address = ShippingAddress(
-            user=user,
-            full_name=full_name,
-            address_lines=address_line,
-            city=city,
-            state=state,
-            pin_code=pin_code,
-            country=country,
-            mobile=mobile,
-            status=status
-        )
-        address.save()
-
-        
-        if status:
-            ShippingAddress.objects.filter(user=user).exclude(id=address.id).update(status=False)
-            address.status = True
-            address.save()
-        
-        
-        messages.success(request, 'Address added successfully.')
-        return redirect('shop:checkout')
-
-    return render(request, 'addaddress.html')
-
-def generate_transaction_id():
-    return random.randint(1000000000, 9999999999)
 
 def place_order(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             selected_payment_method = request.POST.get('payment_method')
-            cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
-            if not cart_items:
-                messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
-                return redirect('shop:cart')
             selected_address_id = request.POST.get('selected_address')
             order_notes = request.POST.get('order_notes')
             
@@ -361,12 +339,14 @@ def place_order(request):
                 selected_address = ShippingAddress.objects.get(id=selected_address_id)
             except ShippingAddress.DoesNotExist:
                 messages.error(request, "Please select a valid shipping address before placing your order.")
-                return redirect('shop:checkout')  # Adjust the URL to your checkout page
-           
+                return redirect('shop:checkout') 
             
+            cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
+            if not cart_items:
+                messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
+                return redirect('shop:cart')
             
-
-            
+                       
             order = Order(
                 customer=request.user, 
                 order_notes=order_notes,
@@ -374,8 +354,11 @@ def place_order(request):
                 
             )
             
-                
-            cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
+            # Get the current cart and apply its coupon to the order
+            current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)
+            if current_cart.applied_coupon:
+                order.applied_coupon = current_cart.applied_coupon
+            
             order.save()
             
             if selected_payment_method == 'cod':
@@ -487,3 +470,57 @@ def proceed_to_pay(request):
 def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')    
     
+def change_address(request, address_id):  
+    selected_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
+ 
+    selected_address.status = True
+    selected_address.save()
+
+    ShippingAddress.objects.filter(user=request.user).exclude(id=address_id).update(status=False)
+
+    return redirect('shop:checkout')
+
+def addaddress(request):
+    return render(request, 'shop/addaddress.html')
+
+
+def update_address(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        address_line = request.POST.get('address_line')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        pin_code = request.POST.get('pin_code')
+        country = request.POST.get('country')
+        mobile = request.POST.get('mobile')
+        status = request.POST.get('status') == 'on'
+
+        
+        user = request.user  
+        address = ShippingAddress(
+            user=user,
+            full_name=full_name,
+            address_lines=address_line,
+            city=city,
+            state=state,
+            pin_code=pin_code,
+            country=country,
+            mobile=mobile,
+            status=status
+        )
+        address.save()
+
+        
+        if status:
+            ShippingAddress.objects.filter(user=user).exclude(id=address.id).update(status=False)
+            address.status = True
+            address.save()
+        
+        
+        messages.success(request, 'Address added successfully.')
+        return redirect('shop:checkout')
+
+    return render(request, 'addaddress.html')
+
+def generate_transaction_id():
+    return random.randint(1000000000, 9999999999)

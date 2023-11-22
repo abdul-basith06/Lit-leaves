@@ -533,10 +533,18 @@
                             </ul><!-- End .menu -->
                         </nav><!-- End .main-nav -->
                     </div><!-- End .header-left -->
-
                     <div class="header-right">
                         <div class="header-search">
+                            <a href="{% url 'user_profile:dashboard' %}" title="My account">
+                                <div class="icon">
+                                    <i class="icon-user"></i>
+                                </div>
+                                <p>Account</p>
+                            </a>
+                        </div><!-- End .compare-dropdown -->
+                        <div class="header-search">
                             <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
+                           
                             <form action="#" method="get">
                                 <div class="header-search-wrapper">
                                     <label for="q" class="sr-only">Search</label>

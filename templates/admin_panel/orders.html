@@ -68,17 +68,9 @@
 
                                         <td>
                                             <button>
-                                                <p> COD </p>
+                                                 {{order.payment_method}} 
 
-                                                {% comment %} <p> Payment status </p> {% endcomment %}
-                                            {% comment %} {% if order.orderDetails.paymentStatus == "pending" %}
-                                                class="btn-inverse-warning" 
-                                            {% elif order.orderDetails.paymentStatus == "success" %}
-                                                class="btn-inverse-success" 
-                                            {% elif order.orderDetails.paymentStatus == "failed" %}
-                                                class="btn-inverse-danger" 
-                                            {% endif %}>        
-                                            {{ order.orderDetails.paymentStatus }} {% endcomment %}
+                                            
                                             </button>
                                         </td>
 

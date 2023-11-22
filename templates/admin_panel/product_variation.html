@@ -1,10 +1,12 @@
 
 {% extends 'partials/admin_base.html' %}
 {% block content %}
+<div class="main-panel">
+  <div class="content-wrapper">
 
+      <div class="row ">
 
-
-<div class="container">
+<div class="container   ">
     <h2>Product Variations for {{ product.name }}</h2>
     <table class="table">
         <thead>
@@ -33,6 +35,10 @@
     Add a Variant
   </button>
 </div>
+</div>
+</div>
+
+
 
 <!-- Edit Stock Modals -->
 {% for variation in product.productlanguagevariation_set.all %}

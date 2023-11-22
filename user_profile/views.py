@@ -198,16 +198,15 @@ def my_orders(request):
 def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
-     # Increase stock quantity
     order_item.variation.stock += order_item.quantity
     order_item.variation.save() 
     
-    # Update delivery status to 'CN' (Cancelled)
+    
     order_item.delivery_status = 'CN'
     order_item.save()
     
      # If payment method is Razorpay, refund amount to user's wallet
-    if order_item.order.payment_method == 'RAZ':
+    if order_item.order.payment_method == 'RAZ' or order_item.order.payment_method == 'WAL':
         user_wallet = Wallet.objects.get(user=request.user)
         total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
         user_wallet.balance += total_amount

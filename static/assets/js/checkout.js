@@ -27,7 +27,7 @@ $(document).ready(function (){
 
               var options = {
             "key": "rzp_test_NxtHpgxEKbJK1k", // Enter the Key ID generated from the Dashboard
-            "amount": 1 * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "amount": response.total_price * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
             "currency": "INR",
             "name": "Lit Leaves", //your business name
             "description": "Thank you for shopping from us",
