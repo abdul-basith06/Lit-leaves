@@ -258,3 +258,31 @@ def wallet(request):
     }
 
     return render(request, 'user_profile/wallet.html', context)
+
+def coupons(request):
+    all_coupons = Coupon.objects.all()
+    
+    eligible_coupons = []
+    used_coupons = []
+    expired_coupons = []
+    current_date = timezone.now().date()
+    print(current_date)
+
+
+    for coupon in all_coupons:
+        if coupon.valid_till.date() < current_date:
+            expired_coupons.append(coupon)
+        elif coupon.is_user_eligible(request.user):
+            eligible_coupons.append(coupon)
+        else:
+            used_coupons.append(coupon)
+                
+
+    context = {
+        'eligible_coupons': eligible_coupons,
+        'used_coupons': used_coupons,
+        'expired_coupons': expired_coupons,
+
+    }
+
+    return render(request, 'user_profile/coupon.html', context)

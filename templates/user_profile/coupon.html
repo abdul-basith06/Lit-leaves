@@ -1,0 +1,98 @@
+{% extends 'partials/base2.html' %}
+{% block content %}
+
+
+
+<main class="main">
+    <div class="container-fluid d-flex flex-column justify-content-center py-5">
+        <div class="row p-2 col-12 d-flex justify-content-center">
+            {% for coupon in eligible_coupons %}
+                <div class="card m-2 col-md-5 col-10 p-4 pt-3" style="background: #F3F3F9; border-radius: 10px;">
+                    <div class="card-body">
+                        <h5 class="text-success">
+                            <i class="fa-solid fa-medal"></i> Redeemable
+                        </h5>
+                        <h6 class="card-title mb-1 text-light" style="font-size: 25px;">
+                            <i class="fa-solid fa-gift"></i>
+                            {{ coupon.code }}
+                        </h6>
+                        <p class="card-text">Discount: ₹{{ coupon.discount_amount }}</p>
+                        <p class="card-text">Minimum Spend: ₹{{ coupon.min_purchase_amount }}</p>
+                        <hr class="m-0 p-0 my-3">
+                        <div>
+                            <p style="font-size: 10px;"><b>T&C:</b> {{ coupon.terms_and_conditions }}</p>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <p class="text-dark" type="button">Expires on:</p>
+                            <p class="mx-3">:</p>
+                            <p class="text-danger" type="button">{{ coupon.valid_till|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for coupon in used_coupons %}
+                <div class="card m-2 col-md-5 col-10 p-4 pt-3" style="background: #F3F3F9; border-radius: 10px;">
+                    <div class="card-body">
+                        <h5 class="text-warning">
+                            <i class="fa-solid fa-medal"></i> Already Redeemed
+                        </h5>
+                        <h6 class="card-title mb-1 text-light" style="font-size: 25px;">
+                            <i class="fa-solid fa-gift"></i>
+                            {{ coupon.code }}
+                        </h6>
+                        <p class="card-text">Discount: ₹{{ coupon.discount_amount }}</p>
+                        <p class="card-text">Minimum Spend: ₹{{ coupon.min_purchase_amount }}</p>
+                        <hr class="m-0 p-0 my-3">
+                        <div>
+                            <p style="font-size: 10px;"><b>T&C:</b> {{ coupon.terms_and_conditions }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for coupon in expired_coupons %}
+            <div class="card m-2 col-md-5 col-10 p-4 pt-3" style="background: #F3F3F9; border-radius: 10px;">
+                <div class="card-body">
+                    <h5 class="text-danger">
+                        <i class="fa-solid fa-medal"></i> Expired
+                    </h5>
+                    <h6 class="card-title mb-1 text-light" style="font-size: 25px;">
+                        <i class="fa-solid fa-gift"></i>
+                        {{ coupon.code }}
+                    </h6>
+                    <p class="card-text">Discount: ₹{{ coupon.discount_amount }}</p>
+                    <p class="card-text">Minimum Spend: ₹{{ coupon.min_purchase_amount }}</p>
+                    <p class="card-text">Expired on: {{ coupon.valid_till|date:"F d, Y" }}</p>
+                    <hr class="m-0 p-0 my-3">
+                    <div>
+                        <p style="font-size: 10px;"><b>T&C:</b> {{ coupon.terms_and_conditions }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+            {% if not eligible_coupons and not used_coupons %}
+                <div class="card m-2 col-md-5 col-10 p-4 pt-3" style="background: #F3F3F9; border-radius: 10px;">
+                    <div class="card-body">
+                        <h6 class="card-title mb-1 text-center text-light" style="font-size: 25px;">
+                            <i class="fa-solid fa-gift"></i>
+                            No Coupons Available
+                        </h6>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+
+
+
+
+
+
+
+
+
+{% endblock content %}

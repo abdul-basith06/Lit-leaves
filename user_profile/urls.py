@@ -22,6 +22,8 @@ urlpatterns = [
 
     
     path('wallet/', views.wallet, name='wallet'),
+    path('coupons/', views.coupons, name='coupons'),
+
 
 
 
