@@ -2,6 +2,106 @@
 {% block content %}
 
 
-
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row ">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h4 class="card-title">
+                                <p class=""></p>Coupon Management
+                            </h4>
+                            <a href="{% url 'admin_panel:add_coupons' %}" class="btn btn-outline-success d-flex align-items-center">
+                                <b>+</b> Add Coupon
+                            </a>
+                        </div>
+                        <hr class="white-line my-4">
+                        <div class="mb-5 ">
+                            <ul class="navbar-nav w-100">
+                                <li class="nav-item w-100">
+                                    <!-- Add your search form here if needed -->
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Coupon Code</th>
+                                        <th>Discount Amount</th>
+                                        <th>Valid From</th>
+                                        <th>Valid To</th>
+                                        <th>Minimum Spend</th>
+                                        <th>Used By</th>
+                                        <th>Edit</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for coupon in coupon %}
+                                        <tr>
+                                            <td class="text-uppercase">
+                                                    {{ coupon.code }}
+                                            </td>
+                                            <td>{{ coupon.discount_amount }}</td>
+                                            <td>{{ coupon.valid_from|date:"F d, Y" }}</td>
+                                            <td>{{ coupon.valid_till|date:"F d, Y" }}</td>
+                                            <td>{{ coupon.min_purchase_amount }}</td>
+                                            <td>
+                                                {% if coupon.used_by.exists %}
+                                                    <select>
+                                                        {% for user in coupon.used_by.all %}
+                                                            <option value="{{ user.id }}">{{ user.username }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% else %}
+                                                    No Users
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <td>
+                                                <a type="button" class="btn btn-inverse-info" href="{% url 'admin_panel:edit_coupon' coupon_id=coupon.id %}">
+                                                    Edit
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-inverse-danger" data-bs-target="#deleteModal{{ coupon.id }}" data-bs-toggle="modal">
+                                                    Remove
+                                                </button>
+                                                                  <!-- Remove coupon Modal -->
+<div class="modal fade" id="deleteModal{{ coupon.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header">
+                <h5 class="" id="exampleModalLabel">Remove Coupon</h5>
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <form action="{% url 'admin_panel:delete_coupon' coupon_id=coupon.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p>Are you sure that you want to delete this coupon?</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" data-bs-dismiss="modal">Cancel</a>
+                    <button type="submit" class="btn btn-outline-primary-2" style="border-radius: 7px; background: #000; color: #fff;">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+                                            </td>
+                                        </tr>
+                                        <!-- Add your modal code here -->
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}

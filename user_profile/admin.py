@@ -6,3 +6,4 @@ from .models import *
 admin.site.register(UserProfile)
 admin.site.register(ShippingAddress)
 admin.site.register(Wallet)
+admin.site.register(Wishlist)

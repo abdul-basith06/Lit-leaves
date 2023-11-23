@@ -1,5 +1,7 @@
 from django.http import Http404
 from django.shortcuts import render,redirect
+
+from .forms import CouponForm
 from .models import *
 from userauths.models import User
 from collections import defaultdict
@@ -398,3 +400,66 @@ def update_order_status(request, order_item_id):
         return redirect('admin_panel:order_management')  
 
     return render(request, 'admin_panel/order_management.html')
+
+def coupons(request):
+    coupon = Coupon.objects.all()
+    context = {
+        'coupon':coupon,
+    }
+    return render(request, 'admin_panel/coupons.html',context)
+
+
+def add_coupons(request):
+    form = CouponForm()
+
+    if request.method == 'POST':
+        form = CouponForm(request.POST)
+        if form.is_valid():
+            coupon = form.save()
+            messages.success(request, 'Coupon added successfully.')
+            return redirect('admin_panel:coupons')
+        else:
+            messages.error(request, 'Error adding the coupon. Please check the form data.')
+    context = {
+        'form':form,
+    }        
+    return render(request, 'admin_panel/add_coupons.html',context)
+
+def edit_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    form = CouponForm(instance=coupon)
+    context = {
+        'form':form,
+        'coupon_id':coupon_id,
+    }
+    return render(request, 'admin_panel/edit_coupon.html',context)
+
+def update_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    if request.method == 'POST':
+        form = CouponForm(request.POST, instance=coupon)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Coupon edited successfully.')
+            return redirect('admin_panel:coupons')
+    else:
+        form = CouponForm(instance=coupon)
+    context = {
+        'form':form,
+        'coupon_id':coupon_id,
+    }
+    return render(request, 'admin_panel/edit_coupon.html',context)
+
+def delete_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    if request.method == 'POST':
+        coupon.delete()
+        messages.success(request, 'Coupon deleted successfully.')
+        return redirect('admin_panel:coupons')
+    
+    return render(request, 'admin_panel/coupons.html')
+    
+
+
+
+    

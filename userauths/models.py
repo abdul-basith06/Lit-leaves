@@ -2,8 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from user_profile.models import UserProfile
-
-from user_profile.models import UserProfile
+from user_profile.models import UserProfile,Wishlist
 
 
 class User(AbstractUser):
@@ -21,6 +20,8 @@ class User(AbstractUser):
             UserProfile.objects.create(user=self)
             from user_profile.models import Wallet
             Wallet.objects.create(user=self, card_id=self.generate_card_id(), balance=0)
+            Wishlist.objects.create(user=self)
+
 
     def generate_card_id(self):
         # Generate a random 12-digit card ID using uuid

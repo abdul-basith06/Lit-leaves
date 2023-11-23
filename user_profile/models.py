@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from PIL import Image
 
+from admin_panel.models import Product
+
 
 
 
@@ -46,6 +48,15 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+class Wishlist(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    items = models.ManyToManyField(Product, related_name='wishlist_items', blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Wishlist"    
+        
     
 
     
