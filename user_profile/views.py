@@ -286,3 +286,42 @@ def coupons(request):
     }
 
     return render(request, 'user_profile/coupon.html', context)
+
+def wishlist(request):
+    wishlist = Wishlist.objects.get(user=request.user)
+    context = {
+        'wishlist':wishlist,
+    }
+    return render(request, 'user_profile/wishlist.html',context)
+
+def remove_item_wishlist(request, item_id):
+    wishlist = get_object_or_404(Wishlist, user=request.user)
+    product = get_object_or_404(Product, id=item_id)
+
+    wishlist.items.remove(product)
+    wishlist.save()
+    
+    return redirect('user_profile:wishlist')
+
+from django.http import JsonResponse
+
+def add_to_wishlist(request, product_id):
+    response_data = {}
+
+    try:
+        if not request.user.is_authenticated:
+            raise Exception('User not authenticated')
+
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        product = get_object_or_404(Product, id=product_id)
+
+        wishlist.items.add(product)
+        wishlist.save()
+
+        response_data['success'] = True
+        response_data['message'] = 'Item added to your wishlist'
+    except Exception as e:
+        response_data['success'] = False
+        response_data['error'] = str(e)
+
+    return JsonResponse(response_data, safe=False)

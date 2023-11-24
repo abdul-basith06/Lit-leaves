@@ -115,7 +115,7 @@
                             </div><!-- End .compare-dropdown -->
 
                             <div class="wishlist">
-                                <a href="wishlist.html" title="Wishlist">
+                                <a href="{% url 'user_profile:wishlist' %}" title="Wishlist">
                                     <div class="icon">
                                         <i class="icon-heart-o"></i>
                                         <span class="wishlist-count badge">3</span>
@@ -677,6 +677,7 @@
 
 </div>
 <script src="{% static '/assets/js/cart.js' %}"></script>
+<script src="{% static '/assets/js/wishlist.js' %}"></script>
 <!-- Plugins JS File -->
 <script src="{% static 'assets/js/jquery.min.js' %}"></script>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
@@ -688,10 +689,35 @@
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
 <script src="{% static 'assets/js/demos/demo-20.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('.btn-wishlist').on('click', function(e) {
+        e.preventDefault();
+
+
+        var productId = $(this).data('product-id');
+
+        $.ajax({
+            type: 'GET',
+            url: '/user_profile/add_to_wishlist/' + productId + '/',
+            success: function(response) {
+                console.log('Product added to wishlist successfully');
+                // Display the success message in the modal
+                $('#customModal .modal-body').text(response.message);
+                $('#customModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding product to wishlist:', error);
+
+                // Log more details about the error
+                console.log('XHR:', xhr);
+                console.log('Status:', status);
+            }
+        });
+    });
+});
+</script>
 </body>
 
 
-<!-- molla/index-20.html  22 Nov 2019 10:01:31 GMT -->
-
-</body>
 </html>

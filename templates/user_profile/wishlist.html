@@ -1,0 +1,83 @@
+{% extends 'partials/base2.html' %}
+{% block content %}
+
+<main class="main">
+    <div class="page-header text-center" style="background-image: url('user/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title text-white">My Wishlist</h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
+    <div class="page-content">
+        <div class="container">
+            {% if wishlist %}
+                <table class="table table-wishlist table-mobile">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Author</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in wishlist.items.all %}
+                            <tr>
+                                <td class="product-col">
+                                    <div class="product">
+                                        <figure class="product-media">
+                                            <a href="#">
+                                                <img src="{{ item.productimage_set.first.image.url }}"
+                                                    alt="{{ item.product.name }}">
+                                            </a>
+                                        </figure>
+
+                                        <h3 class="product-title">
+                                            <a href="#">{{ item.name }}</a>
+                                        </h3><!-- End .product-title -->
+                                    </div><!-- End .product -->
+                                </td>
+                                <td class="price-col">{{ item.author }}</td>
+                                <td class="price-col">₹ {{ item.price }}</td>
+                                <td class="price-col">{{ item.category.name }}</td>
+                                <td class="action-col">
+                                    <a href="{% url 'shop:product' product_id=item.id %}" style="color: rgb(107, 107, 107);"
+   class="btn btn-block btn-outline-primary-2">
+    <i class="far fa-eye"></i> View Product
+</a>
+                                </td>
+                                <td class="remove-col">
+                                    <a href="{% url 'user_profile:remove_item_wishlist' item.id %}" class="btn-remove">
+                                        <i class="icon-close"></i>
+                                    </a>
+                                </td>
+                                
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table><!-- End .table table-wishlist -->
+            {% else %}
+                <div class="price-col w-100 my-5 text-center text-light">
+                    <i class="fa-regular fa-bookmark " style="font-size: 60px;"></i> <br>
+                    <p class="mt-2 text-light" style="font-size: 20px;">Your Wishlist is Empty</p>
+                </div>
+            {% endif %}
+        </div><!-- End .container -->
+    </div><!-- End .page-content -->
+</main><!-- End .main -->
+
+
+
+
+
+{% endblock content %}

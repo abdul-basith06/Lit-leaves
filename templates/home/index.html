@@ -200,7 +200,8 @@
                                                     </button>
                                                 </a> {% endcomment %}
                                                 
-                                                <a href="#" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
+                                                <a href="#" class="btn-product btn-wishlist" data-product-id="{{ product.id }}" ><span>Add to Wishlist{{ product.id }}</span></a>
+
                                             </div>
                                         </div>
                                     </div>
@@ -213,6 +214,25 @@
             </div>
             
 
+<!-- Add this in your HTML body section -->
+<div class="modal fade" id="customModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Wishlist Notification</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- This will be dynamically filled with the success message -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

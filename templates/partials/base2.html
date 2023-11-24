@@ -900,6 +900,7 @@
 
 {% comment %} arshad link akkiya saanam {% endcomment %}
 <script src="{% static '/assets/js/cart.js' %}"></script>
+<script src="{% static '/assets/js/wishlist.js' %}"></script>
 <script src="{% static '/assets/js/dashboard.js' %}"></script>
 <script src="{% static '/assets/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static '/assets/js/jquery.hoverIntent.min.js' %}"></script>
@@ -1135,34 +1136,39 @@ for (var i = 0; i < removeButtons.length; i++) {
         });
     }
     </script>
-    
-{% comment %} 
-function clearCartItem(productId, variationId) {
-    var url = '/shop/clearitem/';
 
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify({ "productId": productId, "variationId": variationId }) // Include the variation ID in the payload
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            console.log('data:', data);
-            location.reload(); // Reload the cart page to reflect the updated cart
-        })
-        .catch((error) => {
-            console.error('Error:', error);
+    <script>
+      
+        
+    </script>
+    
+<script>  
+
+    $(document).ready(function() {
+        $('.btn-wishlist').on('click', function(e) {
+            e.preventDefault();
+            console.log('Script loaded successfully');
+    
+    
+            var productId = $(this).data('product-id');
+    
+            $.ajax({
+                type: 'GET',
+                url: '/user_profile/add_to_wishlist/' + productId + '/',
+                success: function(response) {
+                    console.log('Product added to wishlist successfully');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding product to wishlist:', error);
+    
+                    // Log more details about the error
+                    console.log('XHR:', xhr);
+                    console.log('Status:', status);
+                }
+            });
         });
-}
-</script>  {% endcomment %}
+    });
+</script>  
 
 {% block scripts %}
 
