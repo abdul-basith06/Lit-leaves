@@ -1,9 +1,11 @@
+import random
 from django.shortcuts import get_object_or_404, redirect, render
 from admin_panel.models import *
 from django.contrib.auth import update_session_auth_hash
 from datetime import timedelta
 from django.contrib import messages
 from .forms import *
+from .helpers import render_to_pdf
 from shop.models import *
 from .models import *
 from django.http import Http404, HttpResponse, JsonResponse  # Import HttpResponse from django.http
@@ -325,3 +327,28 @@ def add_to_wishlist(request, product_id):
         response_data['error'] = str(e)
 
     return JsonResponse(response_data, safe=False)
+
+def generate_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    invoice_number = str(random.randint(100000, 999999))
+
+
+    context = {
+        'order': order,
+        'invoice_number':invoice_number,
+       
+    }
+ 
+
+    pdf = render_to_pdf('user_profile/invoice.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename =f"invoice_{order.id}.pdf"
+        content = "inline; filename='%s'" % filename
+        response['Content-Disposition'] = content
+        return response
+    else:
+        print("Error generating the PDF.")
+        return HttpResponse("Error generating the invoice.")
+
+    

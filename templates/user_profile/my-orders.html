@@ -13,10 +13,10 @@
                     <p style="font-size: 16px;">Ordered on</p>
                     <p style="font-size: 18px;"><b>{{ order.date_ordered }}</b></p>
                 </div>
-                <!-- <div>
-                            <p style="font-size: 16px;">Total</p>
-                            <p style="font-size: 18px;"><b>${{ order.get_cart_total }}</b></p>
-                        </div> -->
+                <div>
+                                           <a href="{% url 'user_profile:generate_invoice' order.id %}" target="_blank" download>Download Invoice</a>
+
+                        </div> 
                 <!-- <div>
                             <p style="font-size: 16px;">Delivery to</p>
                             <p style="font-size: 18px;"><b>{{ order.shipping_address }}</b></p>
@@ -38,6 +38,7 @@
                     Quantity: <b>{{ order_item.quantity }}</b><br>
                     <i class="fa-solid fa-file-invoice-dollar"></i> {{ order.payment_method }}
                 </p>
+
                 <h5 class="card-title mb-2">₹ {{ order_item.get_total }} </h5>
                 <div class="card-footer row "
                     style="background: #F3F3F9; display: flex; justify-content: space-between; align-items: center; width: 100%;">
