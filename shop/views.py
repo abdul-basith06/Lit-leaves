@@ -1,6 +1,8 @@
 import json
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist 
+from django.db.models import Q
+
 from .models import *
 from django.urls import reverse
 from django.db import transaction
@@ -29,19 +31,42 @@ from django.shortcuts import render, get_object_or_404
 
 
 
-def store(request):
+def store(request, category_slug=None):
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
-    products = Product.objects.filter(is_active=True)  # Fetch only active products
-    
-    for product in products:
+        categories = Categories.objects.all()    
+        selected_category_ids = request.GET.getlist('categories')
+        products = Product.objects.filter(is_active=True)
+
+        if selected_category_ids:
+            category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
+            combined_category_filter = Q()
+            for category_filter in category_filters:
+                combined_category_filter |= category_filter
+            products = products.filter(combined_category_filter)
+            
+        min_price = request.GET.get('min_price', None)
+        max_price = request.GET.get('max_price', None)  
         
+        if min_price and max_price:
+            try:
+                min_price = float(min_price)
+                max_price = float(max_price)
+                products = products.filter(price__range=(min_price, max_price))
+            except ValueError:
+                # Handle the case where min_price or max_price is not a valid number
+                pass         
+    
+   
+
+        
+    for product in products:
         product.variation = product.productlanguagevariation_set.first()
         
-        product.in_cart = any(item.product == product for item in items)
+        # product.in_cart = any(item.product == product for item in items)
 
     paginator = Paginator(products, 9)  # Show 9 active products per page
 
@@ -56,6 +81,10 @@ def store(request):
     context = {
         'products': products,
         'cartItems': cartItems,
+        'categories': categories,
+        'selected_category_ids': selected_category_ids,
+        'min_price': min_price,
+        'max_price': max_price,
     }    
 
     return render(request, 'shop/store.html', context)

@@ -31,7 +31,7 @@
                                 </div><!-- End .toolbox-info -->
                             </div><!-- End .toolbox-left -->
 
-                            <div class="products mb-3">
+                            <div class="products mb-3" id="your-product-container">
                                 <div class="row justify-content-center">
                                     <!-- Your product listing code here -->
                                     {% for product in products %}
@@ -52,7 +52,7 @@
                                                     alt="Product image" class="product-image"></a>
                                                 <div class="product-action-vertical">
                                                     <span
-                                                        class="btn-product-icon btn-wishlist btn-expandable"  data-product-id="{{ related_product.id }}" ><span>add
+                                                        class="btn-product-icon btn-wishlist btn-expandable"  data-product-id="{{ product.id }}" ><span>add
                                                             to wishlist</span></span>
                                                     <span class="btn-product-icon btn-quickview"
                                                         title="Quick view"><span>Quick view</span></span>
@@ -69,7 +69,25 @@
                                                     {% endif %}
                                                 </div>
                                                 
-                                                
+                                                <!-- Add this in your HTML body section sweet alert section -->
+<div class="modal fade" id="customModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Wishlist Notification</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- This will be dynamically filled with the success message -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
                                                 
                                             </figure><!-- End .product-media -->
                                             <div class="product-body">
@@ -155,25 +173,117 @@
                                         Category
                                     </a>
                                 </h3><!-- End .widget-title -->
-
+                            
                                 <div class="collapse show" id="widget-1">
                                     <div class="widget-body">
-                                        <div class="filter-items filter-items-count">
+                                        <form id="combined-filter-form" method="GET">
+                                            {% csrf_token %}
+                                            <div class="filter-items filter-items-count">
+                                                {% for category in categories %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input"
+                                                                id="cat-{{ category.id }}"
+                                                                name="categories" value="{{ category.id }}"
+                                                                {% if category.id in selected_category_ids %}checked{% endif %}>
+                                                            <label class="custom-control-label"
+                                                                for="cat-{{ category.id }}">{{ category.name }}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                        <span class="item-count">{{ category.product_set.count }}</span>
+                                                    </div><!-- End .filter-item -->
+                                                {% endfor %}
+                                            </div><!-- End .filter-items -->
+                            
+                                            <!-- Add the price filter inputs -->
                                             <div class="filter-item">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input"
-                                                        id="cat-1">
-                                                    <label class="custom-control-label"
-                                                        for="cat-1">Dresses</label>
-                                                </div><!-- End .custom-checkbox -->
-                                                <span class="item-count">3</span>
-                                            </div><!-- End .filter-item -->
-
-                                            <!-- Add more category filter items here -->
-                                        </div><!-- End .filter-items -->
+                                                <label for="min_price">Min Price:</label>
+                                                <input type="number" id="min_price" name="min_price" value="{{ min_price }}">
+                                            </div>
+                                            <div class="filter-item">
+                                                <label for="max_price">Max Price:</label>
+                                                <input type="number" id="max_price" name="max_price" value="{{ max_price }}">
+                                            </div>
+                            
+                                            <!-- Add the Apply button -->
+                                            <div class="filter-item">
+                                                <button type="submit" onclick="updateFilters();">Apply</button>
+                                            </div>
+                                        </form>
                                     </div><!-- End .widget-body -->
                                 </div><!-- End .collapse -->
                             </div><!-- End .widget -->
+                            
+
+                            {% comment %} <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-1" role="button"
+                                        aria-expanded="true" aria-controls="widget-1">
+                                        Category
+                                    </a>
+                                </h3><!-- End .widget-title -->
+                            
+                                <div class="collapse show" id="widget-1">
+                                    <div class="widget-body">
+                                        <form id="category-filter-form" method="GET">
+                                            {% csrf_token %}
+                                            <div class="filter-items filter-items-count">
+                                                {% for category in categories %}
+                                                    <div class="filter-item">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input"
+                                                                id="cat-{{ category.id }}"
+                                                                name="categories" value="{{ category.id }}"
+                                                                {% if category.id in selected_category_ids %}checked{% endif %}>
+                                                            
+                                                            <label class="custom-control-label"
+                                                                for="cat-{{ category.id }}">{{ category.name }}</label>
+                                                        </div><!-- End .custom-checkbox -->
+                                                        <span class="item-count">{{ category.product_set.count }}</span>
+                                                    </div><!-- End .filter-item -->
+                                                {% endfor %}
+                                            </div><!-- End .filter-items -->
+                                            
+                                           <!-- Add the Apply button -->
+    <div class="filter-item">
+        <button type="button" onclick="updateFilters();">Apply</button>
+    </div>
+                                        </form>
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
+                            
+                            
+                            <!-- Add this section to your template for the price filter -->
+<div class="widget widget-collapsible">
+    <h3 class="widget-title">
+        <a data-toggle="collapse" href="#widget-2" role="button"
+            aria-expanded="true" aria-controls="widget-2">
+            Price
+        </a>
+    </h3><!-- End .widget-title -->
+
+    <div class="collapse show" id="widget-2">
+        <div class="widget-body">
+            <form id="price-filter-form" method="GET">
+                {% csrf_token %}
+                <div class="filter-items filter-items-count">
+                    <div class="filter-item">
+                        <label for="min_price">Min Price:</label>
+                        <input type="number" id="min_price" name="min_price" value="{{ min_price }}" onchange="updatePriceFilter();">
+                    </div>
+                    <div class="filter-item">
+                        <label for="max_price">Max Price:</label>
+                        <input type="number" id="max_price" name="max_price" value="{{ max_price }}" onchange="updatePriceFilter();">
+                    </div>
+                    <div class="filter-item">
+                        <button type="button" onclick="updateFilters();">Apply</button>
+                    </div>
+                </div><!-- End .filter-items -->
+            </form>
+        </div><!-- End .widget-body -->
+    </div><!-- End .collapse -->
+</div><!-- End .widget --> {% endcomment %}
+
 
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">

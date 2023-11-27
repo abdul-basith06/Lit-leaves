@@ -1141,7 +1141,7 @@ for (var i = 0; i < removeButtons.length; i++) {
       
         
     </script>
-    
+
 <script>  
 
     $(document).ready(function() {
@@ -1157,6 +1157,9 @@ for (var i = 0; i < removeButtons.length; i++) {
                 url: '/user_profile/add_to_wishlist/' + productId + '/',
                 success: function(response) {
                     console.log('Product added to wishlist successfully');
+                      // Display the success message in the modal
+                $('#customModal .modal-body').text(response.message);
+                $('#customModal').modal('show');
                 },
                 error: function(xhr, status, error) {
                     console.error('Error adding product to wishlist:', error);
@@ -1175,7 +1178,176 @@ for (var i = 0; i < removeButtons.length; i++) {
 {% endblock scripts %}
 <script src="{% static '/assets/js/checkout.js' %}"></script>
 
+<script>
+    function updateFilters() {
+        console.log('updateFilters() function called');
 
+        var categoryForm = document.getElementById('category-filter-form');
+        var priceForm = document.getElementById('price-filter-form');
+
+        var categoryFormData = new FormData(categoryForm);
+        var priceFormData = new FormData(priceForm);
+
+        // Merge form data
+        var mergedFormData = new FormData();
+        for (var pair of categoryFormData.entries()) {
+            mergedFormData.append(pair[0], pair[1]);
+        }
+        for (var pair of priceFormData.entries()) {
+            mergedFormData.append(pair[0], pair[1]);
+        }
+
+        fetch('/shop/store/', {
+            method: 'GET',
+            body: mergedFormData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function updateCategoryFilter() {
+        console.log('updateCategoryFilter() function called');
+
+        var categoryForm = document.getElementById('category-filter-form');
+        var categoryFormData = new FormData(categoryForm);
+
+        fetch('/shop/store/', {
+            method: 'GET',
+            body: categoryFormData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function updatePriceFilter() {
+        console.log('updatePriceFilter() function called');
+
+        var priceForm = document.getElementById('price-filter-form');
+        var priceFormData = new FormData(priceForm);
+
+        fetch('/shop/store/', {
+            method: 'GET',
+            body: priceFormData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+
+
+
+{% comment %} 
+<script>
+    function updateCategoryFilter() {
+        console.log('updateCategoryFilter() function called');
+
+        var categoryForm = document.getElementById('category-filter-form');
+        var categoryFormData = new FormData(categoryForm);
+        var queryParams = new URLSearchParams(categoryFormData).toString();
+
+        fetch(`/shop/store/?${queryParams}`, {
+            method: 'GET',
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+
+
+<script>
+    function updatePriceFilter() {
+        var priceForm = document.getElementById('price-filter-form');
+        var priceFormData = new FormData(priceForm);
+
+        fetch('/shop/store/', {
+            method: 'GET',
+            body: priceFormData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+ {% endcomment %}
+
+ {% comment %} <script>
+    function updateCategoryFilter() {
+        // Get all checked checkboxes
+        var checkedCheckboxes = document.querySelectorAll('input[name="categories"]:checked');
+        
+        // Extract category IDs from checked checkboxes
+        var categoryValues = Array.from(checkedCheckboxes).map(function (checkbox) {
+            return checkbox.value;
+        });
+
+        // Construct the query string
+        var queryString = categoryValues.length > 0 ? '?categories=' + categoryValues.join(',') : '';
+
+        // Redirect to the store page with the selected category filter
+        window.location.href = '/shop/store/' + queryString;
+    }
+</script> 
+
+
+<script>
+    function updateFilter() {
+        var categoryForm = document.getElementById('category-filter-form');
+        var priceForm = document.getElementById('price-filter-form');
+        
+        var categoryFormData = new FormData(categoryForm);
+        var priceFormData = new FormData(priceForm);
+
+        // Merge form data
+        var formData = new FormData();
+        for (var pair of categoryFormData.entries()) {
+            formData.append(pair[0], pair[1]);
+        }
+        for (var pair of priceFormData.entries()) {
+            formData.append(pair[0], pair[1]);
+        }
+
+        // You can use fetch or another AJAX library to submit the form data
+        // and update the content on the page without a full reload.
+
+        // Example using fetch:
+        fetch('/shop/store/', {
+            method: 'GET',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            // Update the content on the page as needed
+            document.getElementById('your-product-container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function updateCategoryFilter() {
+        // Your existing category filter function
+    }
+
+    function updatePriceFilter() {
+        // Your existing price filter function
+    }
+</script> {% endcomment %}
+
+    
 
 </body>
 
