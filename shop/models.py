@@ -45,9 +45,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, blank=True)
     order_notes = models.CharField(max_length=255, blank=True, null=True)  # Add this field
     applied_coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
-
-    
-     
+ 
    
     def __str__(self):
         return str(self.id)

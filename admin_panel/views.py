@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.shortcuts import render,redirect
-
+from datetime import datetime, timedelta
 from .forms import CouponForm
 from .models import *
 from userauths.models import User
@@ -348,7 +348,64 @@ def user_management(request):
 
 @login_required(login_url='admin_panel:admin_login')
 def admin_dash(request):
-    return render(request, 'admin_panel/admin_dash.html')
+    all_orders = Order.objects.all()
+    all_variations = ProductLanguageVariation.objects.all()
+    all_order_items = OrderItem.objects.all()
+    
+     # Get the filter type from the request
+    filter_type = request.GET.get('filter_type', 'all')  # Default to 'all' if not specified
+
+    # Calculate start date based on the filter type
+    if filter_type == 'day':
+        start_date = datetime.now() - timedelta(days=1)
+    elif filter_type == 'week':
+        start_date = datetime.now() - timedelta(weeks=1)
+    elif filter_type == 'month':
+        start_date = datetime.now() - timedelta(weeks=4)  # Approximating a month as 4 weeks
+    elif filter_type == 'year':
+        start_date = datetime.now() - timedelta(weeks=52)  # Approximating a year as 52 weeks
+    else:
+        start_date = None  # No filter, get all orders
+
+    # Apply date filter if start_date is available
+    if start_date:
+        all_orders = all_orders.filter(date_ordered__gte=start_date)
+
+    # Calculate total revenue
+    total_revenue = sum(order.get_cart_total for order in all_orders)
+    total_sales = sum(order.get_cart_items for order in all_orders)
+    total_stock = sum(variation.stock for variation in all_variations)
+    
+     # Fetch payment history
+    cod_orders = Order.objects.filter(payment_method='COD')
+    online_orders = Order.objects.filter(payment_method='RAZ')  # Assuming 'RAZ' is for online payments
+    wallet_orders = Order.objects.filter(payment_method='WAL')
+
+    cod_count = cod_orders.count()
+    online_count = online_orders.count()
+    wallet_count = wallet_orders.count()
+
+    cod_total = sum(order.get_cart_total for order in cod_orders)
+    online_total = sum(order.get_cart_total for order in online_orders)
+    wallet_total = sum(order.get_cart_total for order in wallet_orders)
+
+    
+    context = {
+        'total_revenue': total_revenue,
+        'total_sales' : total_sales,
+        'total_stock':total_stock,
+        'all_orders':all_orders,
+        'all_order_items':all_order_items,
+        'cod_count': cod_count,
+        'online_count': online_count,
+        'wallet_count': wallet_count,
+        'cod_total': cod_total,
+        'online_total': online_total,
+        'wallet_total': wallet_total,
+        'filter_type': filter_type,  
+
+    }
+    return render(request, 'admin_panel/admin_dash.html', context)
 
 def order_management(request):
     order = Order.objects.all()
@@ -359,11 +416,9 @@ def order_management(request):
 
 
 def manage_order(request, order_id, orderitem_id):
-    # Retrieve the specific order and order item
     order = get_object_or_404(Order, id=order_id)
     order_item = get_object_or_404(OrderItem, id=orderitem_id)
 
-    # Your existing logic for rendering the manage_order page
 
     context = {
         'order': order,

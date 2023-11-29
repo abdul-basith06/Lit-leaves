@@ -40,8 +40,17 @@
 										
 									</div><!-- End .input-group -->
 									<br>
+									
+									<br>
+									
 									{% if order.applied_coupon %}
-									<a href="" class="btn btn-success">{{ order.applied_coupon.code }} X</a>
+									<div class="checkout-discount">
+					
+										<input type="text" class="form-control" id="checkout-discount-input">
+										<label for="checkout-discount-input" class="text-truncate">Remove coupon? <span>Click it to remove</span></label>
+									
+								  </div><!-- End .checkout-discount -->
+									<a href="{% url 'shop:remove_coupon' order.id %}" class="btn btn-success">{{ order.applied_coupon.code }} X</a>
 								     {% endif %}
 								</form>
 							</div><!-- End .cart-discount -->
@@ -50,12 +59,7 @@
 						</div><!-- End .cart-bottom -->
 						<form action="{% url 'shop:place_order' %}" method="post" id="checkout-form">
 							{% csrf_token %}
-						  <div class="checkout-discount">
-					
-								<input type="text" class="form-control" id="checkout-discount-input">
-								<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
-							
-						  </div><!-- End .checkout-discount -->
+						 
 						
 							<div class="row">
 								{% comment %} Address section {% endcomment %}

@@ -1,5 +1,5 @@
 import json
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist 
 from django.db.models import Q
 
@@ -252,41 +252,6 @@ def clearItem(request):
 
     return JsonResponse("You must be logged in to perform this action", status=400)    
   
-
-# def checkout(request):
-#     if request.user.is_authenticated:
-#         customer = request.user
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         cur_order = Order.objects.get(id=order.id)
-#         items = order.orderitem_set.all() 
-#         cartItems = order.get_cart_items
-#         address = ShippingAddress.objects.filter(user=customer)
-#         default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
-#         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
-#         user_wallet = Wallet.objects.get(user=customer)
-        
-#     user_info = {
-#         "name": request.user.get_full_name(),
-#         "email": request.user.email,
-#         "contact": request.user.mobile_number,
-#     }
-        
-       
-        
-#     context = {
-#         'address' : address,
-#         'items' : items,
-#         'order' : order,
-#         'cartItems': cartItems,
-#         'da':default_address,
-#         'ra' : remaining_addresses,
-#         'user_info':user_info,
-#         'user_wallet':user_wallet,
-#         'cur_order':cur_order,
-#     }
-#     return render(request, 'shop/checkout.html', context)
-  
-  
   
 def checkout(request):
     if request.user.is_authenticated:
@@ -297,8 +262,8 @@ def checkout(request):
         if not order:
             
             order = Order.objects.create(customer=customer)
-            
-        # cur_order = Order.objects.get(id=order.id)
+        if order.applied_coupon is not None:
+            print("Coupon was there")    
         order.applied_coupon = None
         order.save()
         items = order.orderitem_set.all() 
@@ -348,14 +313,79 @@ def apply_coupon(request, order_id):
                 messages.error(request, 'Coupon already applied.', extra_tags='danger')
             else:
                 cart.applied_coupon = coupon
-                coupon.mark_as_used(request.user)
+                print('coupoin applies')
                 cart.save()
                 messages.success(request, 'Coupon successfully applied.', extra_tags='success')
 
         except Coupon.DoesNotExist:
             messages.error(request, 'Invalid coupon code. Please try again.', extra_tags='danger')
-    return redirect('shop:checkout')
+    # Retrieve necessary data for rendering the checkout page
+    items = cart.orderitem_set.all() 
+    cart_items = cart.get_cart_items
+    address = ShippingAddress.objects.filter(user=request.user)
+    default_address = ShippingAddress.objects.filter(user=request.user, status=True).first()
+    remaining_addresses = ShippingAddress.objects.filter(user=request.user, status=False)
+    user_wallet = Wallet.objects.get(user=request.user)
 
+    user_info = {
+        "name": request.user.get_full_name(),
+        "email": request.user.email,
+        "contact": request.user.mobile_number,
+    }
+
+    context = {
+        'address': address,
+        'items': items,
+        'order': cart,
+        'cartItems': cart_items,
+        'da': default_address,
+        'ra': remaining_addresses,
+        'user_info': user_info,
+        'user_wallet': user_wallet,
+    }
+
+    return render(request, 'shop/checkout.html', context)
+   
+
+def remove_coupon(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    # Check if the order has an applied coupon
+    if order.applied_coupon:
+        # Remove the applied coupon
+        order.applied_coupon.used_by.remove(request.user)
+        order.applied_coupon = None
+        order.save()
+        messages.success(request, 'Coupon removed successfully.', extra_tags='success')
+    else:
+        messages.error(request, 'No coupon to remove.', extra_tags='danger')
+
+    # Retrieve necessary data for rendering the checkout page
+    items = order.orderitem_set.all()  # Fix here: change cart to order
+    cart_items = order.get_cart_items  # Fix here: change cart to order
+    address = ShippingAddress.objects.filter(user=request.user)
+    default_address = ShippingAddress.objects.filter(user=request.user, status=True).first()
+    remaining_addresses = ShippingAddress.objects.filter(user=request.user, status=False)
+    user_wallet = Wallet.objects.get(user=request.user)
+
+    user_info = {
+        "name": request.user.get_full_name(),
+        "email": request.user.email,
+        "contact": request.user.mobile_number,
+    }
+
+    context = {
+        'address': address,
+        'items': items,
+        'order': order,
+        'cartItems': cart_items,
+        'da': default_address,
+        'ra': remaining_addresses,
+        'user_info': user_info,
+        'user_wallet': user_wallet,
+    }
+
+    return render(request, 'shop/checkout.html', context)
 
 def place_order(request):
     if request.user.is_authenticated:
@@ -387,7 +417,7 @@ def place_order(request):
             current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)
             if current_cart.applied_coupon:
                 order.applied_coupon = current_cart.applied_coupon
-            
+            print('Applied Coupon:', order.applied_coupon)
             order.save()
             
             if selected_payment_method == 'cod':
@@ -405,6 +435,10 @@ def place_order(request):
                     print("after discount",total_amount)
                     user_wallet.balance -= total_amount
                     user_wallet.save()
+                    
+                if order.applied_coupon:
+                    print('Marking user as used for the coupon')
+                    order.applied_coupon.mark_as_used(request.user)    
                 
                 
             order.complete = True
@@ -463,6 +497,8 @@ def place_order_razorpay(request):
             transaction_id=transaction_id
         )
         order.save()
+        if order.applied_coupon:
+            order.applied_coupon.mark_as_used(request.user)   
 
         # Mark the order as complete
         order.complete = True

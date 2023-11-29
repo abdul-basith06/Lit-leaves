@@ -42,7 +42,7 @@
                                             <p class="card-text">
                                                 <p>Quantity : <b>{{ order_item.quantity }}</b></p>
                                                 <i class="fa-solid fa-file-invoice-dollar"></i> Payment
-                                                Method : {{ product.orderDetails.paymentMethod }}
+                                                Method : {{ order.payment_method }}
                                             </p>
                                             <h5 class="card-title mb-2">₹ {{ order_item.get_total }}</h5>
                                             <hr class="  " style="background:#555555">
