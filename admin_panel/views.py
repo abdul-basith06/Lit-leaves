@@ -1,8 +1,9 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import render,redirect
 from datetime import datetime, timedelta
 from .forms import CouponForm
 from .models import *
+from django.db.models import Sum, F, DecimalField
 from userauths.models import User
 from collections import defaultdict
 from django.contrib.auth.decorators import login_required
@@ -16,6 +17,18 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from shop.models import *
 
+
+from django.contrib.auth.decorators import user_passes_test
+
+def superuser_required(view_func):
+    """
+    Decorator for views that checks that the user is a superuser.
+    """
+    actual_decorator = user_passes_test(
+        lambda u: u.is_active and u.is_superuser,
+        login_url='admin_panel:admin_login',
+    )
+    return actual_decorator(view_func)
 
 def admin_login(request):
     if request.user.is_authenticated and request.user.username == 'basi':
@@ -36,18 +49,20 @@ def admin_login(request):
     return render(request, 'admin_panel/admin_login.html')
     
 @never_cache
+@superuser_required
 def admin_logout(request):
     if request.user.is_authenticated:
         request.session.flush()
     return redirect('admin_panel:admin_login')
        
-
+@superuser_required
 def unlist_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.is_active = False  # Set the product as inactive
     product.save()
     return redirect('admin_panel:products')
 
+@superuser_required
 def list_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.is_active = True  # Set the product as active
@@ -55,6 +70,7 @@ def list_product(request, product_id):
     return redirect('admin_panel:products')
 
 
+@superuser_required
 def update_products(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -97,6 +113,7 @@ def update_products(request, product_id):
 
     return render(request, 'admin_panel/edit_product.html', context)
 
+@superuser_required
 def edit_products(request, product_id):
     product = Product.objects.get(pk=product_id)
     cat2 = Categories.objects.all()
@@ -106,6 +123,7 @@ def edit_products(request, product_id):
     }
     return render(request, 'admin_panel/edit_products.html',context)
 
+@superuser_required
 def addd_products(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -141,6 +159,7 @@ def addd_products(request):
         pass
 
     
+@superuser_required    
 def add_products(request):
     all_cat = Categories.objects.filter(is_active=True)
     context = {
@@ -148,7 +167,7 @@ def add_products(request):
     } 
     return render(request, 'admin_panel/add_products.html',context)
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def product_variation(request, product_id):
     product = Product.objects.get(pk=product_id)
     languages = Language.objects.all()  # Query all languages
@@ -159,6 +178,7 @@ def product_variation(request, product_id):
     
     return render(request, 'admin_panel/product_variation.html', context)
 
+@superuser_required
 def edit_stock_variation(request, variation_id):
     try:
         product_variation = ProductLanguageVariation.objects.get(pk=variation_id)
@@ -179,6 +199,7 @@ def edit_stock_variation(request, variation_id):
     return render(request, 'admin_panel/product_variation.html', context)
 
 
+@superuser_required
 def add_variant(request, product_id):
     if request.method == 'POST':
         product = Product.objects.get(pk=product_id)
@@ -191,7 +212,7 @@ def add_variant(request, product_id):
 
 
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def products(request):
     search_query = request.GET.get('key')  # Get the search query from the URL parameters
     pro1 = Product.objects.all()
@@ -213,7 +234,7 @@ def products(request):
 
 
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def category(request):
     search_query = request.GET.get('key')  # Get the search query from the request
     cat1 = Categories.objects.all()
@@ -230,7 +251,7 @@ def category(request):
 
 
 
-
+@superuser_required
 def add_category(request):
     if request.method == 'POST':
         # Get the category name from the POST data
@@ -255,7 +276,7 @@ def add_category(request):
 
     return render(request, 'add_category_modal.html')
 
-
+@superuser_required
 def block_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     category.is_active = False
@@ -263,6 +284,7 @@ def block_category(request, category_id):
     Product.objects.filter(category=category).update(is_active=False)
     return redirect('admin_panel:category')
 
+@superuser_required
 def unblock_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     category.is_active = True
@@ -270,7 +292,7 @@ def unblock_category(request, category_id):
     Product.objects.filter(category=category).update(is_active=True)
     return redirect('admin_panel:category')
 
-
+@superuser_required
 def edit_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     
@@ -280,6 +302,7 @@ def edit_category(request, category_id):
     
     return render(request, 'edit_category_modal.html', context)
 
+@superuser_required
 def update_category(request, category_id):
     category = Categories.objects.get(pk=category_id)
     
@@ -301,7 +324,7 @@ def update_category(request, category_id):
 
 
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def delete_category(request, category_id):
     if request.method == 'POST':
         category = get_object_or_404(Categories, pk=category_id)
@@ -316,13 +339,14 @@ def delete_category(request, category_id):
 
     return redirect('admin_panel:category')
  
-    
+@superuser_required
 def block_user(request, user_id):
     user = User.objects.get(pk=user_id)
     user.is_active = False
     user.save()
     return redirect('admin_panel:user_management')
 
+@superuser_required
 def unblock_user(request, user_id):
     user = User.objects.get(pk=user_id)
     user.is_active = True
@@ -331,7 +355,7 @@ def unblock_user(request, user_id):
 
 
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def user_management(request):
     search_query = request.GET.get('key')
     cus = User.objects.all()
@@ -346,7 +370,7 @@ def user_management(request):
     return render(request, 'admin_panel/user_manage.html', context)
 
 
-@login_required(login_url='admin_panel:admin_login')
+@superuser_required
 def admin_dash(request):
     all_orders = Order.objects.all()
     all_variations = ProductLanguageVariation.objects.all()
@@ -407,6 +431,7 @@ def admin_dash(request):
     }
     return render(request, 'admin_panel/admin_dash.html', context)
 
+@superuser_required
 def order_management(request):
     order = Order.objects.all()
     context = {
@@ -414,7 +439,7 @@ def order_management(request):
     }
     return render(request, 'admin_panel/orders.html', context)
 
-
+@superuser_required
 def manage_order(request, order_id, orderitem_id):
     order = get_object_or_404(Order, id=order_id)
     order_item = get_object_or_404(OrderItem, id=orderitem_id)
@@ -427,6 +452,7 @@ def manage_order(request, order_id, orderitem_id):
 
     return render(request, 'admin_panel/manage_order.html', context)
 
+@superuser_required
 def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
@@ -438,11 +464,27 @@ def cancel_order(request, order_item_id):
     order_item.delivery_status = 'CN'
     order_item.save()
     
+    if order_item.order.payment_method in ['WAL', 'RAZ']:  # Assuming 'RAZ' is for Razorpay
+        # Refund the amount
+        refund_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total
+        print('refund_amount')
+
+        # Get the user and order
+        user = order_item.order.customer
+        user_wallet = Wallet.objects.get(user=user)
+        order = order_item.order
+
+        # Perform the refund to the wallet or original payment method
+        if order.payment_method == 'WAL' or order.payment_method == 'RAZ':
+            # Update user's wallet balance
+            user_wallet.balance += refund_amount
+            user_wallet.save()
 
     messages.success(request, 'Order canceled successfully.')
 
     return redirect('admin_panel:order_management')
 
+@superuser_required
 def update_order_status(request, order_item_id):
     if request.method == 'POST':
         delivery_status = request.POST.get('delivery_status')
@@ -456,6 +498,7 @@ def update_order_status(request, order_item_id):
 
     return render(request, 'admin_panel/order_management.html')
 
+@superuser_required
 def coupons(request):
     coupon = Coupon.objects.all()
     context = {
@@ -463,7 +506,7 @@ def coupons(request):
     }
     return render(request, 'admin_panel/coupons.html',context)
 
-
+@superuser_required
 def add_coupons(request):
     form = CouponForm()
 
@@ -480,6 +523,7 @@ def add_coupons(request):
     }        
     return render(request, 'admin_panel/add_coupons.html',context)
 
+@superuser_required
 def edit_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
     form = CouponForm(instance=coupon)
@@ -489,6 +533,7 @@ def edit_coupon(request, coupon_id):
     }
     return render(request, 'admin_panel/edit_coupon.html',context)
 
+@superuser_required
 def update_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
     if request.method == 'POST':
@@ -505,6 +550,7 @@ def update_coupon(request, coupon_id):
     }
     return render(request, 'admin_panel/edit_coupon.html',context)
 
+@superuser_required
 def delete_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
     if request.method == 'POST':
@@ -514,6 +560,123 @@ def delete_coupon(request, coupon_id):
     
     return render(request, 'admin_panel/coupons.html')
     
+@superuser_required    
+def sales_report(request):
+    all_orders = Order.objects.all()
+    all_variations = ProductLanguageVariation.objects.all()
+    all_order_items = OrderItem.objects.all()
+    
+    total_sales = sum(order.get_cart_items for order in all_orders)
+    
+    context = {
+        'total_sales':total_sales,
+    }
+
+    return render(request, 'admin_panel/sales_report.html',context)    
+
+@superuser_required
+def sales_portfolio(request):
+    print("coming into this view>>>>>>>>>>>>>>>>>>>>>")
+    time_period = request.POST.get('date', 'week') 
+
+    end_date = timezone.now()
+
+    if time_period == 'week':
+        # Calculate start_date for the last 8 weeks (including the current week)
+        start_date = end_date - timedelta(weeks=8)
+    elif time_period == 'month':
+        # Calculate start_date for the last 12 months
+        start_date = end_date - timedelta(days=365)
+    elif time_period == 'year':
+        # Calculate start_date for the last 10 years
+        start_date = end_date - timedelta(days=3650)
+    else:
+        # Default to 'week' if an invalid time period is provided
+        start_date = end_date - timedelta(weeks=8)
+
+    # Fetch orders within the selected time period
+    orders_within_period = Order.objects.filter(date_ordered__range=[start_date, end_date])
+
+    # Group orders by date
+    sales_data = orders_within_period.values('date_ordered')
+
+    # Calculate total sales for each date
+    sales_data = sales_data.annotate(
+        total_sales=Sum(F('orderitem__product__price') * F('orderitem__quantity'), output_field=DecimalField())
+    )
+
+    # Extract labels (dates) and data (total sales)
+    labels = [order['date_ordered'].strftime('%Y-%m-%d') for order in sales_data]
+    data = [order['total_sales'] if order['total_sales'] is not None else 0 for order in sales_data]
+
+    # Calculate overall total sales
+    overall_total_sales = sum(data)
+    
+    print('Labels:', labels)
+    print('Data:', data)
+    print('Overall Total Sales:', overall_total_sales)
+
+    return JsonResponse({'labels': labels, 'data': data, 'overall_total_sales': overall_total_sales})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def sales_portfolio(request):
+#     print("coming into this view>>>>>>>>>>>>>>>>>>>>>")
+#     time_period = request.POST.get('date', 'week') 
+
+#     end_date = timezone.now()
+#     if time_period == 'week':
+#         start_date = end_date - timezone.timedelta(days=7)
+#     elif time_period == 'month':
+#         start_date = end_date - timezone.timedelta(days=30)
+#     elif time_period == 'year':
+#         start_date = end_date - timezone.timedelta(days=365)
+#     else:
+#         # Default to 'week' if an invalid time period is provided
+#         start_date = end_date - timezone.timedelta(days=7)
+
+#     # Fetch orders within the selected time period
+#     orders_within_period = Order.objects.filter(date_ordered__range=[start_date, end_date])
+
+#     # Group orders by date
+#     sales_data = orders_within_period.values('date_ordered')
+
+#     # Calculate total sales for each date
+#     sales_data = sales_data.annotate(
+#         total_sales=Sum(F('orderitem__product__price') * F('orderitem__quantity'), output_field=DecimalField())
+#     )
+
+#     # Extract labels (dates) and data (total sales)
+#     labels = [order['date_ordered'].strftime('%Y-%m-%d') for order in sales_data]
+#     data = [order['total_sales'] if order['total_sales'] is not None else 0 for order in sales_data]
+
+#     # Calculate overall total sales
+#     overall_total_sales = sum(data)
+    
+#     print('Labels:', labels)
+#     print('Data:', data)
+#     print('Overall Total Sales:', overall_total_sales)
+
+#     return JsonResponse({'labels': labels, 'data': data, 'overall_total_sales': overall_total_sales})
 
 
 

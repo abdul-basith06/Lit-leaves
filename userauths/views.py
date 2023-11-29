@@ -19,6 +19,81 @@ def user_logout(request):
     logout(request)
     return redirect('home:index')
 
+
+
+def user_register(request):
+    if request.user.is_authenticated:
+        return redirect('home:index') 
+    form = UserRegisterForm
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password1')
+            username = form.cleaned_data.get('username')
+            request.session['username'] = username
+            request.session['password'] = password
+            request.session['email'] = email
+            request.session['first_name'] = form.cleaned_data.get('first_name')  # Added to store first_name
+            request.session['last_name'] = form.cleaned_data.get('last_name')  # Added to store last_name
+            request.session['mobile_number'] = form.cleaned_data.get('mobile_number')  # Added to store mobile_number
+            send_otp(request)
+            return render(request, 'userauths/otp.html', {'email': email})
+    context = {
+        'form': form,
+    }
+    return render(request, 'userauths/sign-up.html', context)
+
+def resend_otp(request):
+    send_otp(request)
+    return render(request, 'userauths/otp.html')
+
+
+def send_otp(request):
+    s = ""
+    for x in range(0, 4):
+        s += str(random.randint(0, 9))
+    request.session["otp"] = s
+    request.session["otp_generated_time"] = timezone.now().isoformat()
+    send_mail("otp for sign up", s, "litleaves23@gmail.com", [request.session['email']], fail_silently=False)
+
+
+
+@never_cache
+def otp_verification(request):
+    if request.method == 'POST':
+        otp_ = request.POST.get("otp")
+        
+        # Get the OTP generation time from the session
+        otp_generated_time = request.session.get("otp_generated_time")
+
+        # Check if OTP generation time exists and is within the last 1 minute
+        if otp_generated_time and timezone.now() - timezone.datetime.fromisoformat(otp_generated_time) < timedelta(minutes=1):
+            if otp_ == request.session["otp"]:
+                encrypted_password = make_password(request.session['password'])
+                user = User(
+                    username=request.session['username'],
+                    email=request.session['email'],
+                    password=encrypted_password,
+                    first_name=request.session.get("first_name"),
+                    last_name=request.session.get("last_name"),
+                    mobile_number=request.session.get("mobile_number")
+                )
+                user.save()
+                login(request, user)
+                messages.info(request, 'Signed in successfully...')
+                user.is_active = True
+                del request.session['otp']
+                del request.session['otp_generated_time']
+                return redirect('home:index')  # Assuming 'home:index' is the URL name for the home page
+            else:
+                messages.error(request, "OTP doesn't match")
+        else:
+            messages.error(request, "OTP has expired. Please request a new OTP.")
+            
+        return render(request, 'userauths/otp.html')
+    
+    
 def user_sign(request):
     if request.user.is_authenticated:
         return redirect('home:index') 
@@ -70,6 +145,8 @@ def otp_verification2(request):
             login(request, user)
 
             messages.info(request, 'Signed in successfully...')
+            del request.session['otp']
+            del request.session['otp_generated_time']
             return redirect('home:index')  # Redirect to the home page after sign-in
         else:
             messages.error(request, "OTP doesn't match")
@@ -77,71 +154,6 @@ def otp_verification2(request):
 
     return render(request, 'userauths/otp2.html')
         
-
-def user_register(request):
-    if request.user.is_authenticated:
-        return redirect('home:index') 
-    form = UserRegisterForm
-    if request.method == "POST":
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
-            username = form.cleaned_data.get('username')
-            request.session['username'] = username
-            request.session['password'] = password
-            request.session['email'] = email
-            request.session['first_name'] = form.cleaned_data.get('first_name')  # Added to store first_name
-            request.session['last_name'] = form.cleaned_data.get('last_name')  # Added to store last_name
-            request.session['mobile_number'] = form.cleaned_data.get('mobile_number')  # Added to store mobile_number
-            send_otp(request)
-            return render(request, 'userauths/otp.html', {'email': email})
-    context = {
-        'form': form,
-    }
-    return render(request, 'userauths/sign-up.html', context)
-
-def send_otp(request):
-    s = ""
-    for x in range(0, 4):
-        s += str(random.randint(0, 9))
-    request.session["otp"] = s
-    request.session["otp_generated_time"] = timezone.now().isoformat()
-    send_mail("otp for sign up", s, "litleaves23@gmail.com", [request.session['email']], fail_silently=False)
-
-
-
-@never_cache
-def otp_verification(request):
-    if request.method == 'POST':
-        otp_ = request.POST.get("otp")
-        
-        # Get the OTP generation time from the session
-        otp_generated_time = request.session.get("otp_generated_time")
-
-        # Check if OTP generation time exists and is within the last 1 minute
-        if otp_generated_time and timezone.now() - timezone.datetime.fromisoformat(otp_generated_time) < timedelta(minutes=1):
-            if otp_ == request.session["otp"]:
-                encrypted_password = make_password(request.session['password'])
-                user = User(
-                    username=request.session['username'],
-                    email=request.session['email'],
-                    password=encrypted_password,
-                    first_name=request.session.get("first_name"),
-                    last_name=request.session.get("last_name"),
-                    mobile_number=request.session.get("mobile_number")
-                )
-                user.save()
-                login(request, user)
-                messages.info(request, 'Signed in successfully...')
-                user.is_active = True
-                return redirect('home:index')  # Assuming 'home:index' is the URL name for the home page
-            else:
-                messages.error(request, "OTP doesn't match")
-        else:
-            messages.error(request, "OTP has expired. Please request a new OTP.")
-            
-        return render(request, 'userauths/otp.html')
 
         
        

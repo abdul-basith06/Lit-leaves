@@ -104,7 +104,7 @@
               <input value="{{ cod_count }}" id="cod" hidden>
               <input value="{{ wallet_count }}" id="wallet" hidden>
       <input value="{{ online_count }}" id="online" hidden>
-      <canvas id="transaction-history2" class="transaction-chart"></canvas>
+      {% comment %} <canvas id="transaction-history2" class="transaction-chart"></canvas> {% endcomment %}
       <!-- <canvas  class="transaction-chart" id="TransactionChart" style="width:100%;max-width:600px;"></canvas> -->
           <p>chart ends</p>
               {% for order in all_orders reversed %}
@@ -252,12 +252,7 @@
 
   
 {% block scripts %}
-<!-- <script
-src="https://www.gstatic.com/charts/loader.js">
-</script> -->
- <!-- <script src="{% static 'admin_panel/assets/vendors/chart.js/Chart.min.js' %}"></script> -->
 
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
 
 <script>

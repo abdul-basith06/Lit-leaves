@@ -199,7 +199,7 @@ def updateItem(request):
     
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product, variation=selected_variation)
     if action == 'add':
-        if orderItem.quantity < selected_variation.stock:
+        if selected_variation.stock > 0:
             orderItem.quantity += 1
             selected_variation.stock -= 1
             selected_variation.save()

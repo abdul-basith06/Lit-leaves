@@ -91,7 +91,7 @@
             <p class="email-text">{{ email }}</p>
 
             <div class="form-wrapper">
-                <h4>Enter your one-time OTP</h4>
+                <h4>Enter your one-time password</h4>
             </div>
 
             <div class="form-wrapper">
@@ -104,9 +104,13 @@
             {% endfor %}
 
             <button type="submit" class="submit-button">Verify</button>
+            
+
         </form>
 
-        <p>Resend OTP in <span id="timer">60</span> seconds</p>
+        <p id="resend-message">Resend OTP in <span id="timer">60</span> seconds</p>
+        <a href="{% url 'userauths:resend_otp' %}" class="submit-button" id="resend-otp" hidden>Resend OTP</a>
+        
     </div>
 
     <script>
@@ -119,7 +123,9 @@
             timerElement.textContent = seconds;
             if (seconds === 0) {
                 clearInterval(timer);
-                // Add logic to enable the Resend OTP button or handle it as needed
+                //  logic to enable the Resend OTP button 
+                document.getElementById('resend-otp').removeAttribute('hidden');
+                document.getElementById('resend-message').textContent = 'Resend OTP now';
             }
             seconds--;
         }

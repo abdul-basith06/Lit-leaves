@@ -50,6 +50,11 @@ urlpatterns = [
     path('delete_coupon/<int:coupon_id>/', views.delete_coupon, name='delete_coupon'),
 
 
+    path('sales_report/', views.sales_report, name='sales_report'),
+    path('sales_portfolio', views.sales_portfolio, name='sales_portfolio'),
+
+
+
 
     
 
