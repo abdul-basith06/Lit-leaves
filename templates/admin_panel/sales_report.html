@@ -1,6 +1,8 @@
 {% extends 'partials/admin_base.html' %}
 {% block content %}
 
+
+
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="row"></div>
@@ -16,14 +18,14 @@
                         <h4 class="card-title">Sales Portfolio</h4>
                         <canvas id="areaChart" style="height: 250px;"></canvas>
                         <div class="col-10 mt-3">
-                            <button onclick="SalesPortfolio('week')" class="btn btn-sm btn-outline-info">Weekly</button>
-                            <button onclick="SalesPortfolio('month')" class="btn btn-sm btn-outline-info">Monthly</button>
-                            <button onclick="SalesPortfolio('year')" class="btn btn-sm btn-outline-info">Yearly</button>
+                            <button onclick="SalesPortfolio('week')" class="btn btn-sm btn-outline-info">This week</button>
+                            <button onclick="SalesPortfolio('month')" class="btn btn-sm btn-outline-info">This month</button>
+                            <button onclick="SalesPortfolio('year')" class="btn btn-sm btn-outline-info">This year</button>
                         </div>
                     </div>
                 </div>
             </div>
-            {% comment %} <div class="col-lg-6 grid-margin stretch-card">
+             <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Most sold products</h4>
@@ -53,7 +55,7 @@
 
                     </div>
                 </div>
-            </div> {% endcomment %}
+            </div> 
         </div>
         {% comment %} <div>
             <p class="mx-auto">Filter Report :</p>
@@ -180,262 +182,61 @@
 
 
 {% block scripts %}
-
-{% comment %} <script>
-    function SalesPortfolio(timePeriod) {
-        $.ajax({
-            url: "/admin_panel/sales_portfolio",
-            method: "POST",
-            data: { date: timePeriod },
-            headers: { "X-CSRFToken": csrftoken },
-            success: (response) => {
-                updateChart('areaChart', response.labels, response.data);
-            }
-        });
-    }
-
-    function updateChart(chartId, labels, data) {
-        data.shift();
-        console.log('Updating chart:', chartId, labels, data);
-
-        const ctx = document.getElementById(chartId).getContext('2d');
-        console.log('Chart context:', ctx);
-
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Total Sales',
-                    data: data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                // Configure chart options as needed
-            }
-        });
-    }
-</script> {% endcomment %}
 <script>
-    function SalesPortfolio(timePeriod) {
-        let days;
-        if (timePeriod === 'week') {
-            days = 7;
-        } else if (timePeriod === 'month') {
-            days = 30; // You may adjust this based on the number of days in a month
-        } else if (timePeriod === 'year') {
-            days = 365; // You may adjust this based on the number of days in a year
-        } else {
-            console.error('Invalid time period');
-            return;
-        }
 
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(endDate.getDate() - days);
-
-        const formattedStartDate = formatDate(startDate);
-        const formattedEndDate = formatDate(endDate);
-
-        $.ajax({
-            url: "/admin_panel/sales_portfolio",
-            method: "POST",
-            data: {
-                date: timePeriod,
-                start_date: formattedStartDate,
-                end_date: formattedEndDate
-            },
-            headers: { "X-CSRFToken": csrftoken },
-            success: (response) => {
-                updateChart('areaChart', response.labels, response.data);
-            }
-        });
-    }
-
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    function updateChart(chartId, labels, data) {
-        data.shift();
-        console.log('Updating chart:', chartId, labels, data);
-
-        const ctx = document.getElementById(chartId).getContext('2d');
-        console.log('Chart context:', ctx);
-
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Total Sales',
-                    data: data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                // Configure chart options as needed
-            }
-        });
-    }
-</script>
-
-
-
-
-{% comment %} 
-<script>
+    var ctx = document.getElementById('areaChart').getContext('2d');
+    var areaChart;
     
-
-
-    const product1 = document.getElementById("product1").value
-    const product12 = document.getElementById("product12").value
-
-    const product2 = document.getElementById("product2").value
-    const product22 = document.getElementById("product22").value
-
-    const product3 = document.getElementById("product3").value
-    const product32 = document.getElementById("product32").value
-
-    const product4 = document.getElementById("product4").value
-    const product42 = document.getElementById("product42").value
-
-    const product5 = document.getElementById("product4").value
-    const product52 = document.getElementById("product42").value
-
-    const product6 = document.getElementById("product5").value
-    const product62 = document.getElementById("product52").value
-
-    const product7 = document.getElementById("product6").value
-    const product72 = document.getElementById("product62").value
-
-    var data = {
-        labels: [product4, product2, product6, product1, product5, product3],
-        datasets: [{
-            label: 'Sold',
-            data: [product42, product22, product62, product12, product52, product32,],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1,
-            fill: false
-        }]
-    };
-
-    var options = {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
+    function SalesPortfolio(period) {
+        // Fetch data from the new view
+        console.log("first calling")
+        fetch(`/admin_panel/get_sales_data/${period}/`)
+        .then(response => {
+            console.log(response);  // Add this line
+            return response.json();
+        })
+            .then(data => {
+                // Update the chart
+                updateChart(data.labels, data.data);
+            })
+            .catch(error => console.error('Error fetching sales data:', error));
+    }
+    
+    function updateChart(labels, data) {
+        if (typeof areaChart === 'undefined') {
+            // Create a new chart if it doesn't exist
+            areaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sales',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                gridLines: {
-                    color: "rgba(204, 204, 204,0.1)"
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            }],
-            xAxes: [{
-                gridLines: {
-                    color: "rgba(204, 204, 204,0.1)"
-                }
-            }]
-        },
-        legend: {
-            display: false
-        },
-        elements: {
-            point: {
-                radius: 0
-            }
+            });
+        } else {
+            // If the chart exists, update the data
+            areaChart.data.labels = labels;
+            areaChart.data.datasets[0].data = data;
+            areaChart.update();
         }
-    };
-
-
-
-
-    // var areaChartCanvas = document.getElementById("areaChart").getContext("2d");
-    // var areaChart = new Chart(areaChartCanvas, {
-    //     type: 'line',
-    //     data: areaData,
-    //     options: areaOptions
-    // });
-
-
-    var barChartCanvas = $("#barChart").get(0).getContext("2d");
-    // This will get the first returned node in the jQuery collection.
-    var barChart = new Chart(barChartCanvas, {
-        type: 'bar',
-        data: data,
-        options: options
-    });
-
-
-
-    // fileDownloadPathsettings();
-    const excelDownload = document.getElementById("excelDownload");
-    const pdfDownload = document.getElementById("pdfDownload");
-    const queryString = window.location.search;
-    const urlSearchParams = new URLSearchParams(queryString);
-
-    // Access specific query parameters by name
-    const startDate = urlSearchParams.get('start');
-    const endDate = urlSearchParams.get('end');
-
-    let today, start, end; // Declare these variables using let
-
-    if (startDate == null || endDate == null) {
-      today = new Date();
-      start = new Date(today);
-      start.setDate(today.getDate() - 30);
-      end = today.toISOString().split('T')[0];
-      excelDownload.href = `/admin/sales-report/export-report?start=${start}&end=${end}`;
-      pdfDownload.href = `/admin/sales-report/export-PDF-report?start=${start}&end=${end}`;
-    } else {
-      excelDownload.href = `/admin/sales-report/export-report?start=${startDate}&end=${endDate}`;
-      pdfDownload.href = `/admin/sales-report/export-PDF-report?start=${startDate}&end=${endDate}`;
     }
-
-
-// }
-
-// Don't use parentheses when assigning the function to onload
-
-$("#start-date").datepicker({
-    dateFormat: 'yy-mm-dd',
-    onSelect: function (selectedDate) {
-        var minDate = new Date(selectedDate);
-        minDate.setDate(minDate.getDate() + 1); // Set the minimum date for the end date picker to the next day
-        $("#end-date").datepicker("option", "minDate", minDate);
-    }
-});
-
-$("#end-date").datepicker({
-    dateFormat: 'yy-mm-dd'
-});
-
- {% endcomment %}
-
-
-
-
+    
+    // Initial load with data for "This week"
+    SalesPortfolio('week');
+   
+    
 </script>
+
 {% endblock scripts %}

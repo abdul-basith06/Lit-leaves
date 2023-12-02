@@ -1,6 +1,10 @@
 from django.http import Http404, JsonResponse
+from django.views.decorators.http import require_GET
 from django.shortcuts import render,redirect
+from django.utils import timezone
 from datetime import datetime, timedelta
+from django.db.models import Sum, Count, Subquery, OuterRef
+from django.db.models.functions import TruncWeek, TruncMonth, TruncDay, ExtractWeek
 from .forms import CouponForm
 from .models import *
 from django.db.models import Sum, F, DecimalField
@@ -376,34 +380,32 @@ def admin_dash(request):
     all_variations = ProductLanguageVariation.objects.all()
     all_order_items = OrderItem.objects.all()
     
-     # Get the filter type from the request
-    filter_type = request.GET.get('filter_type', 'all')  # Default to 'all' if not specified
+    filter_type = request.GET.get('filter_type', 'all')  
 
-    # Calculate start date based on the filter type
+ 
     if filter_type == 'day':
         start_date = datetime.now() - timedelta(days=1)
     elif filter_type == 'week':
         start_date = datetime.now() - timedelta(weeks=1)
     elif filter_type == 'month':
-        start_date = datetime.now() - timedelta(weeks=4)  # Approximating a month as 4 weeks
+        start_date = datetime.now() - timedelta(weeks=4)  
     elif filter_type == 'year':
-        start_date = datetime.now() - timedelta(weeks=52)  # Approximating a year as 52 weeks
+        start_date = datetime.now() - timedelta(weeks=52)  
     else:
-        start_date = None  # No filter, get all orders
-
-    # Apply date filter if start_date is available
+        start_date = None  
+    
     if start_date:
         all_orders = all_orders.filter(date_ordered__gte=start_date)
 
-    # Calculate total revenue
+   
     total_revenue = sum(order.get_cart_total for order in all_orders)
     total_sales = sum(order.get_cart_items for order in all_orders)
     total_stock = sum(variation.stock for variation in all_variations)
     
-     # Fetch payment history
-    cod_orders = Order.objects.filter(payment_method='COD')
-    online_orders = Order.objects.filter(payment_method='RAZ')  # Assuming 'RAZ' is for online payments
-    wallet_orders = Order.objects.filter(payment_method='WAL')
+    
+    cod_orders = all_orders.filter(payment_method='COD')
+    online_orders = all_orders.filter(payment_method='RAZ') 
+    wallet_orders = all_orders.filter(payment_method='WAL')
 
     cod_count = cod_orders.count()
     online_count = online_orders.count()
@@ -566,57 +568,70 @@ def sales_report(request):
     all_variations = ProductLanguageVariation.objects.all()
     all_order_items = OrderItem.objects.all()
     
-    total_sales = sum(order.get_cart_items for order in all_orders)
+     # Fetch data for the line chart
+    weekly_sales = Order.objects.annotate(week=TruncWeek('date_ordered')).values('week').order_by('week')
+    monthly_sales = Order.objects.annotate(month=TruncMonth('date_ordered')).values('month').order_by('month')
+
+    total_sales = sum(order.get_cart_total for order in all_orders)  # Calculate the total in Python
     
     context = {
         'total_sales':total_sales,
+        'weekly_sales': weekly_sales,
+        'monthly_sales': monthly_sales,
     }
 
     return render(request, 'admin_panel/sales_report.html',context)    
 
 @superuser_required
-def sales_portfolio(request):
-    print("coming into this view>>>>>>>>>>>>>>>>>>>>>")
-    time_period = request.POST.get('date', 'week') 
-
-    end_date = timezone.now()
-
-    if time_period == 'week':
-        # Calculate start_date for the last 8 weeks (including the current week)
-        start_date = end_date - timedelta(weeks=8)
-    elif time_period == 'month':
-        # Calculate start_date for the last 12 months
-        start_date = end_date - timedelta(days=365)
-    elif time_period == 'year':
-        # Calculate start_date for the last 10 years
-        start_date = end_date - timedelta(days=3650)
-    else:
-        # Default to 'week' if an invalid time period is provided
-        start_date = end_date - timedelta(weeks=8)
-
-    # Fetch orders within the selected time period
-    orders_within_period = Order.objects.filter(date_ordered__range=[start_date, end_date])
-
-    # Group orders by date
-    sales_data = orders_within_period.values('date_ordered')
-
-    # Calculate total sales for each date
-    sales_data = sales_data.annotate(
-        total_sales=Sum(F('orderitem__product__price') * F('orderitem__quantity'), output_field=DecimalField())
+@require_GET
+def get_sales_data(request, period):
+    # Your logic to filter and aggregate data based on the selected period
+    # Example: Weekly sales
+    if period == 'week':
+        print("Entering into the week")
+        start_date = timezone.now().date() - timezone.timedelta(days=6)
+        order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
+        data = (
+            order_items.annotate(day=TruncDay('order__date_ordered'))
+            .values('day')
+            .annotate(total=Sum(F('quantity') * F('product__price')))
+            .order_by('day')
+        )
+        labels = [item['day'].strftime('%A') for item in data]
+        # Example: Monthly sales
+    elif period == 'month':
+        print("Entering into the month")
+        start_date = timezone.now().date() - timezone.timedelta(days=30)
+        order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
+        data = (
+        order_items.annotate(day=TruncDay('order__date_ordered'))
+        .values('day')
+        .annotate(total=Sum(F('quantity') * F('product__price')))
+        .order_by('day')
     )
+        labels = [item['day'].strftime('%Y-%m-%d') for item in data]
+    # Example: Yearly sales
+    elif period == 'year':
+        print("Entering into the year")
+        start_date = timezone.now().date() - timezone.timedelta(days=365)
+        order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
+        data = (
+            order_items.annotate(month=TruncMonth('order__date_ordered'))
+            .values('month')
+            .annotate(total=Sum(F('quantity') * F('product__price')))
+            .order_by('month')
+        )
+        labels = [f"{item['month'].strftime('%B')}" for item in data]
+    else:
+        return JsonResponse({'error': 'Invalid period'})
 
-    # Extract labels (dates) and data (total sales)
-    labels = [order['date_ordered'].strftime('%Y-%m-%d') for order in sales_data]
-    data = [order['total_sales'] if order['total_sales'] is not None else 0 for order in sales_data]
-
-    # Calculate overall total sales
-    overall_total_sales = sum(data)
+    # labels = [item['day'] for item in data]  # Adjust the key based on the selected period
     
-    print('Labels:', labels)
-    print('Data:', data)
-    print('Overall Total Sales:', overall_total_sales)
+    sales_data = [item['total'] for item in data]
+    print(labels)
+    print('sales =', sales_data)
 
-    return JsonResponse({'labels': labels, 'data': data, 'overall_total_sales': overall_total_sales})
+    return JsonResponse({'labels': labels, 'data': sales_data})
 
 
 

@@ -93,20 +93,16 @@
         </div>
 
       </div>
-      <!-- revenue areas end -->
-
+    
       <div class="row">
         <div class="col-md-4 grid-margin stretch-card">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Transaction History</h4>
-              <p>chart begins</p>
               <input value="{{ cod_count }}" id="cod" hidden>
               <input value="{{ wallet_count }}" id="wallet" hidden>
-      <input value="{{ online_count }}" id="online" hidden>
-      {% comment %} <canvas id="transaction-history2" class="transaction-chart"></canvas> {% endcomment %}
-      <!-- <canvas  class="transaction-chart" id="TransactionChart" style="width:100%;max-width:600px;"></canvas> -->
-          <p>chart ends</p>
+                 <input value="{{ online_count }}" id="online" hidden>
+                  <canvas id="myChart" style="width:80%;max-width:500px;  "></canvas>    
               {% for order in all_orders reversed %}
                   <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
                       <div class="text-md-center text-xl-left">
@@ -180,72 +176,8 @@
 
 
     </div>
-    <!-- content-wrapper ends -->
-    <!-- partial:partials/_footer.html -->
-
-    <!-- partial -->
+   
   </div>
-  <script>
-    
-    function onpageLoad(){
-
-      let codValue = document.getElementById("cod").value
-      let onlineValue = document.getElementById("online").value
-
-    var xValues = ["Cash on delivery", "Online Payment"];
-    var yValues = [codValue, onlineValue];
-    var barColors = [
-      "#ffab00",
-      "#00d25b"
-    ];
-
-    new Chart("TransactionChart", {
-      type: "doughnut",
-      data: {
-        labels: xValues,
-        datasets: [{
-          backgroundColor: barColors,
-          data: yValues
-        }]
-      },
-      options: {
-        legend: {
-          labels: {
-            fontColor: "#fff" // Set label text color to red
-          }
-        }
-      }
-
-    });
-  }
-  window.onload =onpageLoad()
-
-
-  function reportMake(data){
-    let yearly = document.getElementById("year")
-    let weekly = document.getElementById("weekly")
-    let daily = document.getElementById("daily")
-    let totalSale = document.getElementById("totalSale")
-    let revenue = document.getElementById("revenue")
-    let reportTime = document.getElementById("reportTime")
-    // let downloadBtn = document.getElementById("downloadBtn")
-    $.ajax({
-      url: '/admin/report/genarate',
-      type: 'POST',
-      data: {data},
-      success: function(response){
-        response.auth==0 ? window.location.href="/admin":
-        console.log(response);
-        revenue.innerHTML="₹"+response.report.totalSalesAmount
-        totalSale.innerHTML=response.report.totalOrders 
-        reportTime.innerHTML =  "Report generated on :"+formatDate(response.report.reportDate)
-        // downloadBtn.setAttribute("href",`/admin/reports/${response.fileName}`);
-        downloadBtn.style.display = "block";
-
-      }
-    })
-  }
-  </script>
   
 
 {% endblock content %}
@@ -253,49 +185,31 @@
   
 {% block scripts %}
 
+<script
+          src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          let COD = document.getElementById("cod").value
+          let Online = document.getElementById("online").value
+          let Wallet = document.getElementById("wallet").value
 
+    console.log(COD);
+        var data = {
+            labels: ['COD', 'Online', 'Wallet'],
+            datasets: [{
+              data: [COD, Online, Wallet],
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+            }]
+          };
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-      // Get the canvas element
-      var canvas = document.getElementById('transaction-history2');
+         
+          var ctx = document.getElementById('myChart').getContext('2d');
 
-      // Check if a Chart is already associated with this canvas
-      if (canvas.chart) {
-          // If a Chart exists, destroy it
-          canvas.chart.destroy();
-      }
+       
+          var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: data
 
-      // Your data
-      var codCount = parseInt(document.getElementById("cod").value);
-      var walletCount = parseInt(document.getElementById("wallet").value);
-      var onlineCount = parseInt(document.getElementById("online").value);
-
-      // Create a new doughnut chart
-      var ctx = canvas.getContext('2d');
-      // Store the Chart instance in the canvas property
-      canvas.chart = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-              labels: ['COD', 'Wallet', 'Online'],
-              datasets: [{
-                  data: [codCount, walletCount, onlineCount],
-                  backgroundColor: ['#FF5733', '#3498db', '#27ae60'],
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              cutout: '70%', // Adjust this value to control the size of the doughnut hole
-              legend: {
-                  display: true,
-                  position: 'bottom',
-              }
-          }
-      });
-  });
-</script>
-
+          });
+        </script>
 
 {% endblock scripts %}

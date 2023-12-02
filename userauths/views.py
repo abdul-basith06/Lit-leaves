@@ -15,6 +15,17 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate
 from django.db.models import Q  # Import the Q object for OR queries
 
+
+def send_otp(request):
+    s = ""
+    for x in range(0, 4):
+        s += str(random.randint(0, 9))
+    request.session["otp"] = s
+    request.session["otp_generated_time"] = timezone.now().isoformat()
+    send_mail("otp for sign up", s, "litleaves23@gmail.com", [request.session['email']], fail_silently=False)
+        
+
+
 def user_logout(request):
     logout(request)
     return redirect('home:index')
@@ -44,18 +55,11 @@ def user_register(request):
     }
     return render(request, 'userauths/sign-up.html', context)
 
-def resend_otp(request):
-    send_otp(request)
-    return render(request, 'userauths/otp.html')
+# def resend_otp(request):
+#     send_otp(request)
+#     return render(request, 'userauths/otp.html')
 
 
-def send_otp(request):
-    s = ""
-    for x in range(0, 4):
-        s += str(random.randint(0, 9))
-    request.session["otp"] = s
-    request.session["otp_generated_time"] = timezone.now().isoformat()
-    send_mail("otp for sign up", s, "litleaves23@gmail.com", [request.session['email']], fail_silently=False)
 
 
 
@@ -155,5 +159,4 @@ def otp_verification2(request):
     return render(request, 'userauths/otp2.html')
         
 
-        
        
