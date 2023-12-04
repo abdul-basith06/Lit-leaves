@@ -7,7 +7,7 @@ from django.db.models import Sum, Count, Subquery, OuterRef
 from django.db.models.functions import TruncWeek, TruncMonth, TruncDay, ExtractWeek
 from .forms import CouponForm
 from .models import *
-from django.db.models import Sum, F, DecimalField
+from django.db.models import Sum, F, DecimalField, Value, Case, When
 from userauths.models import User
 from collections import defaultdict
 from django.contrib.auth.decorators import login_required
@@ -377,8 +377,11 @@ def user_management(request):
 @superuser_required
 def admin_dash(request):
     all_orders = Order.objects.all()
+    # all_orders = Order.objects.filter(orderitem__delivery_status='D').distinct()
     all_variations = ProductLanguageVariation.objects.all()
     all_order_items = OrderItem.objects.all()
+    delivered_order_items = OrderItem.objects.filter(delivery_status='D')
+
     
     filter_type = request.GET.get('filter_type', 'all')  
 
@@ -395,11 +398,21 @@ def admin_dash(request):
         start_date = None  
     
     if start_date:
-        all_orders = all_orders.filter(date_ordered__gte=start_date)
+         all_orders = all_orders.filter(
+            date_ordered__gte=start_date,
+            orderitem__delivery_status='D'
+        ).distinct()
+        # all_orders = all_orders.filter(date_ordered__gte=start_date)
 
    
-    total_revenue = sum(order.get_cart_total for order in all_orders)
-    total_sales = sum(order.get_cart_items for order in all_orders)
+    total_revenue = sum(order_item.get_total for order_item in delivered_order_items)
+    
+    # total_sales = sum(order.get_cart_items for order in all_orders)
+    total_sales = sum(
+    sum(item.quantity for item in order.orderitem_set.filter(delivery_status='D'))
+    for order in all_orders
+)
+
     total_stock = sum(variation.stock for variation in all_variations)
     
     
@@ -429,6 +442,7 @@ def admin_dash(request):
         'online_total': online_total,
         'wallet_total': wallet_total,
         'filter_type': filter_type,  
+       
 
     }
     return render(request, 'admin_panel/admin_dash.html', context)
@@ -567,17 +581,46 @@ def sales_report(request):
     all_orders = Order.objects.all()
     all_variations = ProductLanguageVariation.objects.all()
     all_order_items = OrderItem.objects.all()
+    delivered_order_items = OrderItem.objects.filter(delivery_status='D')
+    sold_items = delivered_order_items.values('product__name').annotate(total_sold=Sum('quantity'))
     
      # Fetch data for the line chart
     weekly_sales = Order.objects.annotate(week=TruncWeek('date_ordered')).values('week').order_by('week')
     monthly_sales = Order.objects.annotate(month=TruncMonth('date_ordered')).values('month').order_by('month')
 
-    total_sales = sum(order.get_cart_total for order in all_orders)  # Calculate the total in Python
+    total_sales = sum(order.get_cart_total for order in all_orders)  
+    total_profit = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
+    
+    
+    most_sold_products = (
+        delivered_order_items.values('product__name')
+        .annotate(total_sold=Sum('quantity'))
+        .order_by('-total_sold')[:6]
+    )
+    
+    sold_stock_items = OrderItem.objects.filter(order__complete=True, delivery_status='D')
+    
+    product_profit_data = []
+
+    for sold_stock_item in sold_stock_items:
+        product_price = sold_stock_item.product.price
+        profit = sold_stock_item.get_total - (product_price * sold_stock_item.quantity * 0.3)
+        product_profit_data.append({
+            'product_name': sold_stock_item.product.name,
+            'total_sold': sold_stock_item.quantity,
+            'profit': profit,
+        })
+
+
     
     context = {
         'total_sales':total_sales,
         'weekly_sales': weekly_sales,
         'monthly_sales': monthly_sales,
+        'most_sold_products':most_sold_products,
+        'total_profit':total_profit,
+        'sold_items':sold_items,
+        'stock_items': product_profit_data,
     }
 
     return render(request, 'admin_panel/sales_report.html',context)    
@@ -625,11 +668,9 @@ def get_sales_data(request, period):
     else:
         return JsonResponse({'error': 'Invalid period'})
 
-    # labels = [item['day'] for item in data]  # Adjust the key based on the selected period
+    
     
     sales_data = [item['total'] for item in data]
-    print(labels)
-    print('sales =', sales_data)
 
     return JsonResponse({'labels': labels, 'data': sales_data})
 

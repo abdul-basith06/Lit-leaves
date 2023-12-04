@@ -468,25 +468,6 @@ def place_order_razorpay(request):
         except ShippingAddress.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Invalid shipping address'})
 
-        # You might want to add more validation and error handling here
-        
-        # razorpay_order_id = request.POST.get('transaction_id')
-        # razorpay_payment_id = request.POST.get('razorpay_payment_id')
-        # razorpay_signature = request.POST.get('razorpay_signature')
-        
-        # client = razorpay.Client(auth=("rzp_test_NxtHpgxEKbJK1k", "4y3c4ry4B7dOSNu9mlFCtbHL"))
-        
-        # params_dict = {
-        #     'razorpay_order_id': razorpay_order_id,
-        #     'razorpay_payment_id': razorpay_payment_id,
-        #     'razorpay_signature': razorpay_signature,
-        # }
-        
-        # try:
-        #     client.utility.verify_payment_signature(params_dict)
-        # except razorpay.errors.SignatureVerificationError as e:
-        #     return JsonResponse({'status': 'error', 'message': 'Invalid Razorpay signature'})
-
 
         # Create the order
         order = Order(
@@ -496,6 +477,9 @@ def place_order_razorpay(request):
             shipping_address=selected_address,
             transaction_id=transaction_id
         )
+        current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)
+        if current_cart.applied_coupon:
+            order.applied_coupon = current_cart.applied_coupon
         order.save()
         if order.applied_coupon:
             order.applied_coupon.mark_as_used(request.user)   
