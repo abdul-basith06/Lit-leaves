@@ -260,10 +260,8 @@ def checkout(request):
         order = Order.objects.filter(customer=customer, complete=False).first()
         
         if not order:
-            
             order = Order.objects.create(customer=customer)
-        if order.applied_coupon is not None:
-            print("Coupon was there")    
+         
         order.applied_coupon = None
         order.save()
         items = order.orderitem_set.all() 
@@ -313,7 +311,6 @@ def apply_coupon(request, order_id):
                 messages.error(request, 'Coupon already applied.', extra_tags='danger')
             else:
                 cart.applied_coupon = coupon
-                print('coupoin applies')
                 cart.save()
                 messages.success(request, 'Coupon successfully applied.', extra_tags='success')
 

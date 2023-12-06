@@ -28,6 +28,7 @@
 
                                         <th> Product </th>
                                         <th> User </th>
+                                        <th> Order ID</th>
                                         <th> Order Date</th>
                                         <th> Quantity</th>
                                         <th> Price</th>
@@ -51,6 +52,12 @@
                                         </td>
                                         <td>                  
                                             {{ order.customer.username }}                                          
+                                        </td>
+                                        <td>                                         
+                                            <span style="font-weight: 100;" class="pl-2 ">
+                                                {{ order.id }}
+                                            </span>
+
                                         </td>
                                         <td>                                         
                                             <span style="font-weight: 100;" class="pl-2 ">

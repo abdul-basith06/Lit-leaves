@@ -1,6 +1,11 @@
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_GET
 from django.shortcuts import render,redirect
+import openpyxl
+import openpyxl.styles
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import NamedStyle
+from .helpers import render_to_pdf
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models import Sum, Count, Subquery, OuterRef
@@ -575,55 +580,246 @@ def delete_coupon(request, coupon_id):
         return redirect('admin_panel:coupons')
     
     return render(request, 'admin_panel/coupons.html')
-    
+   
+
 @superuser_required    
 def sales_report(request):
     all_orders = Order.objects.all()
-    all_variations = ProductLanguageVariation.objects.all()
-    all_order_items = OrderItem.objects.all()
-    delivered_order_items = OrderItem.objects.filter(delivery_status='D')
-    sold_items = delivered_order_items.values('product__name').annotate(total_sold=Sum('quantity'))
-    
-     # Fetch data for the line chart
-    weekly_sales = Order.objects.annotate(week=TruncWeek('date_ordered')).values('week').order_by('week')
-    monthly_sales = Order.objects.annotate(month=TruncMonth('date_ordered')).values('month').order_by('month')
+   
+     # Default values for start and end dates
+    start_date_str = '1900-01-01'
+    end_date_str = '9999-12-31'
+    # Check if the form is submitted using post
+    if request.method == 'POST':
+        start_date_str = request.POST.get('start', '1900-01-01')
+        end_date_str = request.POST.get('end', '9999-12-31')
+   
 
-    total_sales = sum(order.get_cart_total for order in all_orders)  
+    # Convert date strings to datetime objects
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
+
+    # Check if start and end dates are provided
+    if start_date is not None and end_date is not None:
+        delivered_order_items = OrderItem.objects.filter(
+            delivery_status='D',
+            order__complete=True,
+            order__date_ordered__gte=start_date,
+            order__date_ordered__lte=end_date
+        )
+    else:
+        # If no dates provided, get all delivered order items
+        delivered_order_items = OrderItem.objects.filter(
+            delivery_status='D',
+            order__complete=True
+        )
+
+
+
+    sold_items = delivered_order_items.values('product__name').annotate(total_sold=Sum('quantity'))
+
+    
+
+    total_sales = sum(order.get_cart_total for order in all_orders)
     total_profit = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
-    
-    
+
     most_sold_products = (
         delivered_order_items.values('product__name')
         .annotate(total_sold=Sum('quantity'))
         .order_by('-total_sold')[:6]
     )
-    
-    sold_stock_items = OrderItem.objects.filter(order__complete=True, delivery_status='D')
-    
+
     product_profit_data = []
 
-    for sold_stock_item in sold_stock_items:
+    for sold_stock_item in delivered_order_items:
         product_price = sold_stock_item.product.price
-        profit = sold_stock_item.get_total - (product_price * sold_stock_item.quantity * 0.3)
+        total_revenue = sold_stock_item.get_total 
+        profit = total_revenue - (total_revenue * 0.7)
+        profit = int(profit)
         product_profit_data.append({
             'product_name': sold_stock_item.product.name,
             'total_sold': sold_stock_item.quantity,
             'profit': profit,
         })
 
-
-    
     context = {
-        'total_sales':total_sales,
-        'weekly_sales': weekly_sales,
-        'monthly_sales': monthly_sales,
-        'most_sold_products':most_sold_products,
-        'total_profit':total_profit,
-        'sold_items':sold_items,
+        'total_sales': total_sales,
+       
+        'most_sold_products': most_sold_products,
+        'total_profit': total_profit,
+        'sold_items': sold_items,
         'stock_items': product_profit_data,
+        'start_date': start_date.strftime('%Y-%m-%d') if start_date else None,
+        'end_date': end_date.strftime('%Y-%m-%d') if end_date else None,
     }
 
-    return render(request, 'admin_panel/sales_report.html',context)    
+    return render(request, 'admin_panel/sales_report.html', context)
+   
+def sales_report_pdf(request):
+    
+    all_orders = Order.objects.all()
+    # Get start and end dates from the request parameters
+    start_date_str = request.GET.get('start', '1900-01-01')
+    end_date_str = request.GET.get('end', '9999-12-31')
+    # print("this is the pdf download dates")
+    # print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',start_date_str)
+    # print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',end_date_str)
+
+    # Convert date strings to datetime objects
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
+    print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',start_date)
+    print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',end_date)
+    
+    
+    
+    
+    delivered_order_items = OrderItem.objects.filter(
+            delivery_status='D',
+            order__complete=True,
+            order__date_ordered__gte=start_date,
+            order__date_ordered__lte=end_date
+        )
+    total_revenue = sum(order_item.get_total for order_item in delivered_order_items)
+    total_sales = sum(order_item.quantity for order_item in delivered_order_items)
+    total_profit = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
+    
+     # Retrieve all orders associated with delivered order items
+    all_orders = Order.objects.filter(orderitem__in=delivered_order_items).distinct()
+    
+    # Retrieve sold items with details
+    sold_items = [{
+        'product_name': item.product.name,
+        'total_sold': item.quantity,
+        'profit': int(item.get_total - (item.get_total * 0.7)),
+    } for item in delivered_order_items]
+    sold_items = sorted(sold_items, key=lambda x: x['total_sold'], reverse=True)
+
+    context = {
+        'start_date':start_date,
+        'end_date':end_date,
+        'total_sales': total_sales,
+        'total_revenue':total_revenue,
+        'total_profit':total_profit,
+        'sold_items':sold_items,
+        'all_orders':all_orders,
+        'delivered_order_items':delivered_order_items,
+        
+    }
+
+    # Render the PDF using the helper function
+    pdf = render_to_pdf('admin_panel/sales_report_pdf.html', context)
+
+    # Return the PDF as response
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = "Sales Report.pdf"
+        content = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = content
+        return response
+
+    # If the PDF rendering fails, return an error response
+    return HttpResponse('Failed to generate PDF')
+
+def sales_report_excel(request):
+    try:
+        # Your existing logic to retrieve data
+        start_date_str = request.GET.get('start', '1900-01-01')
+        end_date_str = request.GET.get('end', '9999-12-31')
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
+        delivered_order_items = OrderItem.objects.filter(
+            delivery_status='D',
+            order__complete=True,
+            order__date_ordered__gte=start_date,
+            order__date_ordered__lte=end_date
+        )
+
+        # Create a new workbook and add a worksheet
+        workbook = openpyxl.Workbook()
+        worksheet = workbook.active
+
+        # Add total revenue, sales, and profit at the top
+        worksheet['A1'] = 'Total Revenue'
+        worksheet['B1'] = sum(order_item.get_total for order_item in delivered_order_items)
+        worksheet['A2'] = 'Total Sales'
+        worksheet['B2'] = sum(order_item.quantity for order_item in delivered_order_items)
+        worksheet['A3'] = 'Total Profit'
+        worksheet['B3'] = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
+
+        # Skip a row after the totals
+        row_num = 5
+
+        # Add headers to the worksheet
+        headers = ['Order ID', 'Date Ordered', 'Total Amount', 'Products']
+        for col_num, header in enumerate(headers, 1):
+            worksheet.cell(row=row_num, column=col_num, value=header)
+
+        # Add data to the worksheet
+        row_num += 1
+        date_style = NamedStyle(name='date_style', number_format='YYYY-MM-DD')
+        for order_item in delivered_order_items:
+            worksheet.cell(row=row_num, column=1, value=order_item.order.id)
+
+            # Convert the datetime to naive (tzinfo=None)
+            date_ordered_naive = order_item.order.date_ordered.astimezone(timezone.utc).replace(tzinfo=None)
+            worksheet.cell(row=row_num, column=2, value=date_ordered_naive)
+            worksheet.cell(row=row_num, column=2).style = date_style
+
+            worksheet.cell(row=row_num, column=3, value=order_item.order.get_cart_total)
+
+            products_list = [f"{item.product.name} ({item.quantity} units) - ${item.get_total}" for item in order_item.order.orderitem_set.all()]
+            products_str = '\n'.join(products_list)
+            worksheet.cell(row=row_num, column=4, value=products_str)
+
+            row_num += 1
+
+        # Style the totals
+        for i in range(1, 4):
+            cell = worksheet.cell(row=i, column=2)
+            cell.font = openpyxl.styles.Font(bold=True)
+
+        # Style the headers
+        header_font = openpyxl.styles.Font(bold=True, color='FFFFFF')
+        header_alignment = openpyxl.styles.Alignment(horizontal='center')
+        for col_num, header in enumerate(headers, 1):
+            cell = worksheet.cell(row=row_num - len(delivered_order_items) - 1, column=col_num)
+            cell.font = header_font
+            cell.alignment = header_alignment
+            cell.fill = openpyxl.styles.PatternFill(start_color='007bff', end_color='007bff', fill_type='solid')
+
+        # Style the data
+        data_alignment = openpyxl.styles.Alignment(wrap_text=True)
+        for row_num in range(row_num - len(delivered_order_items), row_num):
+            for col_num in range(1, 5):
+                cell = worksheet.cell(row=row_num, column=col_num)
+                cell.alignment = data_alignment
+                cell.border = openpyxl.styles.Border(bottom=openpyxl.styles.Side(style='thin'))
+                
+        # Adjust column widths
+        for col_num, header in enumerate(headers, 1):
+            max_length = len(header)
+            for row_num in range(2, row_num):
+                cell_value = worksheet.cell(row=row_num, column=col_num).value
+                try:
+                    if len(str(cell_value)) > max_length:
+                         max_length = len(cell_value)
+                except:
+                        pass
+            adjusted_width = max_length + 2
+            worksheet.column_dimensions[get_column_letter(col_num)].width = adjusted_width
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=Sales_Report.xlsx'
+        workbook.save(response)
+
+        return response
+
+    except Exception as e:
+        # Log the exception or handle it appropriately
+        print(f"Error generating Excel file: {e}")
+        return HttpResponse("Failed to generate Excel file", status=500)
+   
 
 @superuser_required
 @require_GET
@@ -631,7 +827,7 @@ def get_sales_data(request, period):
     # Your logic to filter and aggregate data based on the selected period
     # Example: Weekly sales
     if period == 'week':
-        print("Entering into the week")
+        
         start_date = timezone.now().date() - timezone.timedelta(days=6)
         order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
         data = (

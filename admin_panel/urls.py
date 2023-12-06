@@ -52,6 +52,10 @@ urlpatterns = [
 
     path('sales_report/', views.sales_report, name='sales_report'),
     path('get_sales_data/<str:period>/', views.get_sales_data, name='get_sales_data'),
+    
+    path('sales_report_pdf/', views.sales_report_pdf, name='sales_report_pdf'),  # Add this line
+    path('sales_report_excel/', views.sales_report_excel, name='sales_report_excel'),
+
 
 
 

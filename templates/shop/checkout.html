@@ -20,40 +20,8 @@
 				<div class="checkout">
 					<div class="container">
 						<div class="cart-bottom">
-							<div class="cart-discount">
-								<form id="coupon-form" action="{% url 'shop:apply_coupon' order.id %}" method="post">
-									{% csrf_token %}
-									
-									{% if messages %}
-									{% for message in messages %}
-										<div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
-											{{ message }}
-										</div>
-									{% endfor %}
-								{% endif %}
-			
-									<div class="input-group">
-										<input name="coupon" type="text" class="form-control coupon_code"  placeholder="coupon code{{order.id}}">
-										<div class="input-group-append">
-											<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
-										</div><!-- .End .input-group-append -->
-										
-									</div><!-- End .input-group -->
-									<br>
-									
-									<br>
-									
-									{% if order.applied_coupon %}
-									<div class="checkout-discount">
-					
-										<input type="text" class="form-control" id="checkout-discount-input">
-										<label for="checkout-discount-input" class="text-truncate">Remove coupon? <span>Click it to remove</span></label>
-									
-								  </div><!-- End .checkout-discount -->
-									<a href="{% url 'shop:remove_coupon' order.id %}" class="btn btn-success">{{ order.applied_coupon.code }} X</a>
-								     {% endif %}
-								</form>
-							</div><!-- End .cart-discount -->
+							
+							
 
 							<a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
 						</div><!-- End .cart-bottom -->
