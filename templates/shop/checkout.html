@@ -1,16 +1,16 @@
 {% extends 'partials/base2.html' %}
 {% block content %}
         <main class="main">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-        		<div class="container">
-        			<h1 class="page-title">Checkout<span>Shop</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
+			<div class="page-header text-center" style="background-color: black;">
+				<div class="container">
+					<h1 class="page-title text-white">My Checkout</h1>
+				</div><!-- End .container -->
+			</div><!-- End .page-header -->
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'home:index' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'shop:store' %}">Shop</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Checkout</li>
                     </ol>
                 </div><!-- End .container -->
@@ -20,10 +20,28 @@
 				<div class="checkout">
 					<div class="container">
 						<div class="cart-bottom">
-							
-							
-
-							<a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
+						 <div class="cart-discount "  data-order-id="{{ cur_order.id }}">
+							<form id="coupon-form" action="{% url 'shop:apply_coupon' order.id %}" method="post">
+								{% csrf_token %}
+								<div class="cart-discount">
+									<div class="input-group">
+										<input name="coupon" type="text" class="form-control coupon_code"  placeholder="coupon code{{order.id}}">
+										<div class="input-group-append">
+											<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
+										</div><!-- .End .input-group-append -->
+										
+									</div><!-- End .input-group -->
+									<br>
+									{% if order.applied_coupon %}
+									<p>Applied Coupons,   Click it to remove!!!</p> <br>
+									<a href="{% url 'shop:checkout' %}" class="btn btn-outline-primary-2" style="width: 150px;" >{{ order.applied_coupon.code }} X</a>
+								{% endif %}
+								    
+								
+							</div><!-- End .cart-discount -->
+						</form>
+						</div>
+							{% comment %} <a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a> {% endcomment %}
 						</div><!-- End .cart-bottom -->
 						<form action="{% url 'shop:place_order' %}" method="post" id="checkout-form">
 							{% csrf_token %}
@@ -39,9 +57,9 @@
 									
 									<div class="address-box">
 										{% if address %}
-										<div class="form-check">
+										<div class="form-check custom-radio">
 											<input type="radio" class="form-check-input" id="address_{{ da.id }}" name="selected_address" value="{{ da.id }}" checked>
-											<label class="form-check-label" for="address_{{ da.id }}">
+											<label class="custom-radio-label" for="address_{{ da.id }}">
 												{{ da.full_name }} - {{ da.address_lines }}, {{ da.city }}, {{ da.country }}
 											</label>
 										</div>
@@ -55,52 +73,50 @@
 				
 			
 									<!-- Use another address modal -->
-<div class="modal fade" id="useAnotherAddressModal" tabindex="-1" role="dialog" aria-labelledby="useAnotherAddressModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="useAnotherAddressModalLabel">Select Another Address</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Here, you can display the list of remaining addresses -->
-				{% for i in ra %}
-				<div class="form-check">
-					<input type="radio" class="form-check-input" id="address_{{ i.id }}" name="selected_address" value="{{ i.id }}">
-					<label class="form-check-label" for="address_{{ i.id }}">
-						{{ i.full_name }} - {{ i.address_lines }}, {{ i.city }}, {{ i.country }}
-					</label>
-					<button type="button" class="btn btn-link">
-						<a href="{% url 'shop:change_address' i.id %}">Make Default</a>
-					</button>
-					
-				</div>
-			{% endfor %}
-			
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+									<div class="modal fade" id="useAnotherAddressModal" tabindex="-1" role="dialog" aria-labelledby="useAnotherAddressModalLabel" aria-hidden="true">
+										<div class="modal-dialog" role="document">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title" id="useAnotherAddressModalLabel">Select Another Address</h5>
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+													</button>
+												</div>
+												<div class="modal-body">
+													<!-- Display the list of remaining addresses -->
+													{% for i in ra %}
+														<div class="form-check">
+															<input type="radio" class="form-check-input" id="address_{{ i.id }}" name="selected_address" value="{{ i.id }}" hidden>
+															<label class="form-check-label" for="address_{{ i.id }}">
+																{{ i.full_name }} - {{ i.address_lines }}, {{ i.city }}, {{ i.country }}
+															</label>
+															<button type="button" class="btn btn-outline-primary-2 ms-1" style="width:2rem">
+																<a href="{% url 'shop:change_address' i.id %}">Make Default</a>
+															</button>
+														</div>
+													{% endfor %}
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+												</div>
+											</div>
+										</div>
+									</div>
 
 
 
-<div>
-<!-- Trigger link for the modal -->
-<div class="custom-control">
-    <p class="text-primary btn btn-outline-primary-2 btn-order" data-toggle="modal" data-target="#useAnotherAddressModal">Use another address</p>
-</div><!-- End .custom-checkbox -->
+							<div>
+							<!-- Trigger link for the modal -->
+							<div class="custom-control">
+								<p class="text-primary btn btn-outline-primary-2 btn-order" data-toggle="modal" data-target="#useAnotherAddressModal">Use another address</p>
+							</div><!-- End .custom-checkbox -->
 
-			
-<div class="custom-control">
-	<!-- Add new address button -->
-	<a href="{% url 'shop:addaddress' %}" class="btn btn-outline-primary-2 btn-order">Add Address</a>
-</div>
-</div>
+										
+							<div class="custom-control">
+								<!-- Add new address button -->
+								<a href="{% url 'shop:addaddress' %}" class="btn btn-outline-primary-2 btn-order">Add Address</a>
+							</div>
+							</div>
 									<label>Order notes (optional)</label>
 									<textarea class="form-control" cols="30" rows="4" name="order_notes" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
 								</div><!-- End .col-lg-9 -->
@@ -232,6 +248,25 @@
 			document.getElementById("place-order-button").style.display="none"
 		}
 	}
+</script>
+<script>
+    // Assuming you have included jQuery
+    $(document).ready(function () {
+        // Check if messages exist
+        var messagesExist = {% if messages %}true{% else %}false{% endif %};
+
+        // If messages exist, show SweetAlert
+        if (messagesExist) {
+            {% for message in messages %}
+                Swal.fire({
+                    icon: '{{ message.tags }}', // Use appropriate icon based on message tags
+                    title: '{{ message }}',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            {% endfor %}
+        }
+    });
 </script>
 
 

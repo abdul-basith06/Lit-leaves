@@ -2,9 +2,9 @@
 {% block content %}
 
 <main class="main">
-    <div class="page-header text-center" style="">
+    <div class="page-header text-center" style="background-color: black;">
         <div class="container">
-            <h1 class="page-title text-white"><i class="fa-thin fa-wallet"></i> My Wallet</h1>
+            <h1 class="page-title text-white">My Wallet</h1>
         </div><!-- End .container -->
     </div><!-- End .page-header -->
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
@@ -38,48 +38,6 @@
                     </div>
                 </div>
             </div>
-            
-
-            <div class="col-lg-6 col-12">
-                <div class="w-100 mt-2">
-                    <p style="font-size: 22px;"><i class="fa-duotone fa-money-check-dollar-pen"></i> Transaction
-                        History</p>
-                    <hr my-0>
-                    <!-- table-wrapper-scroll-y my-custom-scrollbar -->
-                    {% if history %}
-                    <div class="my-custom-scrollbar" style="max-height: 600px; overflow: auto;">
-
-                        <table class="table " >
-                            <thead class="table-light ">
-                                <tr>
-                                    <th>Purpose</th>
-                                    <th>Amount</th>
-                                    <th>Method</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transaction in history reversed %}
-                                <tr>
-                                    <td>{{ transaction.purpose }}</td>
-                                    <td style="font-weight: 500;">₹ {{ transaction.totalAmount }}</td>
-                                    <td>{{ transaction.paymentMethod|default:"" }}</td>
-                                    <td>{{ transaction.transactionDate|date:"d M Y, h:i A" }}</td>
-                                    <td>
-                                        <p class="btn-success text-center" style="border-radius: 0.4rem;">success</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <p class="text-center"><i class="fa-light fa-money-check-dollar"></i> You have no Transactions</p>
-                    {% endif %}
-                </div>
-            </div>
-
         </div>
     </div>
 </main>

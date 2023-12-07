@@ -454,7 +454,7 @@ def admin_dash(request):
 
 @superuser_required
 def order_management(request):
-    order = Order.objects.all()
+    order = Order.objects.filter(complete=True)
     context = {
         'order' : order,
     }

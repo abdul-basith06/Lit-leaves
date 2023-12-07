@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 # Create your models here.
     
@@ -25,6 +26,10 @@ class Product(models.Model):
     price = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
     is_active = models.BooleanField(default=True)
+    date_added = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    
+    def get_absolute_url(self):
+        return reverse('shop:product', args=[str(self.id)])
     
     
     def __str__(self):

@@ -324,15 +324,117 @@
                   background: none;
                 }
               }
-              
-              {% comment %} label {
-                display:inline-flex;
-                align-items:center;
-                gap:10px;
-                margin:5px 0;
-                cursor: pointer;
-              } {% endcomment %}
            
+                /* Style the custom radio button */
+                .custom-radio {
+                    position: relative;
+                    padding-left: 30px; /* Adjust as needed */
+                    cursor: pointer;
+                    display: inline-block;
+                    line-height: 20px; /* Adjust as needed */
+                }
+            
+                .custom-radio input {
+                    position: absolute;
+                    opacity: 0;
+                    cursor: pointer;
+                }
+            
+                /* Style the radio indicator */
+                .checkmark {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    height: 20px; /* Adjust as needed */
+                    width: 20px; /* Adjust as needed */
+                    background-color: #fff;
+                    border: 1px solid #ccc; /* Adjust as needed */
+                    border-radius: 50%;
+                }
+            
+                /* Style the checked radio indicator */
+                .custom-radio input:checked + .checkmark:after {
+                    content: "";
+                    position: absolute;
+                    display: block;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 12px; /* Adjust as needed */
+                    height: 12px; /* Adjust as needed */
+                    background-color: #4285f4; /* Adjust as needed */
+                    border-radius: 50%;
+                }
+            
+                /* Style the label text */
+                .custom-radio-label {
+                    font-size: 16px; /* Adjust as needed */
+                    margin-left: 10px; /* Adjust as needed */
+                }
+          
+               
+           
+
+
+
+
+
+                /* Style the modal content */
+                .modal-content {
+                    border-radius: 10px;
+                    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+                }
+            
+                /* Style the modal header */
+                .modal-header {
+                    background-color: #000;
+                    color: #fff;
+                    border-bottom: none;
+                    padding: 15px;
+                    border-top-left-radius: 10px;
+                    border-top-right-radius: 10px;
+                }
+            
+                /* Style the modal title */
+                .modal-title {
+                    font-size: 24px;
+                }
+            
+                /* Style the modal body */
+                .modal-body {
+                    padding: 20px;
+                }
+            
+                /* Style the form-check inside the modal */
+                .modal-body .form-check {
+                    margin-bottom: 15px;
+                }
+            
+                /* Style the Make Default button */
+                .modal-body .btn-link {
+                    color: #000;
+                    text-decoration: none;
+                    cursor: pointer;
+                    margin-left: 10px;
+                    transition: color 0.3s;
+                }
+            
+                .modal-body .btn-link:hover {
+                    color: #555; /* Adjust the hover color as needed */
+                }
+            
+                /* Style the modal footer */
+                .modal-footer {
+                    border-top: none;
+                    padding: 15px;
+                    border-bottom-left-radius: 10px;
+                    border-bottom-right-radius: 10px;
+                }
+            
+                /* Style the close button */
+                .close {
+                    color: #fff;
+                }
     </style>
 <script>
     function getToken(name) {
@@ -361,33 +463,6 @@
 <body>
     <div class="page-wrapper">
         <header class="header">
-            <div class="header-top">
-                <div class="container">
-                    <div class="header-left">
-                       
-
-                       
-                    </div><!-- End .header-left -->
-
-                    <div class="header-right">
-                        <ul class="top-menu">
-                            <li>
-                                <a href="#">Links</a>
-                                <ul>
-                                    <li><a href="tel:#"><i class="icon-phone"></i>Call: +91 9744421036</a></li>
-                                    <li><a href="wishlist.html"><i class="icon-heart-o"></i>Wishlist <span>(3)</span></a></li>
-                                    <li><a href="about.html">About Us</a></li>
-                                    <li><a href="contact.html">Contact Us</a></li>
-                                    {% if not user.is_authenticated %}
-                                    <li><a href="{% url 'userauths:sign-in' %}" data-toggle="modal"><i class="icon-user"></i>Login</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        </ul><!-- End .top-menu -->
-                    </div><!-- End .header-right -->
-                </div><!-- End .container -->
-            </div><!-- End .header-top -->
-
             <div class="header-middle sticky-header">
                 <div class="container">
                     <div class="header-left">
@@ -409,39 +484,7 @@
                                     <a href="{% url 'shop:store' %}">Shop</a>
                                 </li>
                                 <li>
-                                    <a href="product.html" class="sf-with-ul">Product</a>
-
-                                    <div class="megamenu megamenu-sm">
-                                        <div class="row no-gutters">
-                                            <div class="col-md-6">
-                                                <div class="menu-col">
-                                                    <div class="menu-title">Product Details</div><!-- End .menu-title -->
-                                                    <ul>
-                                                        <li><a href="product.html">Default</a></li>
-                                                        <li><a href="product-centered.html">Centered</a></li>
-                                                        <li><a href="product-extended.html"><span>Extended Info<span class="tip tip-new">New</span></span></a></li>
-                                                        <li><a href="product-gallery.html">Gallery</a></li>
-                                                        <li><a href="product-sticky.html">Sticky Info</a></li>
-                                                        <li><a href="product-sidebar.html">Boxed With Sidebar</a></li>
-                                                        <li><a href="product-fullwidth.html">Full Width</a></li>
-                                                        <li><a href="product-masonry.html">Masonry Sticky Info</a></li>
-                                                    </ul>
-                                                </div><!-- End .menu-col -->
-                                            </div><!-- End .col-md-6 -->
-
-                                            <div class="col-md-6">
-                                                <div class="banner banner-overlay">
-                                                    <a href="category.html">
-                                                        <img src="{% static 'assets/images/menu/banner-2.jpg' %}" alt="Banner">
-
-                                                        <div class="banner-content banner-content-bottom">
-                                                            <div class="banner-title text-white">New Trends<br><span><strong>spring 2019</strong></span></div><!-- End .banner-title -->
-                                                        </div><!-- End .banner-content -->
-                                                    </a>
-                                                </div><!-- End .banner -->
-                                            </div><!-- End .col-md-6 -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .megamenu megamenu-sm -->
+                                    <a href="{% url 'user_profile:wishlist' %}" class="">Wishlist</a>
                                 </li>
                                 <li>
                                     <a href="#" class="sf-with-ul">Pages</a>
@@ -534,108 +577,31 @@
                         </nav><!-- End .main-nav -->
                     </div><!-- End .header-left -->
                     <div class="header-right">
-                        <div class="header-search">
-                            <a href="{% url 'user_profile:dashboard' %}" title="My account">
+                        <div class="account">
+                            <a href="{% url 'user_profile:dashboard' %}" >
                                 <div class="icon">
                                     <i class="icon-user"></i>
                                 </div>
                                 <p>Account</p>
                             </a>
-                        </div><!-- End .compare-dropdown -->
+                        </div><!-- End .account -->
+                        
+                        
                         <div class="header-search">
                             <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
                            
-                            <form action="#" method="get">
+                            <form action="#" method="get" id="searchFormhome">
                                 <div class="header-search-wrapper">
                                     <label for="q" class="sr-only">Search</label>
                                     <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
                                 </div><!-- End .header-search-wrapper -->
                             </form>
                         </div><!-- End .header-search -->
-                        <div class="dropdown compare-dropdown">
-                            <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Compare Products" aria-label="Compare Products">
-                                <i class="icon-random"></i>
-                            </a>
-
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <ul class="compare-products">
-                                    <li class="compare-product">
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                        <h4 class="compare-product-title"><a href="product.html">Blue Night Dress</a></h4>
-                                    </li>
-                                    <li class="compare-product">
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                        <h4 class="compare-product-title"><a href="product.html">White Long Skirt</a></h4>
-                                    </li>
-                                </ul>
-
-                                <div class="compare-actions">
-                                    <a href="#" class="action-link">Clear All</a>
-                                    <a href="#" class="btn btn-outline-primary-2"><span>Compare</span><i class="icon-long-arrow-right"></i></a>
-                                </div>
-                            </div><!-- End .dropdown-menu -->
-                        </div><!-- End .compare-dropdown -->
-
                         <div class="dropdown cart-dropdown">
-                            <a href="{% url 'shop:cart' %}" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <a href="{% url 'shop:cart' %}" class="dropdown-toggle" role="button" >
                                 <i class="icon-shopping-cart"></i>
                                 <span class="cart-count">{{cartItems}}</span>
                             </a>
-
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <div class="dropdown-cart-products">
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Beige knitted elastic runner shoes</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $84.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="{% static 'assets/images/products/cart/product-1.jpg' %}" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Blue utility pinafore denim dress</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $76.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="{% static 'assets/images/products/cart/product-2.jpg' %}" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-                                </div><!-- End .cart-product -->
-
-                                <div class="dropdown-cart-total">
-                                    <span>Total</span>
-
-                                    <span class="cart-total-price">$160.00</span>
-                                </div><!-- End .dropdown-cart-total -->
-
-                                <div class="dropdown-cart-action">
-                                    <a href="{% url 'shop:cart' %}" class="btn btn-primary">View Cart</a>
-                                    <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- End .dropdown-cart-total -->
-                            </div><!-- End .dropdown-menu -->
                         </div><!-- End .cart-dropdown -->
                     </div><!-- End .header-right -->
                 </div><!-- End .container -->
@@ -645,77 +611,66 @@
 {% block content %}
 {% endblock content %}
 
-<footer class="footer">
+<footer class="footer footer-2">
     <div class="footer-middle">
         <div class="container">
             <div class="row">
-                <div class="col-sm-6 col-lg-3">
+                <div class="col-lg-6 col-xl-7">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="widget">
+                                <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
+                                <ul class="widget-list">
+                                    <li><a href="{% url 'userauths:sign-in' %}">Sign In</a></li>
+                                    <li><a href="{% url 'shop:cart' %}">View Cart</a></li>
+                                    <li><a href="{% url 'user_profile:wishlist' %}">My Wishlist</a></li>
+                                    <li><a href="{% url 'user_profile:my_orders' %}">Track My Order</a></li>
+                                </ul><!-- End .widget-list -->
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-sm-4 col-lg-2 -->
+                    </div><!-- End .row -->
+                </div><!-- End .col-lg-6 col-xl-7 -->
+    
+                <div class="col-sm-12 col-lg-6 col-xl-5">
                     <div class="widget widget-about">
                         <img src="{% static 'assets/images/romance/litleaves2.png' %}" class="footer-logo" alt="Footer Logo" width="105" height="25">
-                        <p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. </p>
-
-                        <div class="social-icons">
-                            <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-                            <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-                            <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-                            <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
-                            <a href="#" class="social-icon" target="_blank" title="Pinterest"><i class="icon-pinterest"></i></a>
-                        </div><!-- End .soial-icons -->
+                        <p>Welcome to Lit-Leaves, your premier destination for a world of literary wonders. Immerse yourself in a curated collection of books that inspire, entertain, and spark your imagination. Our passion is to bring the magic of words to your fingertips. Explore, discover, and embark on literary adventures with Lit-Leaves.</p>
+    
+                        <div class="widget-about-info">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-4">
+                                    <span class="widget-about-title">Got Question? Call us 24/7</span>
+                                    <a href="tel:123456789">+91 9744421036</a>
+                                </div><!-- End .col-sm-6 -->
+                                <div class="col-sm-6 col-md-8">
+                                    <span class="widget-about-title">Payment Method</span>
+                                    <figure class="footer-payments">
+                                        <img src="{% static 'assets/images/payments.png' %}" alt="Payment methods" width="272" height="20">
+                                    </figure><!-- End .footer-payments -->
+                                </div><!-- End .col-sm-6 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .widget-about-info -->
                     </div><!-- End .widget about-widget -->
-                </div><!-- End .col-sm-6 col-lg-3 -->
-
-                <div class="col-sm-6 col-lg-3">
-                    <div class="widget">
-                        <h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
-
-                        <ul class="widget-list">
-                            <li><a href="about.html">About Molla</a></li>
-                            <li><a href="#">How to shop on Molla</a></li>
-                            <li><a href="#">FAQ</a></li>
-                            <li><a href="contact.html">Contact us</a></li>
-                            <li><a href="login.html">Log in</a></li>
-                        </ul><!-- End .widget-list -->
-                    </div><!-- End .widget -->
-                </div><!-- End .col-sm-6 col-lg-3 -->
-
-                <div class="col-sm-6 col-lg-3">
-                    <div class="widget">
-                        <h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
-
-                        <ul class="widget-list">
-                            <li><a href="#">Payment Methods</a></li>
-                            <li><a href="#">Money-back guarantee!</a></li>
-                            <li><a href="#">Returns</a></li>
-                            <li><a href="#">Shipping</a></li>
-                            <li><a href="#">Terms and conditions</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                        </ul><!-- End .widget-list -->
-                    </div><!-- End .widget -->
-                </div><!-- End .col-sm-6 col-lg-3 -->
-
-                <div class="col-sm-6 col-lg-3">
-                    <div class="widget">
-                        <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
-
-                        <ul class="widget-list">
-                            <li><a href="#">Sign In</a></li>
-                            <li><a href="cart.html">View Cart</a></li>
-                            <li><a href="#">My Wishlist</a></li>
-                            <li><a href="#">Track My Order</a></li>
-                            <li><a href="#">Help</a></li>
-                        </ul><!-- End .widget-list -->
-                    </div><!-- End .widget -->
-                </div><!-- End .col-sm-6 col-lg-3 -->
+                </div><!-- End .col-sm-12 col-lg-6 col-xl-5 -->
             </div><!-- End .row -->
         </div><!-- End .container -->
     </div><!-- End .footer-middle -->
-
     <div class="footer-bottom">
         <div class="container">
-            <p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
-            <figure class="footer-payments">
-                <img src="{% static 'assets/images/payments.png' %}" alt="Payment methods" width="272" height="20">
-            </figure><!-- End .footer-payments -->
+            <p class="footer-copyright">Copyright © 2023 Lit-Leaves Store. All Rights Reserved.</p><!-- End .footer-copyright -->
+            <ul class="footer-menu">
+                <li><a href="#">Terms Of Use</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul><!-- End .footer-menu -->
+
+            <div class="social-icons social-icons-color">
+                <span class="social-label">Social Media</span>
+                <a href="#" class="social-icon social-facebook" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                <a href="#" class="social-icon social-twitter" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                <a href="#" class="social-icon social-instagram" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                <a href="#" class="social-icon social-youtube" title="Youtube" target="_blank"><i class="icon-youtube"></i></a>
+                <a href="#" class="social-icon social-pinterest" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
+            </div><!-- End .soial-icons -->
         </div><!-- End .container -->
     </div><!-- End .footer-bottom -->
 </footer><!-- End .footer -->
@@ -897,8 +852,8 @@
 
 <!-- Plugins JS File -->
 <script src="{% static '/assets/js/jquery.min.js' %}"></script>
-
-{% comment %} arshad link akkiya saanam {% endcomment %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static '/assets/js/cart.js' %}"></script>
 <script src="{% static '/assets/js/wishlist.js' %}"></script>
 <script src="{% static '/assets/js/dashboard.js' %}"></script>
@@ -960,7 +915,6 @@ document.querySelector('.language-buttons').addEventListener('click', function (
  </script>
 
 <script>
-{% comment %} console.log("This page is working"); {% endcomment %}
 var languageButtons = document.getElementsByClassName('language-button');
 var selectedVariationId = null;
 
@@ -1011,10 +965,8 @@ for (var i = 0; i < minusButtons.length; i++) {
 }
 
 function updateUserOrder(productId, action, selectedVariationId) {
-    console.log('user is logged in... sending data...')
 
     var url = '/shop/updateitem/';
-    console.log('user is moving in... sending data...')
 
 
     fetch(url, {
@@ -1035,69 +987,6 @@ function updateUserOrder(productId, action, selectedVariationId) {
 }
 </script> 
 
-
-{% comment %} 
-<script> 
-
-var plusButtons = document.getElementsByClassName('update-cart-plus-btn');
-
-for (var i = 0; i < plusButtons.length; i++) {
-    plusButtons[i].addEventListener('click', function() {
-        var productId = this.dataset.product;
-        var action = this.dataset.action;
-        var selectedVariationId = this.dataset.variationId; // Get the variation ID
-        console.log("ProductId:", productId, "action:", action, "selectedVariationId:", selectedVariationId);
-        updateUserOrder(productId, action, selectedVariationId);
-    });
-}
-
-function updateUserOrder(productId, action, selectedVariationId) {
-    console.log('User is logged in... sending data...');
-
-    var url = '/shop/updateitem/'; // Use the correct URL
-    console.log('User is moving in... sending data...');
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken, // Make sure to have csrf token available
-        },
-        body: JSON.stringify({ "productId": productId, "action": action, "selectedVariationId": selectedVariationId })
-    })
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        console.log('Data:', data);
-        location.reload();
-    });
-}
-</script> 
-<script> 
-var minusButtons = document.getElementsByClassName('update-cart-minus-btn');
-
-for (var i = 0; i < minusButtons.length; i++) {
-    minusButtons[i].addEventListener('click', function() {
-        var productId = this.dataset.product;
-        var action = this.dataset.action; // Change the action to 'remove'
-        var selectedVariationId = this.dataset.variationId; // Get the variation ID
-        console.log("ProductId:", productId, "action:", action, "selectedVariationId:", selectedVariationId);
-        updateUserOrder(productId, action, selectedVariationId);
-    });
-}
-</script>  {% endcomment %}
-{% comment %} <script> 
-var removeButtons = document.getElementsByClassName('update-cart-minus-btn');
-
-for (var i = 0; i < removeButtons.length; i++) {
-    removeButtons[i].addEventListener('click', function() {
-        var productId = this.dataset.product;
-        var variationId = this.dataset.variationId; // Get the variation ID
-        clearCartItem(productId, variationId); // Pass the variation ID to the function
-    });
-}
-</script> {% endcomment %}
 <script>
     var rremoveButtons = document.getElementsByClassName('clear-item');
     
@@ -1143,34 +1032,54 @@ for (var i = 0; i < removeButtons.length; i++) {
     </script>
 
 <script>  
-
     $(document).ready(function() {
-        $('.btn-wishlist').on('click', function(e) {
+        $('.btn-wishlist2').on('click', function(e) {
             e.preventDefault();
-            console.log('Script loaded successfully');
-    
     
             var productId = $(this).data('product-id');
     
             $.ajax({
                 type: 'GET',
                 url: '/user_profile/add_to_wishlist/' + productId + '/',
-                success: function(response) {
-                    console.log('Product added to wishlist successfully');
-                      // Display the success message in the modal
-                $('#customModal .modal-body').text(response.message);
-                $('#customModal').modal('show');
+                success: function (response) {
+    
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Item Added!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error adding product to wishlist:', error);
     
                     // Log more details about the error
                     console.log('XHR:', xhr);
                     console.log('Status:', status);
+    
+                    // Display error SweetAlert for unexpected error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!',
+                    });
                 }
             });
         });
     });
+    
+    
 </script>  
 
 {% block scripts %}
@@ -1245,113 +1154,11 @@ for (var i = 0; i < removeButtons.length; i++) {
 
 
 
-{% comment %} 
-<script>
-    function updateCategoryFilter() {
-        console.log('updateCategoryFilter() function called');
-
-        var categoryForm = document.getElementById('category-filter-form');
-        var categoryFormData = new FormData(categoryForm);
-        var queryParams = new URLSearchParams(categoryFormData).toString();
-
-        fetch(`/shop/store/?${queryParams}`, {
-            method: 'GET',
-        })
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('your-product-container').innerHTML = data;
-        })
-        .catch(error => console.error('Error:', error));
-    }
-</script>
-
-
-
-<script>
-    function updatePriceFilter() {
-        var priceForm = document.getElementById('price-filter-form');
-        var priceFormData = new FormData(priceForm);
-
-        fetch('/shop/store/', {
-            method: 'GET',
-            body: priceFormData
-        })
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('your-product-container').innerHTML = data;
-        })
-        .catch(error => console.error('Error:', error));
-    }
-</script>
- {% endcomment %}
-
- {% comment %} <script>
-    function updateCategoryFilter() {
-        // Get all checked checkboxes
-        var checkedCheckboxes = document.querySelectorAll('input[name="categories"]:checked');
-        
-        // Extract category IDs from checked checkboxes
-        var categoryValues = Array.from(checkedCheckboxes).map(function (checkbox) {
-            return checkbox.value;
-        });
-
-        // Construct the query string
-        var queryString = categoryValues.length > 0 ? '?categories=' + categoryValues.join(',') : '';
-
-        // Redirect to the store page with the selected category filter
-        window.location.href = '/shop/store/' + queryString;
-    }
-</script> 
-
-
-<script>
-    function updateFilter() {
-        var categoryForm = document.getElementById('category-filter-form');
-        var priceForm = document.getElementById('price-filter-form');
-        
-        var categoryFormData = new FormData(categoryForm);
-        var priceFormData = new FormData(priceForm);
-
-        // Merge form data
-        var formData = new FormData();
-        for (var pair of categoryFormData.entries()) {
-            formData.append(pair[0], pair[1]);
-        }
-        for (var pair of priceFormData.entries()) {
-            formData.append(pair[0], pair[1]);
-        }
-
-        // You can use fetch or another AJAX library to submit the form data
-        // and update the content on the page without a full reload.
-
-        // Example using fetch:
-        fetch('/shop/store/', {
-            method: 'GET',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            // Update the content on the page as needed
-            document.getElementById('your-product-container').innerHTML = data;
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function updateCategoryFilter() {
-        // Your existing category filter function
-    }
-
-    function updatePriceFilter() {
-        // Your existing price filter function
-    }
-</script> {% endcomment %}
-
     
-
+<script src="{% static '/assets/js/home.js' %}"></script>
 </body>
 
 
-<!-- molla/product.html  22 Nov 2019 09:55:05 GMT -->
 </html>
 
 

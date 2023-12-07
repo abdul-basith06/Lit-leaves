@@ -2,7 +2,7 @@ import json
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist 
 from django.db.models import Q
-
+from django.contrib.auth.decorators import login_required
 from .models import *
 from django.urls import reverse
 from django.db import transaction
@@ -37,9 +37,14 @@ def store(request, category_slug=None):
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
+        
+        category_id = request.GET.get('category')
         categories = Categories.objects.all()    
         selected_category_ids = request.GET.getlist('categories')
-        products = Product.objects.filter(is_active=True)
+        if category_id:
+            products = Product.objects.filter(category__id=category_id, is_active=True)
+        else:
+            products = Product.objects.filter(is_active=True)
 
         if selected_category_ids:
             category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
@@ -60,13 +65,14 @@ def store(request, category_slug=None):
                 # Handle the case where min_price or max_price is not a valid number
                 pass         
     
-   
+    new_product_threshold = timezone.now() - timedelta(days=1)
 
-        
     for product in products:
         product.variation = product.productlanguagevariation_set.first()
+        product.is_new = product.date_added >= new_product_threshold and product.date_added < timezone.now()
+
         
-        # product.in_cart = any(item.product == product for item in items)
+        
 
     paginator = Paginator(products, 9)  # Show 9 active products per page
 
@@ -86,6 +92,7 @@ def store(request, category_slug=None):
         'min_price': min_price,
         'max_price': max_price,
     }    
+    
 
     return render(request, 'shop/store.html', context)
 
@@ -145,13 +152,12 @@ def product(request, product_id):
     return render(request, 'shop/product.html', context)
 
 
-
-
+@login_required
 def cart(request):
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()  # Correctly access order items
+        items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
         context = {
             'items' : items,
@@ -421,15 +427,10 @@ def place_order(request):
                 order.payment_method='COD'
             elif selected_payment_method == 'wallet':
                 order.payment_method='WAL'
-                print('wallet working')
                 if order.applied_coupon:
-                    print('coupon apllied checked')
                     user_wallet = Wallet.objects.get(user=request.user)
-                    print(user_wallet)
                     total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
-                    print(total_amount)
                     total_amount -= order.applied_coupon.discount_amount
-                    print("after discount",total_amount)
                     user_wallet.balance -= total_amount
                     user_wallet.save()
                     

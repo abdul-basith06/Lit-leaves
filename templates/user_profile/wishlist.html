@@ -2,11 +2,14 @@
 {% block content %}
 
 <main class="main">
-    <div class="page-header text-center" style="background-image: url('user/images/page-header-bg.jpg')">
+    <div class="page-header text-center" style="background-color: black;">
         <div class="container">
             <h1 class="page-title text-white">My Wishlist</h1>
         </div><!-- End .container -->
     </div><!-- End .page-header -->
+    
+    
+    
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
             <ol class="breadcrumb">
@@ -36,14 +39,14 @@
                                 <td class="product-col">
                                     <div class="product">
                                         <figure class="product-media">
-                                            <a href="#">
+                                            <a href="{% url 'shop:product' item.id %}">
                                                 <img src="{{ item.productimage_set.first.image.url }}"
                                                     alt="{{ item.product.name }}">
                                             </a>
                                         </figure>
 
                                         <h3 class="product-title">
-                                            <a href="#">{{ item.name }}</a>
+                                            <a href="{% url 'shop:product' item.id %}">{{ item.name }}</a>
                                         </h3><!-- End .product-title -->
                                     </div><!-- End .product -->
                                 </td>

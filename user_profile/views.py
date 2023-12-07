@@ -1,42 +1,47 @@
 import random
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
 from admin_panel.models import *
 from django.contrib.auth import update_session_auth_hash
 from datetime import timedelta
+from django.contrib.auth import logout
 from django.contrib import messages
 from .forms import *
 from .helpers import render_to_pdf
 from shop.models import *
 from .models import *
-from django.http import Http404, HttpResponse, JsonResponse  # Import HttpResponse from django.http
+from django.http import Http404, HttpResponse, JsonResponse  
 
+@login_required
 def dashboard(request):
-    if request.user.is_authenticated:
-        profile = None  # Initialize to None to handle exceptions
-        try:
-            profile = UserProfile.objects.get(user=request.user)
-        except UserProfile.DoesNotExist:
-            pass  # Handle the case when the profile does not exist
+    profile = None  
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        pass 
+        
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items    
 
-        context = {
+    context = {
             'profile': profile,
+            'cartItems':cartItems,
         }
-        return render(request, 'user_profile/dashboard.html', context)
+    return render(request, 'user_profile/dashboard.html', context)
 
-    raise Http404("User is not authenticated")  # Handle the case when the user is not authenticated
-
-
+@login_required
 def update_avatar(request):
     if request.method == 'POST':
         user_profile = UserProfile.objects.get(user=request.user)
-        user_profile.dp = request.FILES['image']  # 'image' should match the input name attribute in your form
+        user_profile.dp = request.FILES['image'] 
         user_profile.save()
         return redirect('user_profile:dashboard')
 
     return render(request, 'user_profile/dashboard.html')
 
 
-
+@login_required
 def editpassword(request):
     if request.method == 'POST':
         old_password = request.POST['oldPassword']
@@ -44,27 +49,24 @@ def editpassword(request):
 
         user = request.user
 
-        # Check if the old password is correct
         if user.check_password(old_password):
-            # Set the new password and update the session
             user.set_password(new_password)
             user.save()
-            update_session_auth_hash(request, user)  # To prevent the user from being logged out
-
-            messages.success(request, 'Password changed successfully.')
-            return redirect('user_profile:dashboard')
+            update_session_auth_hash(request, user) 
+            logout(request) 
+            messages.success(request, 'Password changed successfully. You have been logged out for security reasons.')
+            return redirect('home:index') 
         else:
             messages.error(request, 'Incorrect old password. Password not changed.')
 
-    return render(request, 'user_profile/dashboard.html')  # You can change the template to where you want to redirect
+    return render(request, 'user_profile/dashboard.html') 
 
+@login_required
 def editprofile(request):
     if request.method == 'POST':
-        # Retrieve the user's profile
         user_profile = UserProfile.objects.get(user=request.user)
-        user = User.objects.get(pk=request.user.id)  # Retrieve the User model instance
+        user = User.objects.get(pk=request.user.id)  
 
-        # Update the User model with the data from the form
         user.username = request.POST['username']
         user.first_name = request.POST['firstname']
         user.last_name = request.POST['lastname']
@@ -72,44 +74,43 @@ def editprofile(request):
         user.mobile_number = request.POST['mobile_number']
         user.save()
 
-        # Update the UserProfile model
         user_profile.bio = request.POST.get('bio', '')
         user_profile.save()
 
-        # Redirect to a success page or back to the profile page
         return redirect('user_profile:dashboard')
     else:
-        # Handle GET requests to display the edit profile form
         return render(request, 'user_profile/editprofile.html')
     
-
+@login_required
 def all_addresses(request):
     form = AddressForm()
     all_address = ShippingAddress.objects.filter(user=request.user)
     
-     # Check if any address has status=True
     has_default_address = any(all_address.status for all_address in all_address)
 
-    # If no default address, set the status of the first address to True
     if not has_default_address and all_address:
         all_address[0].status = True
         all_address[0].save()
         
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items      
+        
     context = {
         'address' : all_address,
         'form':form,
+        'cartItems':cartItems,
     }
     return render(request, 'user_profile/all-addresses.html', context)   
  
  
- 
+@login_required
 def add_address(request):
-    form = AddressForm()  # Instantiate the form
+    form = AddressForm() 
     if request.method == 'POST':
         form = AddressForm(request.POST)
         if form.is_valid():
             print("Form is valid")
-            # Save the address and set the user
             new_address = form.save(commit=False)
             new_address.user = request.user
             new_address.save()
@@ -128,13 +129,10 @@ def add_address(request):
     return render(request, 'user_profile/all-addresses.html', context)
 
 
-
+@login_required
 def edit_address(request, address_id):
-    # Retrieve the address from the database based on address_id
     address = get_object_or_404(ShippingAddress, id=address_id)
 
-    # You should have a form to display the address details
-    # Replace 'YourForm' with the actual form you are using
     form = AddressForm(instance=address)
 
     context = {
@@ -144,7 +142,7 @@ def edit_address(request, address_id):
 
     return render(request, 'user_profile/edit-address.html', context)
 
-
+@login_required
 def update_address(request, address_id):
     up_address = get_object_or_404(ShippingAddress, id=address_id)
 
@@ -165,38 +163,36 @@ def update_address(request, address_id):
 
     return render(request, 'user_profile/edit-address.html', context)
 
-
+@login_required
 def delete_address(request, address_id):
-    # Retrieve the address from the database based on address_id
     address_del = get_object_or_404(ShippingAddress, id=address_id)
 
-    # Check if it's a POST request (form submission)
     if request.method == 'POST':
-        # Delete the address
         address_del.delete()
         return redirect('user_profile:all_addresses')
-
 
     return render(request, 'user_profile/all-addresses.html')
 
 
-
+@login_required
 def my_orders(request):
-    # Retrieve orders for the logged-in user
     orders = Order.objects.filter(customer=request.user, complete=True).prefetch_related('orderitem_set__product')
 
-     # Calculate the expected delivery date for each order
     for order in orders:
         order.expected_delivery_date = order.date_ordered + timedelta(days=3)
         order.seven_days_after_delivery = order.expected_delivery_date + timedelta(days=7)
-
         
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items      
+
     context = {
         'orders':orders,
+        'cartItems':cartItems,
     }
     return render(request, 'user_profile/my-orders.html', context)
 
-
+@login_required
 def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
@@ -207,69 +203,61 @@ def cancel_order(request, order_item_id):
     order_item.delivery_status = 'CN'
     order_item.save()
     
-     # If payment method is Razorpay, refund amount to user's wallet
     if order_item.order.payment_method == 'RAZ' or order_item.order.payment_method == 'WAL':
         user_wallet = Wallet.objects.get(user=request.user)
         total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
         user_wallet.balance += total_amount
         user_wallet.save()
     
-
     messages.success(request, 'Order canceled successfully.')
-
     return redirect('user_profile:my_orders')
 
+@login_required
 def return_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
-    
     try:
-        # Check if the order is eligible for return (you can implement your logic here)
-
-        # Process the return
         order_item.delivery_status = 'RT'
         order_item.save()
         
-         # Increase stock quantity
         order_item.variation.stock += order_item.quantity
         order_item.variation.save() 
         
         user_wallet = Wallet.objects.get(user=request.user)
-        # Check if get_total is a method or an attribute
         total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
         user_wallet.balance += total_amount
         user_wallet.save()
 
         messages.success(request, 'Return Item request success.')
     except Exception as e:
-        # Handle exceptions, log errors, or display an error message to the user
         messages.error(request, f'Error processing return request: {e}')
-    
     return redirect('user_profile:my_orders')
 
 
-
+@login_required
 def wallet(request):
     user_wallet = None
-
     if request.user.is_authenticated:
         user_wallet = Wallet.objects.get(user=request.user)
-
+        
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items  
+        
     context = {
         'user_wallet': user_wallet,
+        'cartItems':cartItems,
     }
-
     return render(request, 'user_profile/wallet.html', context)
 
+@login_required
 def coupons(request):
     all_coupons = Coupon.objects.all()
-    
     eligible_coupons = []
     used_coupons = []
     expired_coupons = []
     current_date = timezone.now().date()
     print(current_date)
-
 
     for coupon in all_coupons:
         if coupon.valid_till.date() < current_date:
@@ -278,24 +266,33 @@ def coupons(request):
             eligible_coupons.append(coupon)
         else:
             used_coupons.append(coupon)
-                
-
+              
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items  
+              
     context = {
         'eligible_coupons': eligible_coupons,
         'used_coupons': used_coupons,
         'expired_coupons': expired_coupons,
+        'cartItems':cartItems,
 
     }
-
     return render(request, 'user_profile/coupon.html', context)
 
+@login_required
 def wishlist(request):
     wishlist = Wishlist.objects.get(user=request.user)
+    customer = request.user
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    cartItems = order.get_cart_items
     context = {
         'wishlist':wishlist,
+        'cartItems':cartItems,
     }
     return render(request, 'user_profile/wishlist.html',context)
 
+@login_required
 def remove_item_wishlist(request, item_id):
     wishlist = get_object_or_404(Wishlist, user=request.user)
     product = get_object_or_404(Product, id=item_id)
@@ -305,40 +302,40 @@ def remove_item_wishlist(request, item_id):
     
     return redirect('user_profile:wishlist')
 
-from django.http import JsonResponse
-
+@login_required
 def add_to_wishlist(request, product_id):
     response_data = {}
-
     try:
         if not request.user.is_authenticated:
             raise Exception('User not authenticated')
 
-        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        wishlist = Wishlist.objects.get(user=request.user)
         product = get_object_or_404(Product, id=product_id)
 
-        wishlist.items.add(product)
-        wishlist.save()
-
-        response_data['success'] = True
-        response_data['message'] = 'Item added to your wishlist'
+        if product in wishlist.items.all():
+            # Item is already in the wishlist
+            response_data['success'] = False
+            response_data['message'] = 'Item is already in your wishlist'
+        else:
+            wishlist.items.add(product)
+            wishlist.save()
+            response_data['success'] = True
+            response_data['message'] = 'Item added to your wishlist'
     except Exception as e:
         response_data['success'] = False
         response_data['error'] = str(e)
-
     return JsonResponse(response_data, safe=False)
 
+@login_required
 def generate_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     invoice_number = str(random.randint(100000, 999999))
-
 
     context = {
         'order': order,
         'invoice_number':invoice_number,
        
     }
- 
 
     pdf = render_to_pdf('user_profile/invoice.html', context)
     if pdf:
