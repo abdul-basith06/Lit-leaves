@@ -387,7 +387,6 @@
             
                 /* Style the modal header */
                 .modal-header {
-                    background-color: #000;
                     color: #fff;
                     border-bottom: none;
                     padding: 15px;
@@ -433,7 +432,7 @@
             
                 /* Style the close button */
                 .close {
-                    color: #fff;
+                    color: #000;
                 }
     </style>
 <script>
@@ -1054,7 +1053,7 @@ function updateUserOrder(productId, action, selectedVariationId) {
                     } else {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Warning',
+                            title: 'Oops...',
                             text: response.message,
                             showConfirmButton: false,
                             timer: 1500

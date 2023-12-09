@@ -12,7 +12,7 @@ from shop.models import *
 from .models import *
 from django.http import Http404, HttpResponse, JsonResponse  
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def dashboard(request):
     profile = None  
     try:
@@ -30,7 +30,7 @@ def dashboard(request):
         }
     return render(request, 'user_profile/dashboard.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def update_avatar(request):
     if request.method == 'POST':
         user_profile = UserProfile.objects.get(user=request.user)
@@ -41,7 +41,9 @@ def update_avatar(request):
     return render(request, 'user_profile/dashboard.html')
 
 
-@login_required
+
+
+@login_required(login_url='userauths:sign-in')
 def editpassword(request):
     if request.method == 'POST':
         old_password = request.POST['oldPassword']
@@ -50,18 +52,25 @@ def editpassword(request):
         user = request.user
 
         if user.check_password(old_password):
+            if old_password == new_password:
+                messages.error(request, 'New password must be different from the old password.')
+                response_data = {'success': False, 'message': 'New password must be different from the old password.'}
+                return redirect('user_profile:dashboard')
             user.set_password(new_password)
             user.save()
-            update_session_auth_hash(request, user) 
-            logout(request) 
+            update_session_auth_hash(request, user)
+            logout(request)
             messages.success(request, 'Password changed successfully. You have been logged out for security reasons.')
+            response_data = {'success': True, 'message': 'Password changed successfully.'}
             return redirect('home:index') 
         else:
             messages.error(request, 'Incorrect old password. Password not changed.')
+            response_data = {'success': False, 'message': 'Incorrect old password. Password not changed.'}
+            return redirect('user_profile:dashboard') 
 
     return render(request, 'user_profile/dashboard.html') 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def editprofile(request):
     if request.method == 'POST':
         user_profile = UserProfile.objects.get(user=request.user)
@@ -81,7 +90,7 @@ def editprofile(request):
     else:
         return render(request, 'user_profile/editprofile.html')
     
-@login_required
+@login_required(login_url='userauths:sign-in')
 def all_addresses(request):
     form = AddressForm()
     all_address = ShippingAddress.objects.filter(user=request.user)
@@ -104,7 +113,7 @@ def all_addresses(request):
     return render(request, 'user_profile/all-addresses.html', context)   
  
  
-@login_required
+@login_required(login_url='userauths:sign-in')
 def add_address(request):
     form = AddressForm() 
     if request.method == 'POST':
@@ -129,7 +138,7 @@ def add_address(request):
     return render(request, 'user_profile/all-addresses.html', context)
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def edit_address(request, address_id):
     address = get_object_or_404(ShippingAddress, id=address_id)
 
@@ -142,7 +151,7 @@ def edit_address(request, address_id):
 
     return render(request, 'user_profile/edit-address.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def update_address(request, address_id):
     up_address = get_object_or_404(ShippingAddress, id=address_id)
 
@@ -163,7 +172,7 @@ def update_address(request, address_id):
 
     return render(request, 'user_profile/edit-address.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def delete_address(request, address_id):
     address_del = get_object_or_404(ShippingAddress, id=address_id)
 
@@ -174,7 +183,7 @@ def delete_address(request, address_id):
     return render(request, 'user_profile/all-addresses.html')
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def my_orders(request):
     orders = Order.objects.filter(customer=request.user, complete=True).prefetch_related('orderitem_set__product')
 
@@ -192,7 +201,7 @@ def my_orders(request):
     }
     return render(request, 'user_profile/my-orders.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
@@ -212,7 +221,7 @@ def cancel_order(request, order_item_id):
     messages.success(request, 'Order canceled successfully.')
     return redirect('user_profile:my_orders')
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def return_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
@@ -234,7 +243,7 @@ def return_order(request, order_item_id):
     return redirect('user_profile:my_orders')
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def wallet(request):
     user_wallet = None
     if request.user.is_authenticated:
@@ -250,7 +259,7 @@ def wallet(request):
     }
     return render(request, 'user_profile/wallet.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def coupons(request):
     all_coupons = Coupon.objects.all()
     eligible_coupons = []
@@ -280,7 +289,7 @@ def coupons(request):
     }
     return render(request, 'user_profile/coupon.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def wishlist(request):
     wishlist = Wishlist.objects.get(user=request.user)
     customer = request.user
@@ -292,7 +301,7 @@ def wishlist(request):
     }
     return render(request, 'user_profile/wishlist.html',context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def remove_item_wishlist(request, item_id):
     wishlist = get_object_or_404(Wishlist, user=request.user)
     product = get_object_or_404(Product, id=item_id)
@@ -302,7 +311,7 @@ def remove_item_wishlist(request, item_id):
     
     return redirect('user_profile:wishlist')
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def add_to_wishlist(request, product_id):
     response_data = {}
     try:
@@ -326,7 +335,7 @@ def add_to_wishlist(request, product_id):
         response_data['error'] = str(e)
     return JsonResponse(response_data, safe=False)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def generate_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     invoice_number = str(random.randint(100000, 999999))

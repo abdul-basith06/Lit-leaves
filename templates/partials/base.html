@@ -591,6 +591,17 @@
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
 <script src="{% static 'assets/js/demos/demo-20.js' %}"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% endif %}",
+                text: "{{ message }}",
+            });
+        {% endfor %}
+    {% endif %}
+</script>
 <script>  
     $(document).ready(function() {
         $('.btn-wishlist2').on('click', function(e) {
@@ -614,7 +625,7 @@
                     } else {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Warning',
+                            title: 'Oops...',
                             text: response.message,
                             showConfirmButton: false,
                             timer: 1500

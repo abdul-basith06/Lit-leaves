@@ -30,40 +30,40 @@ from django.shortcuts import render, get_object_or_404
 # Create your views here.
 
 
-
 def store(request, category_slug=None):
+    cartItems = None 
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
         
-        category_id = request.GET.get('category')
-        categories = Categories.objects.all()    
-        selected_category_ids = request.GET.getlist('categories')
-        if category_id:
-            products = Product.objects.filter(category__id=category_id, is_active=True)
-        else:
-            products = Product.objects.filter(is_active=True)
+    category_id = request.GET.get('category')
+    categories = Categories.objects.all()    
+    selected_category_ids = request.GET.getlist('categories')
+    if category_id:
+        products = Product.objects.filter(category__id=category_id, is_active=True)
+    else:
+         products = Product.objects.filter(is_active=True)
 
-        if selected_category_ids:
-            category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
-            combined_category_filter = Q()
-            for category_filter in category_filters:
-                combined_category_filter |= category_filter
-            products = products.filter(combined_category_filter)
+    if selected_category_ids:
+        category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
+        combined_category_filter = Q()
+        for category_filter in category_filters:
+            combined_category_filter |= category_filter
+        products = products.filter(combined_category_filter)
             
-        min_price = request.GET.get('min_price', None)
-        max_price = request.GET.get('max_price', None)  
+    min_price = request.GET.get('min_price', None)
+    max_price = request.GET.get('max_price', None)  
         
-        if min_price and max_price:
-            try:
-                min_price = float(min_price)
-                max_price = float(max_price)
-                products = products.filter(price__range=(min_price, max_price))
-            except ValueError:
+    if min_price and max_price:
+        try:
+            min_price = float(min_price)
+            max_price = float(max_price)
+            products = products.filter(price__range=(min_price, max_price))
+        except ValueError:
                 # Handle the case where min_price or max_price is not a valid number
-                pass         
+            pass         
     
     new_product_threshold = timezone.now() - timedelta(days=1)
 
@@ -98,6 +98,73 @@ def store(request, category_slug=None):
 
 
 
+# def store(request, category_slug=None):
+#     if request.user.is_authenticated:
+#         customer = request.user
+#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
+#         items = order.orderitem_set.all()
+#         cartItems = order.get_cart_items
+        
+#         category_id = request.GET.get('category')
+#         categories = Categories.objects.all()    
+#         selected_category_ids = request.GET.getlist('categories')
+#         if category_id:
+#             products = Product.objects.filter(category__id=category_id, is_active=True)
+#         else:
+#             products = Product.objects.filter(is_active=True)
+
+#         if selected_category_ids:
+#             category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
+#             combined_category_filter = Q()
+#             for category_filter in category_filters:
+#                 combined_category_filter |= category_filter
+#             products = products.filter(combined_category_filter)
+            
+#         min_price = request.GET.get('min_price', None)
+#         max_price = request.GET.get('max_price', None)  
+        
+#         if min_price and max_price:
+#             try:
+#                 min_price = float(min_price)
+#                 max_price = float(max_price)
+#                 products = products.filter(price__range=(min_price, max_price))
+#             except ValueError:
+#                 # Handle the case where min_price or max_price is not a valid number
+#                 pass         
+    
+#     new_product_threshold = timezone.now() - timedelta(days=1)
+
+#     for product in products:
+#         product.variation = product.productlanguagevariation_set.first()
+#         product.is_new = product.date_added >= new_product_threshold and product.date_added < timezone.now()
+
+        
+        
+
+#     paginator = Paginator(products, 9)  # Show 9 active products per page
+
+#     page = request.GET.get('page')
+#     try:
+#         products = paginator.page(page)
+#     except PageNotAnInteger:
+#         products = paginator.page(1)
+#     except EmptyPage:
+#         products = paginator.page(paginator.num_pages)
+        
+#     context = {
+#         'products': products,
+#         'cartItems': cartItems,
+#         'categories': categories,
+#         'selected_category_ids': selected_category_ids,
+#         'min_price': min_price,
+#         'max_price': max_price,
+#     }    
+    
+
+#     return render(request, 'shop/store.html', context)
+
+
+
 def get_variation_stock(request, variation_id):
     try:
         variation = ProductLanguageVariation.objects.get(id=variation_id)
@@ -108,6 +175,8 @@ def get_variation_stock(request, variation_id):
 
 
 def product(request, product_id):
+    items = None
+    cartItems = None
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -129,16 +198,21 @@ def product(request, product_id):
     
     related_products = Product.objects.filter(category=category).exclude(pk=selected_product.id)[:4]
     is_in_cart = False
-    for item in items:
-        if item.product.id == selected_product.id:
-            is_in_cart = True
-            break
-    related_products_in_cart = []
-    for related_product in related_products:
+
+    if items:  # Check if items is not None before iterating
         for item in items:
-            if item.product.id == related_product.id:
-                related_products_in_cart.append(related_product)
-                break    
+            if item.product.id == selected_product.id:
+                is_in_cart = True
+                break
+
+    related_products_in_cart = []
+
+    if items:  # Check if items is not None before iterating
+        for related_product in related_products:
+            for item in items:
+                if item.product.id == related_product.id:
+                    related_products_in_cart.append(related_product)
+                    break 
     context = {
         'product': selected_product,
         'related_products': related_products,
@@ -173,7 +247,7 @@ def cart(request):
 
 
 
-
+@login_required
 @transaction.atomic    
 def updateItem(request):
     data = json.loads(request.body)

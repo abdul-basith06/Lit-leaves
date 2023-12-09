@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form action="{% url 'shop:update_address' %}" method="post">
+            <form onsubmit="return validateForm();" action="{% url 'shop:update_address' %}" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="full_name" class="form-label">Full Name *</label>
@@ -43,11 +43,11 @@
                  <!-- Add a checkbox for setting the address as default -->
                  <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="set_as_default" name="status">
-                    <label class="form-check-label" for="set_as_default">Set as Default Address</label>
+                    <label class="form-check-label ml-3" for="set_as_default">Set as Default Address</label>
                 </div>
 
                 <div class="modal-footer">
-                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" data-dismiss="modal">Close</a>
+                    <a class="btn btn-outline-primary-2" style="border-radius: 7px;" onclick="goBack()" >Close</a>
                     <button type="submit" class="btn btn-outline-primary-2" style="border-radius: 7px; background: #000; color: #fff;">Save Address</button>
                 </div>
             </form>
@@ -55,3 +55,87 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+
+<script>
+    function validateForm() {
+        console.log("validateForm function called");
+        var fullName = document.getElementById("full_name").value;
+        var mobile = document.getElementById("mobile").value;
+
+        // Add validations for other fields
+
+        if (fullName.trim() === "") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Full Name cannot be empty',
+            });
+            return false;
+        }
+
+        // Check if mobile is a 10-digit number
+        if (!/^\d{10}$/.test(mobile)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please enter a valid 10-digit mobile number',
+            });
+            return false;
+        }
+
+        // Validate pin code
+        var pinCode = document.getElementById("pin_code").value;
+        if (!/^\d{6}$/.test(pinCode)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please enter a valid pin code',
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+
+{% comment %} 
+<script>
+    function validateForm() {
+        console.log("validateForm function called");
+        var fullName = document.getElementById("full_name").value;
+        var mobile = document.getElementById("mobile").value;
+
+        // Add validations for other fields
+
+        if (fullName.trim() === "") {
+            alert("Full Name cannot be empty");
+            return false;
+        }
+
+        // Check if mobile is a 10-digit number
+        if (!/^\d{10}$/.test(mobile)) {
+            alert("Please enter a valid 10-digit mobile number");
+            return false;
+        }
+
+        // Validate pin code
+        var pinCode = document.getElementById("pin_code").value;
+        if (!/^\d{6}$/.test(pinCode)) {
+            alert("Please enter a valid 6-digit pin code");
+            return false;
+        }
+        return true;
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+</script> {% endcomment %}
+{% endblock scripts %}

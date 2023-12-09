@@ -6,6 +6,7 @@ from shop.models import *
 from django.http import HttpResponse, JsonResponse  # Import HttpResponse from django.http
 
 def index(request):
+    user = request.user
     products = Product.objects.all()
     current_time = timezone.now()
     
@@ -16,11 +17,16 @@ def index(request):
     ).annotate(
         total_quantity_sold=Sum('orderitem__quantity')
     ).order_by('-total_quantity_sold')[:10]
+    
     categories = Categories.objects.filter(is_active=True)
     
-    customer = request.user
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
-    cartItems = order.get_cart_items
+    if user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        cartItems = order.get_cart_items
+    else:
+        order = None
+        cartItems = 0    
     
     context = {
         "products" : most_sold_products,

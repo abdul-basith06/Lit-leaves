@@ -24,22 +24,18 @@
 							<form id="coupon-form" action="{% url 'shop:apply_coupon' order.id %}" method="post">
 								{% csrf_token %}
 								<div class="cart-discount">
-									<div class="input-group">
-										<input name="coupon" type="text" class="form-control coupon_code"  placeholder="coupon code{{order.id}}">
+									<div class="input-group" style="align-items: baseline;">
+										<input name="coupon" type="text" class="form-control coupon_code" placeholder="coupon code{{order.id}}" style="height: 40px; margin-bottom: 0;">
 										<div class="input-group-append">
-											<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
+											<button class="btn btn-outline-primary-2" type="submit" style="height: 40px; margin-bottom: 0;"><i class="icon-long-arrow-right"></i></button>
 										</div><!-- .End .input-group-append -->
-										
 									</div><!-- End .input-group -->
-									<br>
-									{% if order.applied_coupon %}
-									<p>Applied Coupons,   Click it to remove!!!</p> <br>
-									<a href="{% url 'shop:checkout' %}" class="btn btn-outline-primary-2" style="width: 150px;" >{{ order.applied_coupon.code }} X</a>
-								{% endif %}
-								    
-								
-							</div><!-- End .cart-discount -->
-						</form>
+								</div><!-- End .cart-discount -->
+							</form>
+						{% if order.applied_coupon %}
+						<p class="mt-2" >Applied Coupons,   Click it to remove!!!</p> <br>
+						<a href="{% url 'shop:checkout' %}" class="btn btn-outline-primary-2" style="width: 150px;" >{{ order.applied_coupon.code }} X</a>
+					{% endif %}
 						</div>
 							{% comment %} <a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a> {% endcomment %}
 						</div><!-- End .cart-bottom -->
@@ -163,22 +159,6 @@
 										</table><!-- End .table table-summary -->
 										<div class="accordion-summary" id="accordion-payment">
 											<div class="card">
-												
-											<!-- <div class="card">
-												<div class="card-header" id="heading-2">
-													<h2 class="card-title">
-														<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-															Pay with Razorpay
-														</a>
-													</h2>
-												</div>
-												<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-													<div class="card-body">
-														<button type="button" class="btn btn-outline-primary-2 btn-order payWithrazorpay mt-2" data-name="{{ user_info.name }}" data-email="{{ user_info.email }}" data-contact="{{ user_info.contact }}" data-value="razorpay">
-															Pay with Razorpay
-														</button>													</div>
-												</div>
-											</div> -->
 
 											<div class="form-check py-1 d-flex justify-content-between">
 												<div class="col-2 d-flex align-items-center"><input style="height:15px; width:15px; vertical-align: middle;" class="form-check-input  my-auto" onchange="managePlaceBTN()" type="radio" name="payment_method"  id="onlineRadio" ></div>

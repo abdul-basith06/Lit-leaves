@@ -302,3 +302,16 @@
 
         {% endblock content %}
       
+{% block scripts %}
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% endif %}",
+                text: "{{ message }}",
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+{% endblock scripts %}

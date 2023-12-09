@@ -104,6 +104,11 @@
             {% endfor %}
 
             <button type="submit" class="submit-button">Verify</button>
+            <button type="button" id="resend-otp" class="submit-button" hidden>
+                <a href="{% url 'userauths:resend_otp' %}" style="color: white; text-decoration: none;">
+                    Resend OTP
+                </a>
+            </button>
             
 
         </form>
@@ -111,35 +116,34 @@
         <p id="resend-message">Resend OTP in <span id="timer">60</span> seconds</p>
         
     </div>
-
     <script>
         const timerElement = document.getElementById('timer');
         const otpInputs = document.querySelectorAll('.otp-input');
         let seconds = 60;
         let timer;
-
+    
         function updateTimer() {
             timerElement.textContent = seconds;
             if (seconds === 0) {
                 clearInterval(timer);
-                //  logic to enable the Resend OTP button 
+                // Enable the Resend OTP button 
                 document.getElementById('resend-otp').removeAttribute('hidden');
                 document.getElementById('resend-message').textContent = 'Resend OTP now';
             }
             seconds--;
         }
-
+    
         function startTimer() {
             updateTimer();
             timer = setInterval(updateTimer, 1000);
         }
-
+    
         startTimer();
-
+    
         function isOTPComplete() {
             return otpInputs[0].value && otpInputs[1].value && otpInputs[2].value && otpInputs[3].value;
         }
-
+    
         function handleOTPSubmission() {
             if (isOTPComplete()) {
                 // Form submission will handle OTP validation
@@ -147,7 +151,7 @@
                 alert('Please enter a complete OTP.');
             }
         }
-
+    
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', (event) => {
                 if (event.target.value) {
@@ -157,6 +161,8 @@
                 }
             });
         });
+    
+        // ... (any other JavaScript code) ...
     </script>
 </body>
 </html>

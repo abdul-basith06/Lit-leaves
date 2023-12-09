@@ -84,7 +84,7 @@
         <h2>OTP Verification</h2>
         <p>Enter the OTP sent to your email.</p>
 
-        <form id="otp-form" method="POST" action="{% url 'userauths:otp_verification2' %}">
+        <form id="otp-form" method="POST" action="{% url 'userauths:otp_verification_forget_password' %}">
             {% csrf_token %}
 
             <p>Please check your email:</p>
@@ -105,16 +105,17 @@
 
             <button type="submit" class="submit-button">Verify</button>
             <button type="button" id="resend-otp" class="submit-button" hidden>
-                <a href="{% url 'userauths:resend_otp2' %}" style="color: white; text-decoration: none;">
+                <a href="{% url 'userauths:resend_otp3' %}" style="color: white; text-decoration: none;">
                     Resend OTP
                 </a>
             </button>
+            
 
         </form>
 
         <p id="resend-message">Resend OTP in <span id="timer">60</span> seconds</p>
+        
     </div>
-
     <script>
         const timerElement = document.getElementById('timer');
         const otpInputs = document.querySelectorAll('.otp-input');
