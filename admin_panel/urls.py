@@ -18,6 +18,7 @@ urlpatterns = [
     path('edit_category/<int:category_id>/', views.edit_category, name='edit_category'),
     path('update_category/<int:category_id>/', views.update_category, name='update_category'),
     path('add_category/', views.add_category, name='add_category'),
+    path('add_language/', views.add_language, name='add_language'),
     path('block_category/<int:category_id>/', views.block_category, name='block_category'),
     path('unblock_category/<int:category_id>/', views.unblock_category, name='unblock_category'),
 

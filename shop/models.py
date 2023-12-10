@@ -13,7 +13,7 @@ class Coupon(models.Model):
     discount_amount = models.PositiveIntegerField()
     min_purchase_amount = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    used_by = models.ManyToManyField(User, blank=True)  # Many-to-many relationship with users who have used the coupon
+    used_by = models.ManyToManyField(User, blank=True) 
 
     def __str__(self):
         return self.code

@@ -27,12 +27,13 @@
                                     <tr>
 
                                         <th> Product </th>
+                                        <th> Variant </th>
                                         <th> User </th>
                                         <th> Order ID</th>
                                         <th> Order Date</th>
                                         <th> Quantity</th>
                                         <th> Price</th>
-                                        <th> Pyament Status</th>
+                                        <th> Pyament Method</th>
                                         <th> Order Status</th>
                                         <th> Action</th>
                                     </tr>
@@ -49,6 +50,9 @@
                                                 {{ order_item.product.name }}
                                             </span>
                                            
+                                        </td>
+                                        <td>
+                                            {{ order_item.variation.language.name }} 
                                         </td>
                                         <td>                  
                                             {{ order.customer.username }}                                          

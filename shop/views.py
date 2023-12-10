@@ -97,74 +97,6 @@ def store(request, category_slug=None):
     return render(request, 'shop/store.html', context)
 
 
-
-# def store(request, category_slug=None):
-#     if request.user.is_authenticated:
-#         customer = request.user
-#         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-#         items = order.orderitem_set.all()
-#         cartItems = order.get_cart_items
-        
-#         category_id = request.GET.get('category')
-#         categories = Categories.objects.all()    
-#         selected_category_ids = request.GET.getlist('categories')
-#         if category_id:
-#             products = Product.objects.filter(category__id=category_id, is_active=True)
-#         else:
-#             products = Product.objects.filter(is_active=True)
-
-#         if selected_category_ids:
-#             category_filters = [Q(category__id=cat_id) for cat_id in selected_category_ids]
-#             combined_category_filter = Q()
-#             for category_filter in category_filters:
-#                 combined_category_filter |= category_filter
-#             products = products.filter(combined_category_filter)
-            
-#         min_price = request.GET.get('min_price', None)
-#         max_price = request.GET.get('max_price', None)  
-        
-#         if min_price and max_price:
-#             try:
-#                 min_price = float(min_price)
-#                 max_price = float(max_price)
-#                 products = products.filter(price__range=(min_price, max_price))
-#             except ValueError:
-#                 # Handle the case where min_price or max_price is not a valid number
-#                 pass         
-    
-#     new_product_threshold = timezone.now() - timedelta(days=1)
-
-#     for product in products:
-#         product.variation = product.productlanguagevariation_set.first()
-#         product.is_new = product.date_added >= new_product_threshold and product.date_added < timezone.now()
-
-        
-        
-
-#     paginator = Paginator(products, 9)  # Show 9 active products per page
-
-#     page = request.GET.get('page')
-#     try:
-#         products = paginator.page(page)
-#     except PageNotAnInteger:
-#         products = paginator.page(1)
-#     except EmptyPage:
-#         products = paginator.page(paginator.num_pages)
-        
-#     context = {
-#         'products': products,
-#         'cartItems': cartItems,
-#         'categories': categories,
-#         'selected_category_ids': selected_category_ids,
-#         'min_price': min_price,
-#         'max_price': max_price,
-#     }    
-    
-
-#     return render(request, 'shop/store.html', context)
-
-
-
 def get_variation_stock(request, variation_id):
     try:
         variation = ProductLanguageVariation.objects.get(id=variation_id)
@@ -226,7 +158,7 @@ def product(request, product_id):
     return render(request, 'shop/product.html', context)
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def cart(request):
     if request.user.is_authenticated:
         customer = request.user
@@ -243,11 +175,8 @@ def cart(request):
 
 
 
-    
 
-
-
-@login_required
+# @login_required(login_url='userauths:sign-in')
 @transaction.atomic    
 def updateItem(request):
     data = json.loads(request.body)
@@ -333,6 +262,7 @@ def clearItem(request):
     return JsonResponse("You must be logged in to perform this action", status=400)    
   
   
+@login_required(login_url='userauths:sign-in')  
 def checkout(request):
     if request.user.is_authenticated:
         customer = request.user
@@ -372,7 +302,7 @@ def checkout(request):
     }
     return render(request, 'shop/checkout.html', context)
 
-
+@login_required(login_url='userauths:sign-in')
 def apply_coupon(request, order_id):
     cart = get_object_or_404(Order, id=order_id)
     
@@ -396,7 +326,7 @@ def apply_coupon(request, order_id):
 
         except Coupon.DoesNotExist:
             messages.error(request, 'Invalid coupon code. Please try again.', extra_tags='danger')
-    # Retrieve necessary data for rendering the checkout page
+
     items = cart.orderitem_set.all() 
     cart_items = cart.get_cart_items
     address = ShippingAddress.objects.filter(user=request.user)
@@ -423,13 +353,11 @@ def apply_coupon(request, order_id):
 
     return render(request, 'shop/checkout.html', context)
    
-
+@login_required(login_url='userauths:sign-in')
 def remove_coupon(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
-    # Check if the order has an applied coupon
     if order.applied_coupon:
-        # Remove the applied coupon
         order.applied_coupon.used_by.remove(request.user)
         order.applied_coupon = None
         order.save()
@@ -437,9 +365,8 @@ def remove_coupon(request, order_id):
     else:
         messages.error(request, 'No coupon to remove.', extra_tags='danger')
 
-    # Retrieve necessary data for rendering the checkout page
-    items = order.orderitem_set.all()  # Fix here: change cart to order
-    cart_items = order.get_cart_items  # Fix here: change cart to order
+    items = order.orderitem_set.all() 
+    cart_items = order.get_cart_items 
     address = ShippingAddress.objects.filter(user=request.user)
     default_address = ShippingAddress.objects.filter(user=request.user, status=True).first()
     remaining_addresses = ShippingAddress.objects.filter(user=request.user, status=False)
@@ -464,6 +391,7 @@ def remove_coupon(request, order_id):
 
     return render(request, 'shop/checkout.html', context)
 
+@login_required(login_url='userauths:sign-in')
 def place_order(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -476,12 +404,11 @@ def place_order(request):
             except ShippingAddress.DoesNotExist:
                 messages.error(request, "Please select a valid shipping address before placing your order.")
                 return redirect('shop:checkout') 
-            
+
             cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
             if not cart_items:
                 messages.error(request, "Your cart is empty. Add items to your cart before placing an order.")
                 return redirect('shop:cart')
-            
                        
             order = Order(
                 customer=request.user, 
@@ -490,7 +417,6 @@ def place_order(request):
                 
             )
             
-            # Get the current cart and apply its coupon to the order
             current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)
             if current_cart.applied_coupon:
                 order.applied_coupon = current_cart.applied_coupon
@@ -509,13 +435,11 @@ def place_order(request):
                     user_wallet.save()
                     
                 if order.applied_coupon:
-                    print('Marking user as used for the coupon')
                     order.applied_coupon.mark_as_used(request.user)    
                 
                 
             order.complete = True
             order.save()
-            
            
             for cart_item in cart_items:
                 cart_item.order = order 
@@ -527,21 +451,18 @@ def place_order(request):
     return render(request, "checkout.html")
 
 
+@login_required(login_url='userauths:sign-in')
 def place_order_razorpay(request):
     if request.method == 'POST':
         selected_address_id = request.POST.get('selectedAddressId')
         order_notes = request.POST.get('orderNotes')
         transaction_id = request.POST.get('transaction_id')
-        
-        
 
         try:
             selected_address = ShippingAddress.objects.get(id=selected_address_id)
         except ShippingAddress.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Invalid shipping address'})
 
-
-        # Create the order
         order = Order(
             customer=request.user,
             payment_method='RAZ',
@@ -556,18 +477,15 @@ def place_order_razorpay(request):
         if order.applied_coupon:
             order.applied_coupon.mark_as_used(request.user)   
 
-        # Mark the order as complete
         order.complete = True
         order.save()
 
-        # Update order items (if needed)
         cart_items = OrderItem.objects.filter(order__customer=request.user, order__complete=False)
         for cart_item in cart_items:
             cart_item.order = order
             cart_item.delivery_status = 'PL'
             cart_item.save()
             
-             # Empty the cart
         cart_items.delete()
 
         return JsonResponse({'status': 'success', 'message': 'Your order has been placed successfully!'})
@@ -576,7 +494,7 @@ def place_order_razorpay(request):
 
 
 
-
+@login_required(login_url='userauths:sign-in')
 def proceed_to_pay(request):
     cart = Order.objects.filter(customer=request.user, complete=False).first()
     total_price = cart.get_cart_total
@@ -587,10 +505,12 @@ def proceed_to_pay(request):
         
     })
     
-    
+@login_required(login_url='userauths:sign-in')    
 def order_placed_view(request):
     return render(request, 'shop/orderplaced.html')    
     
+    
+@login_required(login_url='userauths:sign-in')    
 def change_address(request, address_id):  
     selected_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
  
@@ -601,10 +521,12 @@ def change_address(request, address_id):
 
     return redirect('shop:checkout')
 
+@login_required(login_url='userauths:sign-in')
 def addaddress(request):
     return render(request, 'shop/addaddress.html')
 
 
+@login_required(login_url='userauths:sign-in')
 def update_address(request):
     if request.method == 'POST':
         full_name = request.POST.get('full_name')

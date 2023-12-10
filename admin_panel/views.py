@@ -15,13 +15,14 @@ from .models import *
 from django.db.models import Sum, F, DecimalField, Value, Case, When
 from userauths.models import User
 from collections import defaultdict
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
-# from .forms import CategoryEditForm
+from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from shop.models import *
@@ -52,7 +53,6 @@ def admin_login(request):
                 login(request, user)
                 return redirect('admin_panel:admin_dash')
         else:
-            # Authentication failed, show an error message
             messages.error(request, 'Invalid username or password.')
 
     return render(request, 'admin_panel/admin_login.html')
@@ -67,14 +67,14 @@ def admin_logout(request):
 @superuser_required
 def unlist_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    product.is_active = False  # Set the product as inactive
+    product.is_active = False 
     product.save()
     return redirect('admin_panel:products')
 
 @superuser_required
 def list_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    product.is_active = True  # Set the product as active
+    product.is_active = True 
     product.save()
     return redirect('admin_panel:products')
 
@@ -84,36 +84,31 @@ def update_products(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == 'POST':
-        # Get the updated data from the form
         name = request.POST.get('name')
         description = request.POST.get('description')
         price = request.POST.get('price')
+        author = request.POST.get('author')
         category_id = request.POST.get('category')
         
-        # Update the product details
         product.name = name
         product.description = description
         product.price = price
+        product.author = author
         product.category_id = category_id
         
-         # Handle image updates
         new_images = request.FILES.getlist('new_images')
         delete_images = request.POST.getlist('delete_images')
 
-        # Handle adding new images (you need to adapt this logic based on your model)
         for new_image in new_images:
             product_image = ProductImage(image=new_image, product=product)
             product_image.save()
 
-        # Handle image deletions
         for image_id in delete_images:
             product_image = ProductImage.objects.get(id=image_id)
             product_image.delete()
             
-        # Save the updated product
         product.save()
 
-        # Redirect to the product listing page
         return redirect('admin_panel:products')
 
     context = {
@@ -156,15 +151,12 @@ def addd_products(request):
             category=category,
         )
 
-        images = request.FILES.getlist('image')  # Get a list of uploaded images
-
+        images = request.FILES.getlist('image')  
         for image in images:
             ProductImage.objects.create(product=product, image=image)
 
         return redirect('admin_panel:products')
     else:
-        # Handle the case where the request method is not POST (e.g., GET)
-        # You may want to render a form or redirect to the add_products page with an error message.
         pass
 
     
@@ -179,7 +171,7 @@ def add_products(request):
 @superuser_required
 def product_variation(request, product_id):
     product = Product.objects.get(pk=product_id)
-    languages = Language.objects.all()  # Query all languages
+    languages = Language.objects.all() 
     context = {
         'product': product,
         'languages' : languages,
@@ -193,18 +185,28 @@ def edit_stock_variation(request, variation_id):
         product_variation = ProductLanguageVariation.objects.get(pk=variation_id)
     except ProductLanguageVariation.DoesNotExist:
         raise Http404("Product Variation does not exist")
-
+    
     if request.method == 'POST':
-        # Update the stock and language fields
-        product_variation.stock = request.POST['stock']
-        product_variation.language_id = request.POST['language']
+        stock = request.POST.get('stock', 0)
+        language_id = request.POST.get('language')
+        try:
+            stock = int(stock)
+            if stock < 0:
+                messages.error(request, 'Stock cannot be negative.')
+                return redirect('admin_panel:product_variation', product_id=product_variation.product.id)
+        except ValueError:
+            messages.error(request, 'Stock must be a valid integer.')
+            return redirect('admin_panel:product_variation', product_id=product_variation.product.id)
+        
+        product_variation.stock = stock
+        product_variation.language_id = language_id
         product_variation.save()
-        return redirect('admin_panel:product_variation', product_id=product_variation.product.id)  # Redirect to the product variations page
-
+        return redirect('admin_panel:product_variation', product_id=product_variation.product.id) 
+    
     context = {
         'product_variation': product_variation,
     }
-
+    
     return render(request, 'admin_panel/product_variation.html', context)
 
 
@@ -214,8 +216,22 @@ def add_variant(request, product_id):
         product = Product.objects.get(pk=product_id)
         language_id = request.POST['language']
         stock = request.POST['stock']
-        ProductLanguageVariation.objects.create(product=product, language_id=language_id, stock=stock)
-        return redirect('admin_panel:product_variation', product_id=product_id)
+        try:
+            stock = int(stock)
+            if stock < 0:
+                messages.error(request, 'Stock cannot be negative.')
+                return redirect('admin_panel:product_variation', product_id=product_id)
+            
+            existing_variant = ProductLanguageVariation.objects.filter(product=product, language_id=language_id).first()
+            if existing_variant:
+                messages.warning(request, f'A variant with {existing_variant.language.name} already exists for this product.')
+                return redirect('admin_panel:product_variation', product_id=product_id)
+            else:
+                ProductLanguageVariation.objects.create(product=product, language_id=language_id, stock=stock)
+                messages.success(request, 'Variant added successfully.')
+                return redirect('admin_panel:product_variation', product_id=product_id)
+        except ValueError:
+            messages.error(request, 'Stock must be a valid integer.')
 
     return render(request, 'admin_panel/product_variation.html')  
 
@@ -223,16 +239,12 @@ def add_variant(request, product_id):
 
 @superuser_required
 def products(request):
-    search_query = request.GET.get('key')  # Get the search query from the URL parameters
+    search_query = request.GET.get('key')  
     pro1 = Product.objects.all()
 
     if search_query:
         pro1 = pro1.filter(Q(name__icontains=search_query))
         
-        
-     # Fetch ProductLanguageVariation data for each product
-    # for product in pro1:
-    #     product.variations = product.productlanguagevariation_set.all()    
 
     context = {
         'pro1': pro1,
@@ -245,16 +257,15 @@ def products(request):
 
 @superuser_required
 def category(request):
-    search_query = request.GET.get('key')  # Get the search query from the request
+    search_query = request.GET.get('key')  
     cat1 = Categories.objects.all()
 
     if search_query:
-        # If there's a search query, filter categories based on name
         cat1 = cat1.filter(name__icontains=search_query)
      
     context = {
         'cat1': cat1,
-        'search_query': search_query,  # Pass the search query back to the template
+        'search_query': search_query, 
     }
     return render(request, 'admin_panel/category.html', context)
 
@@ -263,27 +274,32 @@ def category(request):
 @superuser_required
 def add_category(request):
     if request.method == 'POST':
-        # Get the category name from the POST data
         category_name = request.POST.get('category_name')
-
-        # Get the uploaded icon file
         icon_file = request.FILES.get('category_icon')
 
-        # Check if the category name is not empty and an icon file is provided
         if category_name and icon_file:
-            # Create a new category instance
             category = Categories(name=category_name)
 
-            # Handle the uploaded icon file
             icon_path = default_storage.save('images/category_icons/' + icon_file.name, ContentFile(icon_file.read()))
             category.icon = icon_path
-
             category.save()
 
-            # Redirect to the category listing page
             return redirect('admin_panel:category')
 
     return render(request, 'add_category_modal.html')
+
+
+@superuser_required
+def add_language(request):
+    if request.method == 'POST':
+        language_name = request.POST.get('language_name')
+
+        if language_name:
+            language = Language(name=language_name)
+
+            language.save()
+            return redirect('admin_panel:category')
+
 
 @superuser_required
 def block_category(request, category_id):
@@ -322,9 +338,8 @@ def update_category(request, category_id):
             icon_path = default_storage.save('images/category_icons/' + icon_file.name, ContentFile(icon_file.read()))
             category.icon = icon_path
         category.save()
-        return redirect('admin_panel:category')  # Redirect to the category listing page
+        return redirect('admin_panel:category') 
 
-    # If it's not a POST request, show the edit modal again.
     context = {
         'category': category,
     }
@@ -338,7 +353,6 @@ def delete_category(request, category_id):
     if request.method == 'POST':
         category = get_object_or_404(Categories, pk=category_id)
 
-        # Update is_active for products in this category
         Product.objects.filter(category=category).update(is_active=False)
 
         category.delete()
@@ -350,6 +364,10 @@ def delete_category(request, category_id):
  
 @superuser_required
 def block_user(request, user_id):
+    
+    if request.user.id == int(user_id):
+        logout(request)
+        
     user = User.objects.get(pk=user_id)
     user.is_active = False
     user.save()
@@ -381,10 +399,9 @@ def user_management(request):
 
 @superuser_required
 def admin_dash(request):
-    all_orders = Order.objects.all()
-    # all_orders = Order.objects.filter(orderitem__delivery_status='D').distinct()
+    all_orders = Order.objects.filter(orderitem__delivery_status='D', complete=True).distinct()
     all_variations = ProductLanguageVariation.objects.all()
-    all_order_items = OrderItem.objects.all()
+    all_order_items = OrderItem.objects.filter(delivery_status='D')
     delivered_order_items = OrderItem.objects.filter(delivery_status='D')
 
     
@@ -407,12 +424,15 @@ def admin_dash(request):
             date_ordered__gte=start_date,
             orderitem__delivery_status='D'
         ).distinct()
-        # all_orders = all_orders.filter(date_ordered__gte=start_date)
+         
+         delivered_order_items = OrderItem.objects.filter(
+            order__in=all_orders,
+            delivery_status='D'
+        )
 
    
     total_revenue = sum(order_item.get_total for order_item in delivered_order_items)
     
-    # total_sales = sum(order.get_cart_items for order in all_orders)
     total_sales = sum(
     sum(item.quantity for item in order.orderitem_set.filter(delivery_status='D'))
     for order in all_orders
@@ -477,27 +497,20 @@ def manage_order(request, order_id, orderitem_id):
 def cancel_order(request, order_item_id):
     order_item = get_object_or_404(OrderItem, id=order_item_id)
     
-     # Increase stock quantity
     order_item.variation.stock += order_item.quantity
     order_item.variation.save() 
     
-    # Update delivery status to 'CN' (Cancelled)
     order_item.delivery_status = 'CN'
     order_item.save()
     
-    if order_item.order.payment_method in ['WAL', 'RAZ']:  # Assuming 'RAZ' is for Razorpay
-        # Refund the amount
+    if order_item.order.payment_method in ['WAL', 'RAZ']:  
         refund_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total
-        print('refund_amount')
 
-        # Get the user and order
         user = order_item.order.customer
         user_wallet = Wallet.objects.get(user=user)
         order = order_item.order
 
-        # Perform the refund to the wallet or original payment method
         if order.payment_method == 'WAL' or order.payment_method == 'RAZ':
-            # Update user's wallet balance
             user_wallet.balance += refund_amount
             user_wallet.save()
 
@@ -509,8 +522,22 @@ def cancel_order(request, order_item_id):
 def update_order_status(request, order_item_id):
     if request.method == 'POST':
         delivery_status = request.POST.get('delivery_status')
-       
         order_item = OrderItem.objects.get(id=order_item_id)
+        
+        if delivery_status == 'CN'and order_item.variation:
+            order_item.variation.stock += order_item.quantity
+            order_item.variation.save() 
+            
+            if order_item.order.payment_method in ['WAL', 'RAZ']:  
+                refund_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total
+                
+                user = order_item.order.customer
+                user_wallet = Wallet.objects.get(user=user)
+                order = order_item.order
+                
+                if order.payment_method == 'WAL' or order.payment_method == 'RAZ':
+                    user_wallet.balance += refund_amount
+                    user_wallet.save()
 
         order_item.delivery_status = delivery_status
         order_item.save()
@@ -586,20 +613,16 @@ def delete_coupon(request, coupon_id):
 def sales_report(request):
     all_orders = Order.objects.all()
    
-     # Default values for start and end dates
     start_date_str = '1900-01-01'
     end_date_str = '9999-12-31'
-    # Check if the form is submitted using post
     if request.method == 'POST':
         start_date_str = request.POST.get('start', '1900-01-01')
         end_date_str = request.POST.get('end', '9999-12-31')
    
 
-    # Convert date strings to datetime objects
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
 
-    # Check if start and end dates are provided
     if start_date is not None and end_date is not None:
         delivered_order_items = OrderItem.objects.filter(
             delivery_status='D',
@@ -608,20 +631,16 @@ def sales_report(request):
             order__date_ordered__lte=end_date
         )
     else:
-        # If no dates provided, get all delivered order items
         delivered_order_items = OrderItem.objects.filter(
             delivery_status='D',
             order__complete=True
         )
 
 
-
     sold_items = delivered_order_items.values('product__name').annotate(total_sold=Sum('quantity'))
 
-    
-
     total_sales = sum(order.get_cart_total for order in all_orders)
-    total_profit = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
+    total_profit = int(sum(order_item.product.price * 0.3 for order_item in delivered_order_items))
 
     most_sold_products = (
         delivered_order_items.values('product__name')
@@ -644,7 +663,6 @@ def sales_report(request):
 
     context = {
         'total_sales': total_sales,
-       
         'most_sold_products': most_sold_products,
         'total_profit': total_profit,
         'sold_items': sold_items,
@@ -658,22 +676,12 @@ def sales_report(request):
 def sales_report_pdf(request):
     
     all_orders = Order.objects.all()
-    # Get start and end dates from the request parameters
     start_date_str = request.GET.get('start', '1900-01-01')
     end_date_str = request.GET.get('end', '9999-12-31')
-    # print("this is the pdf download dates")
-    # print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',start_date_str)
-    # print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',end_date_str)
 
-    # Convert date strings to datetime objects
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
-    print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',start_date)
-    print('dfdfdfdfdfdfdfdfdfdfdfdfdfdfdf',end_date)
-    
-    
-    
-    
+      
     delivered_order_items = OrderItem.objects.filter(
             delivery_status='D',
             order__complete=True,
@@ -684,10 +692,8 @@ def sales_report_pdf(request):
     total_sales = sum(order_item.quantity for order_item in delivered_order_items)
     total_profit = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
     
-     # Retrieve all orders associated with delivered order items
     all_orders = Order.objects.filter(orderitem__in=delivered_order_items).distinct()
     
-    # Retrieve sold items with details
     sold_items = [{
         'product_name': item.product.name,
         'total_sold': item.quantity,
@@ -707,10 +713,8 @@ def sales_report_pdf(request):
         
     }
 
-    # Render the PDF using the helper function
     pdf = render_to_pdf('admin_panel/sales_report_pdf.html', context)
 
-    # Return the PDF as response
     if pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
         filename = "Sales Report.pdf"
@@ -718,12 +722,10 @@ def sales_report_pdf(request):
         response['Content-Disposition'] = content
         return response
 
-    # If the PDF rendering fails, return an error response
     return HttpResponse('Failed to generate PDF')
 
 def sales_report_excel(request):
     try:
-        # Your existing logic to retrieve data
         start_date_str = request.GET.get('start', '1900-01-01')
         end_date_str = request.GET.get('end', '9999-12-31')
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
@@ -735,11 +737,8 @@ def sales_report_excel(request):
             order__date_ordered__lte=end_date
         )
 
-        # Create a new workbook and add a worksheet
         workbook = openpyxl.Workbook()
         worksheet = workbook.active
-
-        # Add total revenue, sales, and profit at the top
         worksheet['A1'] = 'Total Revenue'
         worksheet['B1'] = sum(order_item.get_total for order_item in delivered_order_items)
         worksheet['A2'] = 'Total Sales'
@@ -747,21 +746,16 @@ def sales_report_excel(request):
         worksheet['A3'] = 'Total Profit'
         worksheet['B3'] = sum(order_item.product.price * 0.3 for order_item in delivered_order_items)
 
-        # Skip a row after the totals
         row_num = 5
-
-        # Add headers to the worksheet
         headers = ['Order ID', 'Date Ordered', 'Total Amount', 'Products']
         for col_num, header in enumerate(headers, 1):
             worksheet.cell(row=row_num, column=col_num, value=header)
 
-        # Add data to the worksheet
         row_num += 1
         date_style = NamedStyle(name='date_style', number_format='YYYY-MM-DD')
         for order_item in delivered_order_items:
             worksheet.cell(row=row_num, column=1, value=order_item.order.id)
 
-            # Convert the datetime to naive (tzinfo=None)
             date_ordered_naive = order_item.order.date_ordered.astimezone(timezone.utc).replace(tzinfo=None)
             worksheet.cell(row=row_num, column=2, value=date_ordered_naive)
             worksheet.cell(row=row_num, column=2).style = date_style
@@ -774,12 +768,10 @@ def sales_report_excel(request):
 
             row_num += 1
 
-        # Style the totals
         for i in range(1, 4):
             cell = worksheet.cell(row=i, column=2)
             cell.font = openpyxl.styles.Font(bold=True)
 
-        # Style the headers
         header_font = openpyxl.styles.Font(bold=True, color='FFFFFF')
         header_alignment = openpyxl.styles.Alignment(horizontal='center')
         for col_num, header in enumerate(headers, 1):
@@ -788,7 +780,6 @@ def sales_report_excel(request):
             cell.alignment = header_alignment
             cell.fill = openpyxl.styles.PatternFill(start_color='007bff', end_color='007bff', fill_type='solid')
 
-        # Style the data
         data_alignment = openpyxl.styles.Alignment(wrap_text=True)
         for row_num in range(row_num - len(delivered_order_items), row_num):
             for col_num in range(1, 5):
@@ -796,7 +787,6 @@ def sales_report_excel(request):
                 cell.alignment = data_alignment
                 cell.border = openpyxl.styles.Border(bottom=openpyxl.styles.Side(style='thin'))
                 
-        # Adjust column widths
         for col_num, header in enumerate(headers, 1):
             max_length = len(header)
             for row_num in range(2, row_num):
@@ -816,7 +806,6 @@ def sales_report_excel(request):
         return response
 
     except Exception as e:
-        # Log the exception or handle it appropriately
         print(f"Error generating Excel file: {e}")
         return HttpResponse("Failed to generate Excel file", status=500)
    
@@ -824,8 +813,6 @@ def sales_report_excel(request):
 @superuser_required
 @require_GET
 def get_sales_data(request, period):
-    # Your logic to filter and aggregate data based on the selected period
-    # Example: Weekly sales
     if period == 'week':
         
         start_date = timezone.now().date() - timezone.timedelta(days=6)
@@ -837,9 +824,7 @@ def get_sales_data(request, period):
             .order_by('day')
         )
         labels = [item['day'].strftime('%A') for item in data]
-        # Example: Monthly sales
     elif period == 'month':
-        print("Entering into the month")
         start_date = timezone.now().date() - timezone.timedelta(days=30)
         order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
         data = (
@@ -849,9 +834,7 @@ def get_sales_data(request, period):
         .order_by('day')
     )
         labels = [item['day'].strftime('%Y-%m-%d') for item in data]
-    # Example: Yearly sales
     elif period == 'year':
-        print("Entering into the year")
         start_date = timezone.now().date() - timezone.timedelta(days=365)
         order_items = OrderItem.objects.filter(order__date_ordered__gte=start_date)
         data = (

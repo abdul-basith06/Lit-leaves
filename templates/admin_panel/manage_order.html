@@ -79,64 +79,56 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if order_item.delivery_status != "CN" %}
                             <div class="container-fluid d-flex flex-column justify-content-center ">
-                                <div class="card row col-12 my-3 mx-auto p-2"
-                                    style="border: 0.2px solid #494949; border-radius: 10px; ">
+                                <div class="card row col-12 my-3 mx-auto p-2" style="border: 0.2px solid #494949; border-radius: 10px; ">
                                     <div class="col-md-9 mx-auto">
-                                        <h3 class="text-center py-4">Order Status</h3>
-                                        <div class="progress-track">
-                                            <ul id="progressbar">
-                                                <li class="step0 {% if order_item.delivery_status == 'PL' or order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step1">Order placed</li>
-                                                <li class="step0 text-center {% if order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step2">Dispatched</li>
-                                                <li class="step0 text-right {% if order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step3">Shipped</li>
-                                                <li class="step0 text-right {% if order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step4">Out for Delivery</li>
-                                                <li class="step0 text-right {% if order_item.delivery_status == 'D' %}active{% endif %}" id="step5">Delivered</li>            
-                                                <!-- Add more steps if needed -->
-                                            </ul>
-                        
-                                        </div>
-                                    </div>
-                                    <hr class="  " style="background:#555555">
-                                    <h4 class="text-center py-4">Change Order Status</h4>
-                                    <div class="col-md-12 mx-auto d-flex justify-content-center py-3 mb-5">
-                                       <!-- admin_panel/templates/admin_panel/update_order_status.html -->
-<form method="post" action="{% url 'admin_panel:update_order_status' order_item_id=order_item.id %}">
-    {% csrf_token %}
-    <label for="id_delivery_status">Delivery Status:</label>
-    <select name="delivery_status" id="id_delivery_status">
-        <option value="PL">Order placed</option>
-        <option value="DS">Dispatched</option>
-        <option value="SH">Shipped</option>
-        <option value="OFD">Out for Delivery</option>
-        <option value="D">Delivered</option>
-        <option value="CN">Order Cancelled</option>
-        <option value="RT">Returned</option>
-    </select>
-    <button type="submit">Update Order Status</button>
-</form>
-
-                                    </div>
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="container-fluid d-flex flex-column justify-content-center ">
-                                <div class="card row col-12 my-3 mx-auto p-2"
-                                    style="border: 0.2px solid #494949; border-radius: 10px; ">
-                                    <div class="col-md-9 mx-auto">
-                                        <h3 class="text-center py-4">Order canceled</h3>
-                                        <div class="progress-track  col-12">
-                                            <ul id="progressbar">
-                                                <li class="step0 active " style="width: 50%;" id="step1">
-                                                    Order placed</li>
-                                                <li class="step0 active text-right" style="width: 50%; " id="step4">
-                                                    canceled</li>
-                                            </ul>
+                                        {% if order_item.delivery_status != "CN" %}
+                                            <h3 class="text-center py-4">Order Status</h3>
+                                            <div class="progress-track">
+                                                <ul id="progressbar">
+                                                    <li class="step0 {% if order_item.delivery_status == 'PL' or order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step1">Order placed</li>
+                                                    <li class="step0 text-center {% if order_item.delivery_status == 'DS' or order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step2">Dispatched</li>
+                                                    <li class="step0 text-right {% if order_item.delivery_status == 'SH' or order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step3">Shipped</li>
+                                                    <li class="step0 text-right {% if order_item.delivery_status == 'OFD' or order_item.delivery_status == 'D' %}active{% endif %}" id="step4">Out for Delivery</li>
+                                                    <li class="step0 text-right {% if order_item.delivery_status == 'D' %}active{% endif %}" id="step5">Delivered</li>            
+                                                    <!-- Add more steps if needed -->
+                                                </ul>
+                                            </div>
+                                        {% else %}
+                                            <h3 class="text-center py-4">Order Canceled</h3>
+                                            <div class="progress-track col-12">
+                                                <ul id="progressbar">
+                                                    <li class="step0 active " style="width: 50%;" id="step1">Order placed</li>
+                                                    <li class="step0 active text-right" style="width: 50%; " id="step4">Canceled</li>
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                            
+                                        <hr class="  " style="background:#555555">
+                                        
+                                        <h4 class="text-center py-4">Change Order Status</h4>
+                                        
+                                        <div class="col-md-12 mx-auto d-flex justify-content-center py-3 mb-5">
+                                            <!-- admin_panel/templates/admin_panel/update_order_status.html -->
+                                            <form method="post" action="{% url 'admin_panel:update_order_status' order_item_id=order_item.id %}">
+                                                {% csrf_token %}
+                                                <label for="id_delivery_status">Delivery Status:</label>
+                                                <select name="delivery_status" id="id_delivery_status">
+                                                    <option value="PL">Order placed</option>
+                                                    <option value="DS">Dispatched</option>
+                                                    <option value="SH">Shipped</option>
+                                                    <option value="OFD">Out for Delivery</option>
+                                                    <option value="D">Delivered</option>
+                                                    <option value="CN">Order Cancelled</option>
+                                                    <option value="RT">Returned</option>
+                                                </select>
+                                                <button type="submit">Update Order Status</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        {% endif %}
+                            
                         
                         </div>
                     </div>

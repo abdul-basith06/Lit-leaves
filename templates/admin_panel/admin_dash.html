@@ -110,14 +110,7 @@
                           <p class="text-muted mb-0">{{ order.date_ordered|date:"j M Y, g:i A" }}</p>
                       </div>
                       <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                          <h6 class="font-weight-bold mb-0"> ₹ 
-                              {% if order.payment_method == 'COD' %}
-                                  {{ cod_total }}
-                              {% elif order.payment_method == 'RAZ' %}
-                                  {{ online_total }}
-                              {% elif order.payment_method == 'WAL' %}
-                                  {{ wallet_total }}
-                              {% endif %}
+                          <h6 class="font-weight-bold mb-0"> ₹ {{order.get_cart_total}}
                           </h6>
                       </div>
                   </div>
