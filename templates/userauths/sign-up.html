@@ -157,6 +157,7 @@
                             <div class="widget">
                                 <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
                                 <ul class="widget-list">
+                                    <li><a href="{% url 'home:index' %}">Home</a></li>
                                     <li><a href="{% url 'userauths:sign-in' %}">Sign In</a></li>
                                     <li><a href="{% url 'shop:cart' %}">View Cart</a></li>
                                     <li><a href="{% url 'user_profile:wishlist' %}">My Wishlist</a></li>
@@ -212,6 +213,7 @@
 </footer><!-- End .footer -->
 <!-- Plugins JS File -->
 <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
 <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
@@ -221,10 +223,20 @@
 <!-- Main JS File -->
 <script src="{% static 'assets/js/main.js' %}"></script>
 <script src="{% static 'assets/js/demos/demo-20.js' %}"></script>
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% endif %}",
+                text: "{{ message }}",
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+
 </body>
 
 
-<!-- molla/index-20.html  22 Nov 2019 10:01:31 GMT -->
 
-</body>
 </html>

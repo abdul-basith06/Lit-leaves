@@ -29,7 +29,8 @@
 										<tr>
 											<th>Product</th>
 											<th>Price</th>
-											<th>Language</th>
+											<th >Language</th>
+											<th style="width: 20px;"></th>
 											<th>Qty</th>
 											<th>Total</th>
 											<th></th>
@@ -52,8 +53,13 @@
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
-											<td class="price-col">${{ i.product.price }}</td>
-											<td>{{ i.variation.language }}</td> 
+											<td class="price-col ">₹{{ i.product.price }}</td>
+											<td>
+												{{i.variation.language.name}}
+											
+											</td>
+											<td></td>
+
 
 
 

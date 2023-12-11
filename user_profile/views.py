@@ -322,6 +322,7 @@ def add_to_wishlist(request, product_id):
     response_data = {}
     try:
         if not request.user.is_authenticated:
+            messages.error(request, 'Please Login to perform')
             raise Exception('User not authenticated')
 
         wishlist = Wishlist.objects.get(user=request.user)

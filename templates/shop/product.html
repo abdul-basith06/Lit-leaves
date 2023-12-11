@@ -64,19 +64,18 @@
                                 <div class="product-details">
                                     <h1 id="product-title">{{ product.name }}</h1><!-- End .product-title -->
 
-                                    <div class="ratings-container">
+                                    {% comment %} <div class="ratings-container">
                                         <div class="ratings">
                                             <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
                                         </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                                    </div><!-- End .rating-container -->
-
+                                        {% comment %} <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a> {% endcomment %}
+                                    </div><!-- End .rating-container --> 
                                     <div class="product-price">
-                                        <span>$</span><span id="product-price" >{{ product.price }}</span>
+                                        <span>₹</span><span id="product-price" >{{ product.price }}</span>
                                     </div><!-- End .product-price -->
 
                                     <div class="product-content">
-                                        <p>by {{ product.author }} </p>
+                                        <p>by <strong>{{ product.author }}</strong> </p>
                                     </div><!-- End .product-content -->
 
                                     <div class="product-content">
@@ -107,18 +106,18 @@
 
 
 
-<div class="product-details-action">
+<div class="product-details-action mt-3">
+    {% if user.is_authenticated %}
     <button id="add-to-cart" data-product="{{ product.id }}" data-action="add" class="btn-product btn-cart update-cart" style="display: none">Add to Cart</button>
     <p class="out-of-stock" style="display: none">Out of Stock</p>
+    {% endif %}
 </div><!-- End .product-details-action -->
                          
 
 
-                                    <div class="product-details-action" style="{% if product.stock <= 0 %}display: none;{% endif %}">
-                                        {% if is_in_cart %}
+                                    <div class="product-details-action" >
+                                        {% if is_variant_in_cart %}
                                             <button class="btn">&#10004; Item already in cart</button>
-                                        {% else %}
-                                            <button hidden data-product="{{product.id}}" data-action="add" class="btn-product btn-cart update-cart" >Add tvzsvso Cart</button>
                                         {% endif %}
                                       
                                     </div><!-- End .product-details-action -->
@@ -133,22 +132,17 @@
                                     <div class="product-details-footer">
                                         <div class="product-cat">
                                             <span>Category:</span>
-                                            <a href="#">{{ product.category }}</a>,
+                                            <a href="{% url 'shop:store' %}?category={{ product.category.id }}">{{ product.category }}</a>,
                                             {% comment %} <a href="#">Dresses</a>,
                                             <a href="#">Yellow</a> {% endcomment %}
                                         </div><!-- End .product-cat -->
                                         <div class="details-action-wrapper">
+                                            {% if user.is_authenticated %}
                                             <a href="#" class="btn-product btn-wishlist2" title="Wishlist" data-product-id="{{ product.id }}">
                                                 <span>Add to Wishlist</span>
                                             </a>
+                                            {% endif %}
                                         </div><!-- End .details-action-wrapper -->
-                                        <div class="social-icons social-icons-sm">
-                                            <span class="social-label">Share:</span>
-                                            <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
-                                            <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
-                                            <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                                            <a href="#" class="social-icon" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
-                                        </div>
                                     </div><!-- End .product-details-footer -->
                                 </div><!-- End .product-details -->
                             </div><!-- End .col-md-6 -->
@@ -160,13 +154,6 @@
                             <li class="nav-item">
                                 <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Description</a>
                             </li>
-                           
-                            <li class="nav-item">
-                                <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
-                            </li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
@@ -175,76 +162,10 @@
                                     <p>{{ product.description }} </p>
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
-
-
-                           
-                            <div class="tab-pane fade" id="product-shipping-tab" role="tabpanel" aria-labelledby="product-shipping-link">
-                                <div class="product-desc-content">
-                                    <h3>Delivery & returns</h3>
-                                    <p>We deliver to over 100 countries around the world. For full details of the delivery options we offer, please view our <a href="#">Delivery information</a><br>
-                                    We hope you’ll love every purchase, but if you ever need to return an item you can do so within a month of receipt. For full details of how to make a return, please view our <a href="#">Returns information</a></p>
-                                </div><!-- End .product-desc-content -->
-                            </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
-                                <div class="reviews">
-                                    <h3>Reviews (2)</h3>
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Samanta J.</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">6 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Good, perfect size</h4>
-
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">John Doe</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Very good</h4>
-
-                                                <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-                                </div><!-- End .reviews -->
-                            </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
-                    </div><!-- End .product-details-tab -->
+                    </div>
+                      </div><!-- End .product-details-tab -->
 
-                    {% comment %} products discription ends here {% endcomment %}
 
 
 
@@ -290,16 +211,10 @@
                             <a href="{% url 'shop:product' related_product.id %}">
                                 <img src="{{ related_product.productimage_set.first.image.url }}" alt="{{ related_product.name }}" class="product-image">
                             </a>
-                            <div class="product-action-vertical">
-                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable" data-product-id="{{ related_product.id }}"><span>Add to Wishlist</span></a>
-                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                            </div><!-- End .product-action-vertical -->
+                           
                             <div class="product-action">
-                                {% if related_product in related_products_in_cart %}
-                                    <button class="btn">&#10004; Item already in cart</button>
-                                {% else %}
-                                    <a href="#" data-product="{{related_product.id}}" data-action="add" class="btn-product btn-cart update-cart"><span>Add to Cart</span></a>
+                                {% if user.is_authenticated %}
+                                    <a href=""  data-product-id="{{ related_product.id }}" class="btn-product btn-cart btn-wishlist2"><span>Add to Wishlist</span></a>
                                 {% endif %}
                             </div><!-- End .product-action -->
                         </figure><!-- End .product-media -->
@@ -309,7 +224,7 @@
                             </div><!-- End .product-cat -->
                             <h3 class="product-title"><a href="{% url 'shop:product' related_product.id %}">{{ related_product.name }}</a></h3>
                             <div class="product-price d-flex justify-content-center">
-                                {{ related_product.price }}
+                                ₹ {{ related_product.price }}
                             </div>
                         </div><!-- End .product-body -->
                     </div><!-- End .product -->
@@ -318,37 +233,6 @@
                 
                 </div>
                 
-         <!-- Sticky Bar -->
-<div class="sticky-bar">
-    <div class="container">
-        <div class="row">
-            <div class="col-6">
-                <figure class="product-media">
-                    <a href="product.html">
-                        <img src="{{ product.productimage_set.first.image.url }}" alt="Product image">
-                    </a>
-                </figure><!-- End .product-media -->
-                <h4 class="product-title"><a href="product.html">{{ product.name }}</a></h4><!-- End .product-title -->
-            </div><!-- End .col-6 -->
-    
-            <div class="col-6 justify-content-end">
-                <div class="product-price">
-                    ${{ product.price }}
-                </div><!-- End .product-price -->
-               
-    
-                <div class="product-details-action">
-                    {% if is_in_cart %}
-                        <button class="btn">&#10004; Item already in cart</button>
-                    {% else %}
-                        <a href="#" data-product="{{ product.id }}" data-action="add" class="btn-product btn-cart update-cart"><span>Add to Cart</span></a>
-                    {% endif %}
-                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                </div><!-- End .product-details-action -->
-            </div><!-- End .col-6 -->
-        </div><!-- End .row -->
-    </div><!-- End .container -->
-</div><!-- End .sticky-bar -->
 
                 
             </div><!-- End .page-content -->

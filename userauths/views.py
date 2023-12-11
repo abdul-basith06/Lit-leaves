@@ -36,6 +36,7 @@ def send_otp_password_reset(request):
 
 def user_logout(request):
     logout(request)
+    messages.success(request,'Logged out successfully..')
     return redirect('home:index')
 
 
@@ -76,10 +77,8 @@ def otp_verification(request):
     if request.method == 'POST':
         otp_ = request.POST.get("otp")
         
-        # Get the OTP generation time from the session
         otp_generated_time = request.session.get("otp_generated_time")
 
-        # Check if OTP generation time exists and is within the last 1 minute
         if otp_generated_time and timezone.now() - timezone.datetime.fromisoformat(otp_generated_time) < timedelta(minutes=1):
             if otp_ == request.session["otp"]:
                 encrypted_password = make_password(request.session['password'])
@@ -97,7 +96,7 @@ def otp_verification(request):
                 user.is_active = True
                 del request.session['otp']
                 del request.session['otp_generated_time']
-                return redirect('home:index')  # Assuming 'home:index' is the URL name for the home page
+                return redirect('home:index') 
             else:
                 messages.error(request, "OTP doesn't match")
         else:
@@ -181,7 +180,6 @@ def forgot_password(request):
 
         else:
             messages.error(request, 'Invalid Email!!')
-            response_data = {'success': False, 'message': 'Invalid Email!!'}
             return redirect('userauths:forgot_password')
 
     return render(request,'userauths/forget_password.html')
@@ -195,10 +193,8 @@ def otp_verification_forget_password(request):
      if request.method == 'POST':
         otp_ = request.POST.get("otp")
         
-        # Get the OTP generation time from the session
         otp_generated_time = request.session.get("otp_generated_time")
 
-        # Check if OTP generation time exists and is within the last 1 minute
         if otp_generated_time and timezone.now() - timezone.datetime.fromisoformat(otp_generated_time) < timedelta(minutes=1):
             if otp_ == request.session["otp"]:
                 email = request.session['email']
@@ -218,7 +214,6 @@ def set_password(request):
         
         if password1 != password2:
             messages.error(request, "Passwords do not match !!!.")
-            response_data = {'success': False, 'message': 'Passwords do not match !!!.'}
             return render(request, 'userauths/set_password.html')
 
         if 'email' in request.session:
@@ -227,7 +222,6 @@ def set_password(request):
 
             if check_password(password1, user.password):
                 messages.error(request, "New password should be different from the old password.")
-                response_data = {'success': False, 'message': 'New password should be different from the old password.'}
                 return render(request, 'userauths/set_password.html')
 
             user.password = make_password(password1)
@@ -236,7 +230,6 @@ def set_password(request):
             del request.session['email']
 
             messages.success(request, "Password set successfully. You can now sign in with your new password.")
-            response_data = {'success': True, 'message': 'Password set successfully. You can now sign in with your new password.'}
             return redirect('userauths:sign-in')
         
     return render(request, 'userauths/set_password.html')

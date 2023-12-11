@@ -54,8 +54,10 @@
                                                 <img src="{{ product.productimage_set.first.image.url }}"
                                                     alt="Product image" class="product-image"></a>
                                                 <div class="product-action">
+                                                    {% if user.is_authenticated %}
                                                             <button data-product-id="{{product.id}}" data-action="add" class="btn-product btn-cart btn-wishlist2">Add to Wishlist</button>
-                                                </div>
+                                              {% endif %}
+                                                        </div>
                                             </figure><!-- End .product-media -->
                                             <div class="product-body">
                                                 <div class="product-cat">

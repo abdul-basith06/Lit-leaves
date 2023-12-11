@@ -33,7 +33,16 @@
     <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-20.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-20.css' %}">
     <style>
-   
+        .header-center.headee {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-nav-wrapper {
+            display: flex;
+            align-items: center;
+        }
             .autocomplete-item {
                 cursor: pointer;
                 padding: 8px;
@@ -155,20 +164,22 @@
                             </div><!-- End .category-dropdown -->
                         </div><!-- End .header-left -->
 
-                        <div class="header-center">
-                            
-                            <nav class="main-nav">
-                                <ul class="menu sf-arrows">
-                                    <li class="megamenu-container active">
-                                        <a href="#">Home</a>
-                                    </li>
-                                    
-                                    <li>
-                                        <a href="{% url 'shop:store' %}">Shop</a>
-                                    </li>
-                                </ul><!-- End .menu -->
-                            </nav><!-- End .main-nav -->
+                        <div class="header-center headee">
+                            <div class="main-nav-wrapper">
+                                <nav class="main-nav">
+                                    <ul class="menu sf-arrows">
+                                        <li class="megamenu-container active">
+                                            <a href="#">Home</a>
+                                        </li>
+                                        
+                                        <li>
+                                            <a href="{% url 'shop:store' %}">Shop</a>
+                                        </li>
+                                    </ul><!-- End .menu -->
+                                </nav><!-- End .main-nav -->
+                            </div>
                         </div>
+                        
 
                        
                     </div>

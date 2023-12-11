@@ -118,7 +118,7 @@ def product(request, product_id):
     category = selected_product.category
     variations = selected_product.productlanguagevariation_set.all()
     
-     # Get the selected variation based on user's selection
+    
     selected_variation_id = request.GET.get('selected_variation_id')
     selected_variation = None
 
@@ -131,15 +131,22 @@ def product(request, product_id):
     related_products = Product.objects.filter(category=category).exclude(pk=selected_product.id)[:4]
     is_in_cart = False
 
-    if items:  # Check if items is not None before iterating
+    if items: 
         for item in items:
             if item.product.id == selected_product.id:
                 is_in_cart = True
                 break
+            
+    is_variant_in_cart = False
+    if items: 
+        for item in items:
+            if item.product.id == selected_product.id and item.variation == selected_variation:
+                is_variant_in_cart = True
+                break        
 
     related_products_in_cart = []
 
-    if items:  # Check if items is not None before iterating
+    if items: 
         for related_product in related_products:
             for item in items:
                 if item.product.id == related_product.id:
@@ -151,6 +158,7 @@ def product(request, product_id):
         'variations' : variations,
         'cartItems': cartItems,
         'is_in_cart': is_in_cart,
+        'is_variant_in_cart':is_variant_in_cart,
         'related_products_in_cart': related_products_in_cart,
         'selected_variation': selected_variation,
     }
@@ -193,11 +201,8 @@ def updateItem(request):
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     
     
-    print("Here before id checking") 
     if not selectedVariationId:
-        print("Hres the problem")      
         return JsonResponse({"error": "No variation selected"}, status=400)
-    print("Here after id checking")  
     try:
         selected_variation = ProductLanguageVariation.objects.get(id=selectedVariationId)
     except ProductLanguageVariation.DoesNotExist:

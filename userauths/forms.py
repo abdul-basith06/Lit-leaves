@@ -20,7 +20,7 @@ class UserRegisterForm(UserCreationForm):
         pattern = r'^[6-9]\d{9}$'
     
         if not re.match(pattern, mobile_number):
-            raise forms.ValidationError("Enter a valid mobile number!!!")
+            raise forms.ValidationError("Enter a valid 10 digit mobile number!!!")
         return mobile_number
 
     
