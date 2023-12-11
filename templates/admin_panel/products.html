@@ -39,6 +39,7 @@
                                                         <th>Author</th>
                                                         <th>Price</th>
                                                         <th>Edit</th>
+                                                        <th>Delete</th>
                                                         <th>Status</th>
                                                         <th>Languages</th>
                                                     </tr>
@@ -46,11 +47,11 @@
                                                 <tbody>
                                                     {% for product in pro1 %}
                                                     <tr>
-                                                        <td>
+                                                       <td>
                                                             <img class="rounded product-img-preview"
                                                                 src="{% if product.productimage_set.all %}{{ product.productimage_set.first.image.url }}{% endif %}"
                                                                 alt="{{ product.name }}" />
-                                                        </td>
+                                                        </td> 
                                                         <td>{{ product.name }}</td>
                                                         <td>{{ product.category.name }}</td>
                                                         <td>{{ product.author }}</td>
@@ -59,7 +60,9 @@
                                                             <a href="{% url 'admin_panel:edit_products' product.id %}"
                                                                 class="btn btn-inverse-info">Edit Product</a>
                                                         </td>
-                
+                                                        <td>
+                                                            <a href="{% url 'admin_panel:delete_product' product_id=product.id %}" class="btn btn-inverse-danger">Delete Product</a>
+                                                        </td>
                                                         <td>
                                                             {% if product.is_active %}
                                                                 <a href="{% url 'admin_panel:unlist_product' product.id %}"
@@ -85,4 +88,6 @@
                         </div>
                     </div>
                 </div>
+
+               
                 {% endblock content %}

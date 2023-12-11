@@ -427,13 +427,17 @@ def place_order(request):
                 order.payment_method='COD'
             elif selected_payment_method == 'wallet':
                 order.payment_method='WAL'
+                user_wallet = Wallet.objects.get(user=request.user)
                 if order.applied_coupon:
-                    user_wallet = Wallet.objects.get(user=request.user)
                     total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
                     total_amount -= order.applied_coupon.discount_amount
                     user_wallet.balance -= total_amount
                     user_wallet.save()
-                    
+                else:
+                    total_amount = sum(cart_item.get_total() if callable(cart_item.get_total) else cart_item.get_total  for cart_item in cart_items)
+                    user_wallet.balance -= total_amount
+                    user_wallet.save()
+                        
                 if order.applied_coupon:
                     order.applied_coupon.mark_as_used(request.user)    
                 

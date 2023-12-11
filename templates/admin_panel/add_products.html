@@ -10,13 +10,13 @@
         <div class="product-form">
           <form method="post" action="{% url 'admin_panel:addd_products' %}" enctype="multipart/form-data" id="productForm">
             {% csrf_token %}
-            {% if messages %}
+            {% comment %} {% if messages %}
             <div class="alert alert-danger">
                 {% for message in messages %}
                     {{ message }}
                 {% endfor %}
             </div>
-            {% endif %}
+            {% endif %} {% endcomment %}
       
             <!-- Product Name -->
             <div class="form-group">
@@ -59,77 +59,69 @@
                 <input type="file" name="image" class="form-control" accept="image/*" multiple required id="imageInput">
             </div>
       
-            <div class="form-group" id="imagePreviewGroup">
+            {% comment %} <div class="form-group" id="imagePreviewGroup">
                 <img id="imagePreview" src="" alt="Image Preview">
             </div>
-      
-            <button id="cropButton" class="btn btn-primary" disabled>Crop Images</button>
-      
-            <input type="hidden" name="cropped_images" id="croppedImages" value="">
-      
+
+            <input type="hidden" name="cropped_image" id="croppedImage">
+            
+            <button type="button" class="btn btn-primary" id="cropButton" disabled>Crop Image</button> {% endcomment %}
+            
             <button type="submit" class="btn btn-success" id="addProductButton">Add Product</button>
           </form>
         </div>
       </div>
           {% endblock content %}
           {% block scripts %}
-
-          <!-- JavaScript code for image cropping -->
+          {% comment %} <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
           <script>
             document.addEventListener("DOMContentLoaded", function () {
-              const imageInput = document.getElementById('imageInput');
-              const imagePreview = document.getElementById('imagePreview');
-              const cropButton = document.getElementById('cropButton');
-              const addProductButton = document.getElementById('addProductButton');
-              const productForm = document.getElementById('productForm');
-              let cropper;
-      
-              imageInput.addEventListener('change', (e) => {
-                  if (e.target.files.length > 0) {
-                      // Check if a file was selected
-                      const selectedImage = e.target.files[0];
-      
-                      // Create a URL for the selected image and set it as the source of the image preview
-                      imagePreview.src = URL.createObjectURL(selectedImage);
-      
-                      // Enable the "Crop Image" button
-                      cropButton.removeAttribute('disabled');
-      
-                      // Initialize Cropper.js with the image element
-                      cropper = new Cropper(imagePreview, {
-                          aspectRatio: 1, // You can adjust this as needed
-                          viewMode: 1,
-                          autoCropArea: 1,
-                          checkCrossOrigin: false,
-                          ready: function () {
-                              // This function is called when the cropper is ready
-                          },
-                      });
-                  }
-              });
-      
-              cropButton.addEventListener('click', (e) => {
-                  e.preventDefault(); // Prevent form submission
-      
-                  // Check if the cropper has been initialized
-                  if (cropper) {
-                      // Crop the image and send data to the server
-                      const croppedImageData = cropper.getCroppedCanvas().toDataURL('image/jpeg');
-      
-                      // Set the cropped image data in the hidden input
-                      document.getElementById('croppedImages').value = croppedImageData;
-      
-                      // Enable the "Add Product" button if needed
-                      // addProductButton.removeAttribute('disabled');
-                  }
-              });
-      
-              // Prevent the default form submission when the "Crop Image" button is clicked
-              productForm.addEventListener('submit', (e) => {
-                  if (e.target === cropButton) {
-                      e.preventDefault();
-                  }
-              });
+                const imageInput = document.getElementById('imageInput');
+                const imagePreview = document.getElementById('imagePreview');
+                const cropButton = document.getElementById('cropButton');
+                const croppedImageInput = document.getElementById('croppedImage');
+                let cropper;
+            
+                imageInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        const selectedImage = e.target.files[0];
+                        imagePreview.src = URL.createObjectURL(selectedImage);
+            
+                        // Enable the "Crop Image" button
+                        cropButton.removeAttribute('disabled');
+            
+                        // Initialize Cropper.js with the image element
+                        cropper = new Cropper(imagePreview, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            checkCrossOrigin: false,
+                            ready: function () {
+                                // This function is called when the cropper is ready
+                            },
+                        });
+                    }
+                });
+            
+                cropButton.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent form submission
+            
+                    // Check if the cropper has been initialized
+                    if (cropper) {
+                        // Crop the image and send data to the server
+                        cropper.getCroppedCanvas().toBlob((blob) => {
+                            const form = document.getElementById('productForm');
+                            form.append('cropped_image', blob);
+                    
+                            // Submit the form to your Django view
+                            form.submit();
+                        }, 'image/jpeg');
+                    }
+                    
+                });
             });
-          </script>
+            
+        </script> {% endcomment %}
+        
+        
           {% endblock scripts %}

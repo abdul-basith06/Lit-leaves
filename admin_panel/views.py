@@ -128,6 +128,14 @@ def edit_products(request, product_id):
     return render(request, 'admin_panel/edit_products.html',context)
 
 @superuser_required
+def delete_product(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    product.delete()
+    messages.success(request, 'Product deleted successfully.')
+    
+    return redirect('admin_panel:products')
+
+@superuser_required
 def addd_products(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -140,7 +148,6 @@ def addd_products(request):
             messages.error(request, "Enter a valid price !")
             return redirect('admin_panel:add_products')
       
-       
         category = Categories.objects.get(pk=category_id)
 
         product = Product.objects.create(
@@ -150,7 +157,7 @@ def addd_products(request):
             price=price,
             category=category,
         )
-
+        
         images = request.FILES.getlist('image')  
         for image in images:
             ProductImage.objects.create(product=product, image=image)
@@ -158,7 +165,6 @@ def addd_products(request):
         return redirect('admin_panel:products')
     else:
         pass
-
     
 @superuser_required    
 def add_products(request):
@@ -254,7 +260,6 @@ def products(request):
     return render(request, 'admin_panel/products.html', context)
 
 
-
 @superuser_required
 def category(request):
     search_query = request.GET.get('key')  
@@ -268,7 +273,6 @@ def category(request):
         'search_query': search_query, 
     }
     return render(request, 'admin_panel/category.html', context)
-
 
 
 @superuser_required
@@ -346,8 +350,6 @@ def update_category(request, category_id):
     
     return render(request, 'edit_category_modal.html', context)
 
-
-
 @superuser_required
 def delete_category(request, category_id):
     if request.method == 'POST':
@@ -359,7 +361,6 @@ def delete_category(request, category_id):
         messages.success(request, 'Category and associated products deactivated successfully.')
     else:
         messages.error(request, 'Invalid request method')
-
     return redirect('admin_panel:category')
  
 @superuser_required
@@ -407,7 +408,6 @@ def admin_dash(request):
     
     filter_type = request.GET.get('filter_type', 'all')  
 
- 
     if filter_type == 'day':
         start_date = datetime.now() - timedelta(days=1)
     elif filter_type == 'week':
@@ -468,7 +468,6 @@ def admin_dash(request):
         'wallet_total': wallet_total,
         'filter_type': filter_type,  
        
-
     }
     return render(request, 'admin_panel/admin_dash.html', context)
 
@@ -846,11 +845,8 @@ def get_sales_data(request, period):
         labels = [f"{item['month'].strftime('%B')}" for item in data]
     else:
         return JsonResponse({'error': 'Invalid period'})
-
-    
     
     sales_data = [item['total'] for item in data]
-
     return JsonResponse({'labels': labels, 'data': sales_data})
 
 

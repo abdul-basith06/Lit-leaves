@@ -17,10 +17,7 @@
                                            <a href="{% url 'user_profile:generate_invoice' order.id %}" target="_blank" download>Download Invoice</a>
 
                         </div> 
-                <!-- <div>
-                            <p style="font-size: 16px;">Delivery to</p>
-                            <p style="font-size: 18px;"><b>{{ order.shipping_address }}</b></p>
-                        </div> -->
+               
             </div>
         </div>
         <hr class="m-0 mb-1">
@@ -56,12 +53,19 @@
                                 Item Returned
                             </button>
                             {% elif order_item.delivery_status == 'D' %}
-                            <button type="button" class="btn btn-warning mx-auto" data-toggle="modal" data-target="#returnOrderModal{{ order_item.id }}">
-                                Return Item
-                            </button>
+    {% if current_time <= order.seven_days_after_delivery %}
+        <button type="button" class="btn btn-warning mx-auto" data-toggle="modal" data-target="#returnOrderModal{{ order_item.id }}">
+            Return Item
+        </button>
+    {% else %}
+        <button type="button" class="btn btn-warning mx-auto" disabled>
+            Delivered
+        </button>
+        <p class="text-danger">Return period expired</p>
+    {% endif %}
 
-                          <!-- Modal for Return -->
-<div class="modal fade" id="returnOrderModal{{ order_item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+     <!-- Modal for Return -->
+ <div class="modal fade" id="returnOrderModal{{ order_item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form id="returnForm" method="post" action="{% url 'user_profile:return_order' order_item_id=order_item.id %}">
@@ -110,7 +114,16 @@
         </div>
     </div>
 </div>
+                            {% comment %} {% elif order_item.delivery_status == 'D' and current_time <= order.seven_days_after_delivery  %}
+                            <button type="button" class="btn btn-warning mx-auto" data-toggle="modal" data-target="#returnOrderModal{{ order_item.id }}">
+                                Return Item
+                            </button>
 
+                         {% elif order_item.delivery_status == 'D' %}
+<button type="button" class="btn btn-warning mx-auto" disabled>
+    Delivered
+</button> 
+<p class="text-danger"> Return period expired</p> {% endcomment %}
                         {% else %}
                             <button type="button" class="btn btn-danger mx-auto" data-toggle="modal" data-target="#cancelOrderModal{{ order_item.id }}">
                                 Cancel Order
@@ -178,6 +191,9 @@
             <h5 class="mx-5">Total : <b>${{ order.get_cart_total }}</b></h5>
         </div>
     </div>
+    
+
+
     {% endfor %}
 
 </div>
@@ -186,8 +202,6 @@
 <h1>No orders found.</h1>
 {% endif %}
 </div>
-
-
 
 
 {% endblock content %}

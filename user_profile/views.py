@@ -36,6 +36,7 @@ def update_avatar(request):
         user_profile = UserProfile.objects.get(user=request.user)
         user_profile.dp = request.FILES['image'] 
         user_profile.save()
+        messages.success(request,'Profile picture updated successfully.')
         return redirect('user_profile:dashboard')
 
     return render(request, 'user_profile/dashboard.html')
@@ -54,18 +55,15 @@ def editpassword(request):
         if user.check_password(old_password):
             if old_password == new_password:
                 messages.error(request, 'New password must be different from the old password.')
-                response_data = {'success': False, 'message': 'New password must be different from the old password.'}
                 return redirect('user_profile:dashboard')
             user.set_password(new_password)
             user.save()
             update_session_auth_hash(request, user)
             logout(request)
             messages.success(request, 'Password changed successfully. You have been logged out for security reasons.')
-            response_data = {'success': True, 'message': 'Password changed successfully.'}
             return redirect('home:index') 
         else:
             messages.error(request, 'Incorrect old password. Password not changed.')
-            response_data = {'success': False, 'message': 'Incorrect old password. Password not changed.'}
             return redirect('user_profile:dashboard') 
 
     return render(request, 'user_profile/dashboard.html') 
@@ -85,7 +83,7 @@ def editprofile(request):
 
         user_profile.bio = request.POST.get('bio', '')
         user_profile.save()
-
+        messages.success(request,'Profile details edited successfully.')
         return redirect('user_profile:dashboard')
     else:
         return render(request, 'user_profile/editprofile.html')
@@ -119,16 +117,16 @@ def add_address(request):
     if request.method == 'POST':
         form = AddressForm(request.POST)
         if form.is_valid():
-            print("Form is valid")
             new_address = form.save(commit=False)
             new_address.user = request.user
             new_address.save()
             if form.cleaned_data.get('status', False):
                 ShippingAddress.objects.filter(user=request.user).exclude(id=new_address.id).update(status=False)
-            print("Redirecting to all addresses")
+            messages.success(request,'Address Added successfully.')    
             return redirect('user_profile:all_addresses')
         else:
-            print("Form is not valid")
+            messages.error(request,'Input valid data please!!') 
+            return render(request, 'user_profile/all-addresses.html', {'form': form})
     else:
         form = AddressForm()
 
@@ -161,8 +159,10 @@ def update_address(request, address_id):
             form.save()
             if form.cleaned_data.get('status', False):
                 ShippingAddress.objects.exclude(id=up_address.id).update(status=False)
+            messages.success(request, 'Address updated successfully..')    
             return redirect('user_profile:all_addresses')
     else:
+        messages.error(request,'Input valid data please!!') 
         form = AddressForm(instance=up_address)
 
     context = {
@@ -178,6 +178,7 @@ def delete_address(request, address_id):
 
     if request.method == 'POST':
         address_del.delete()
+        messages.success(request, 'Address deleted successfully..')    
         return redirect('user_profile:all_addresses')
 
     return render(request, 'user_profile/all-addresses.html')
@@ -193,11 +194,14 @@ def my_orders(request):
         
     customer = request.user
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
-    cartItems = order.get_cart_items      
+    cartItems = order.get_cart_items   
+    
+    current_time = timezone.now()   
 
     context = {
         'orders':orders,
         'cartItems':cartItems,
+        'current_time':current_time,
     }
     return render(request, 'user_profile/my-orders.html', context)
 
@@ -217,6 +221,8 @@ def cancel_order(request, order_item_id):
         total_amount = order_item.get_total() if callable(order_item.get_total) else order_item.get_total  
         user_wallet.balance += total_amount
         user_wallet.save()
+        order_item.variation.stock += order_item.quantity
+        order_item.variation.save() 
     
     messages.success(request, 'Order canceled successfully.')
     return redirect('user_profile:my_orders')
@@ -266,7 +272,6 @@ def coupons(request):
     used_coupons = []
     expired_coupons = []
     current_date = timezone.now().date()
-    print(current_date)
 
     for coupon in all_coupons:
         if coupon.valid_till.date() < current_date:
@@ -308,6 +313,7 @@ def remove_item_wishlist(request, item_id):
 
     wishlist.items.remove(product)
     wishlist.save()
+    messages.success(request, 'Item Removed Successfully.')
     
     return redirect('user_profile:wishlist')
 
@@ -322,7 +328,6 @@ def add_to_wishlist(request, product_id):
         product = get_object_or_404(Product, id=product_id)
 
         if product in wishlist.items.all():
-            # Item is already in the wishlist
             response_data['success'] = False
             response_data['message'] = 'Item is already in your wishlist'
         else:

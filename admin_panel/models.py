@@ -1,4 +1,5 @@
 from django.db import models
+from PIL import Image
 from django.urls import reverse
 
 # Create your models here.
@@ -47,9 +48,18 @@ class ProductLanguageVariation(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images/product_images/', blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        super(ProductImage, self).save(*args, **kwargs)
+
+        if self.image:
+            img = Image.open(self.image.path)
+            if img.width > 750 or img.height > 750:
+                output_size = (750, 750) 
+                img.thumbnail(output_size)
+                img.save(self.image.path)
 
     def __str__(self):
-        return self.image.url
-
+        return f"{self.product.name} - {self.image.name}" if self.image else self.product.name
 
    

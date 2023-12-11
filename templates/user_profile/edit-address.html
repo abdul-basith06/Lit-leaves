@@ -11,24 +11,46 @@
                 <div class="card-body">
                     {{ form.full_name.label_tag }}
                     {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                    <span class="error-message text-danger">{{ form.full_name.errors }}</span>
+                {% endif %}
 
                     {{ form.address_lines.label_tag }}
                     {{ form.address_lines }}
+                    {% if form.address_lines.errors %}
+                    <span class="error-message text-danger">{{ form.address_lines.errors }}</span>
+                {% endif %}
 
                     {{ form.city.label_tag }}
                     {{ form.city }}
+                    {% if form.city.errors %}
+                    <span class="error-message text-danger">{{ form.city.errors }}</span>
+                {% endif %}
+
 
                     {{ form.state.label_tag }}
                     {{ form.state }}
+                    {% if form.state.errors %}
+                    <span class="error-message text-danger">{{ form.state.errors }}</span>
+                {% endif %}
 
                     {{ form.pin_code.label_tag }}
                     {{ form.pin_code }}
+                    {% if form.pin_code.errors %}
+                    <span class="error-message text-danger">{{ form.pin_code.errors }}</span>
+                {% endif %}
 
                     {{ form.country.label_tag }}
                     {{ form.country }}
+                    {% if form.country.errors %}
+                    <span class="error-message text-danger">{{ form.country.errors }}</span>
+                {% endif %}
 
                     {{ form.mobile.label_tag }}
                     {{ form.mobile }}
+                    {% if form.mobile.errors %}
+                    <span class="error-message text-danger">{{ form.mobile.errors }}</span>
+                {% endif %}
 
                     {{ form.status.label_tag }}
                     {{ form.status }}

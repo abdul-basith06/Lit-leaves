@@ -13,7 +13,7 @@ class User(AbstractUser):
     
     
     def save(self, *args, **kwargs):
-        created = not self.pk  # Check if the user is being created (not updated)
+        created = not self.pk 
         super().save(*args, **kwargs)
 
         if created:

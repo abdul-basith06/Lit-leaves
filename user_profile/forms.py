@@ -32,3 +32,42 @@ class AddressForm(forms.ModelForm):
         if not re.match(pattern, mobile):
             raise forms.ValidationError("Enter a valid mobile number!!!")
         return mobile    
+    
+    def clean_pin_code(self):
+        pin_code = self.cleaned_data.get('pin_code')
+
+        if not (pin_code.isdigit() and len(pin_code) == 6):
+            raise forms.ValidationError("Enter a valid 6-digit pin code!!!")
+
+        return int(pin_code)
+
+    
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name')
+        if not 3 <= len(full_name) <= 20:
+            raise forms.ValidationError("Full name should be between 3 and 20 characters.")
+        return full_name
+
+    def clean_address_lines(self):
+        address_lines = self.cleaned_data.get('address_lines')
+        if len(address_lines) > 100:
+            raise forms.ValidationError("Address lines should be at most 100 characters.")
+        return address_lines
+
+    def clean_city(self):
+        city = self.cleaned_data.get('city')
+        if len(city) > 20:
+            raise forms.ValidationError("City should be at most 20 characters.")
+        return city
+
+    def clean_state(self):
+        state = self.cleaned_data.get('state')
+        if len(state) > 20:
+            raise forms.ValidationError("State should be at most 20 characters.")
+        return state
+
+    def clean_country(self):
+        country = self.cleaned_data.get('country')
+        if len(country) > 20:
+            raise forms.ValidationError("Country should be at most 20 characters.")
+        return country
