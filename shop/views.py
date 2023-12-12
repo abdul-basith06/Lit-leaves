@@ -62,7 +62,6 @@ def store(request, category_slug=None):
             max_price = float(max_price)
             products = products.filter(price__range=(min_price, max_price))
         except ValueError:
-                # Handle the case where min_price or max_price is not a valid number
             pass         
     
     new_product_threshold = timezone.now() - timedelta(days=1)
@@ -74,8 +73,7 @@ def store(request, category_slug=None):
         
         
 
-    paginator = Paginator(products, 9)  # Show 9 active products per page
-
+    paginator = Paginator(products, 9)
     page = request.GET.get('page')
     try:
         products = paginator.page(page)
@@ -173,6 +171,8 @@ def cart(request):
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
+        order.applied_coupon = None
+        order.save()
         context = {
             'items' : items,
             'order' : order,
