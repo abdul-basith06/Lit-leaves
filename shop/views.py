@@ -135,13 +135,6 @@ def product(request, product_id):
                 is_in_cart = True
                 break
             
-    is_variant_in_cart = False
-    if items: 
-        for item in items:
-            if item.product.id == selected_product.id and item.variation == selected_variation:
-                is_variant_in_cart = True
-                break        
-
     related_products_in_cart = []
 
     if items: 
