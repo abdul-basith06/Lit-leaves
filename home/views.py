@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.db.models import Sum
 from admin_panel.models import *
 from shop.models import *
-from django.http import HttpResponse, JsonResponse  # Import HttpResponse from django.http
+from django.http import HttpResponse, JsonResponse  
 
 def index(request):
     user = request.user
