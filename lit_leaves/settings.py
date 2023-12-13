@@ -29,14 +29,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
-# Email configuration
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  
-# EMAIL_PORT = 587  
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'litleaves23@gmail.com'
-# EMAIL_HOST_PASSWORD = 'xqds jioj yaoz qapz'  
-# DEFAULT_FROM_EMAIL ='litleaves23@gmail.com'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -45,9 +37,6 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 SECRET_KEY = config('SECRET_KEY')
 
 
-
-# SECRET_KEY='django-insecure-k$7p(uc1)h!v01xx3c4+b0x-!n6j5wxxwpl^j_=)y*!4-1yvp='
-# DEBUG= True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
