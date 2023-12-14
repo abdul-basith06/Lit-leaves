@@ -107,8 +107,12 @@ WSGI_APPLICATION = 'lit_leaves.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'litleaves',
+        'HOST': 'database.cqdmgwndgork.eu-north-1.rds.amazonaws.com',
+        'USER':'admin',
+        'PASSWORD':'AwsrdsdatabaseMaguire#5',
+        'PORT':'3306',
     }
 }
 
