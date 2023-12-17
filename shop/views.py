@@ -454,6 +454,7 @@ def place_order(request):
 
 
 @login_required(login_url='userauths:sign-in')
+@transaction.atomic
 def place_order_razorpay(request):
     if request.method == 'POST':
         selected_address_id = request.POST.get('selectedAddressId')
