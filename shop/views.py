@@ -149,7 +149,6 @@ def product(request, product_id):
         'variations' : variations,
         'cartItems': cartItems,
         'is_in_cart': is_in_cart,
-        'is_variant_in_cart':is_variant_in_cart,
         'related_products_in_cart': related_products_in_cart,
         'selected_variation': selected_variation,
     }
