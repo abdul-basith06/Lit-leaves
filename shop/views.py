@@ -389,6 +389,7 @@ def remove_coupon(request, order_id):
     return render(request, 'shop/checkout.html', context)
 
 @login_required(login_url='userauths:sign-in')
+@transaction.atomic
 def place_order(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
