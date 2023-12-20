@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import EmailValidator
 from .models import User
 import re
 
@@ -9,10 +10,15 @@ class UserRegisterForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control","placeholder": "Username"}))
     first_name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control","placeholder": "First name"}))
     last_name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control","placeholder": "Last name"}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"class":"form-control","placeholder": "Email Address"}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"class":"form-control","placeholder": "Email Address"}),validators=[EmailValidator(message='Invalid email address.')])
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control","placeholder": "Password"}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control","placeholder": "Confirm-Password"}))
     mobile_number = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control","placeholder": "Mobile Number"}))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        forms.EmailField().clean(email)
+        return email
 
     def clean_mobile_number(self):
         mobile_number = self.cleaned_data.get('mobile_number')
