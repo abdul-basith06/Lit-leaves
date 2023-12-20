@@ -274,7 +274,7 @@ def checkout(request):
         items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
         address = ShippingAddress.objects.filter(user=customer)
-        default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
+        default_address = ShippingAddress.objects.get(user=customer, status=True)
         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
         user_wallet = Wallet.objects.get(user=customer)
         
