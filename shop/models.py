@@ -43,7 +43,14 @@ class Order(models.Model):
     )
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES,  null=True, blank=True)
     shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, blank=True)
-    order_notes = models.CharField(max_length=255, blank=True, null=True)  # Add this field
+    full_name = models.CharField(max_length=255)
+    address_lines = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=255, null=True, blank=True)
+    state = models.CharField(max_length=255, null=True, blank=True)
+    pin_code = models.CharField(max_length=10, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    mobile = models.CharField(max_length=15, null=True, blank=True)
+    order_notes = models.CharField(max_length=255, blank=True, null=True) 
     applied_coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
  
    

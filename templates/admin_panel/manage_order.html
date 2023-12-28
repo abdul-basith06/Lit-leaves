@@ -50,19 +50,19 @@
                                                 Shipping Address
                                             </h5>
                                             <h6 class="card-title" style="font-size: 15px;">
-                                                {{ order.shipping_address.full_name }}<br>
-                                                {{ order.shipping_address.address_lines }}                                                                                                                                 
+                                                {{ order.full_name }}<br>
+                                                {{ order.address_lines }}                                                                                                                                 
                                             </h6>
                                             <p class="card-text">
-                                                {{ order.shipping_address.city }},
-                                                {{ order.shipping_address.state }}
+                                                {{ order.city }},
+                                                {{ order.state }}
                                             </p>
                                             <p class="card-text">Contact Number :
-                                                {{ order.shipping_address.mobile }}
+                                                {{ order.mobile }}
                                             </p>
                                             <p class="card-text">Pincode :
-                                                {{ order.shipping_address.pin_code }},
-                                                {{ order.shipping_address.country }}
+                                                {{ order.pin_code }},
+                                                {{ order.country }}
                                             </p>
                                             <hr class="m-0 p-0 my-3">
                                             {% if order_item.delivery_status != "CN" %}

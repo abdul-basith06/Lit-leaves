@@ -114,16 +114,7 @@
         </div>
     </div>
 </div>
-                            {% comment %} {% elif order_item.delivery_status == 'D' and current_time <= order.seven_days_after_delivery  %}
-                            <button type="button" class="btn btn-warning mx-auto" data-toggle="modal" data-target="#returnOrderModal{{ order_item.id }}">
-                                Return Item
-                            </button>
-
-                         {% elif order_item.delivery_status == 'D' %}
-<button type="button" class="btn btn-warning mx-auto" disabled>
-    Delivered
-</button> 
-<p class="text-danger"> Return period expired</p> {% endcomment %}
+                        
                         {% else %}
                             <button type="button" class="btn btn-danger mx-auto" data-toggle="modal" data-target="#cancelOrderModal{{ order_item.id }}">
                                 Cancel Order
@@ -186,10 +177,19 @@
             {% endfor %}
 
         </div>
-        <div class="col-12 row d-flex justify-content-between ">
-            <h6 class="mx-5">Delivery to : <b>{{ order.shipping_address }}</b></h6>
-            <h5 class="mx-5">Total : <b>${{ order.get_cart_total }}</b></h5>
+        <div class="col-12 row d-flex justify-content-between">
+            <div class="address-details">
+                <h6>Delivery to: <b>{{ order.full_name }}</b></h6>
+                <p>{{ order.address_lines }}</p>
+                <p>{{ order.city }}, {{ order.state }}</p>
+                <p>Pincode: {{ order.pin_code }}, {{ order.country }}</p>
+                <p>{{ order.mobile }}</p>
+            </div>
+            <div class="total-details">
+                <h5>Total: <b>${{ order.get_cart_total }}</b></h5>
+            </div>
         </div>
+        
     </div>
     
 

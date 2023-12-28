@@ -274,7 +274,7 @@ def checkout(request):
         items = order.orderitem_set.all() 
         cartItems = order.get_cart_items
         address = ShippingAddress.objects.filter(user=customer)
-        default_address = ShippingAddress.objects.filter(user=customer, status=True).first()
+        default_address = ShippingAddress.objects.get(user=customer, status=True)
         remaining_addresses = ShippingAddress.objects.filter(user=customer, status=False)
         user_wallet = Wallet.objects.get(user=customer)
         
@@ -411,8 +411,13 @@ def place_order(request):
             order = Order(
                 customer=request.user, 
                 order_notes=order_notes,
-                shipping_address=selected_address,
-                
+                full_name = selected_address.full_name,
+                address_lines = selected_address.address_lines,
+                city = selected_address.city,
+                state = selected_address.state,
+                pin_code = selected_address.pin_code,
+                country = selected_address.country,
+                mobile = selected_address.mobile,
             )
             
             current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)
@@ -470,7 +475,13 @@ def place_order_razorpay(request):
             customer=request.user,
             payment_method='RAZ',
             order_notes=order_notes,
-            shipping_address=selected_address,
+            full_name = selected_address.full_name,
+            address_lines = selected_address.address_lines,
+            city = selected_address.city,
+            state = selected_address.state,
+            pin_code = selected_address.pin_code,
+            country = selected_address.country,
+            mobile = selected_address.mobile,
             transaction_id=transaction_id
         )
         current_cart = Order.objects.select_for_update().get(customer=request.user, complete=False)

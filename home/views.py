@@ -13,7 +13,7 @@ def index(request):
     recent_products = Product.objects.filter(date_added__gte=current_time - timezone.timedelta(days=100))[:6]
     
     most_sold_products = Product.objects.filter(
-        orderitem__delivery_status='D'  # 'D' represents Delivered status
+        orderitem__delivery_status='D' 
     ).annotate(
         total_quantity_sold=Sum('orderitem__quantity')
     ).order_by('-total_quantity_sold')[:10]
