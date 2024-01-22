@@ -57,10 +57,12 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO','https')
 CSRF_TRUSTED_ORIGINS = [
         "http://16.170.98.1",
         "http://litleaves.store",
+        "https://litleaves.store",
         "https://16.170.98.1",
         "http://0.0.0.0",
         "https://0.0.0.0",
         "http://0.0.0.0:9090"
+        "https://0.0.0.0:9090"
         ]
 
 
@@ -98,6 +100,7 @@ ROOT_URLCONF = 'lit_leaves.urls'
 CORS_ALLOWED_ORIGINS = [
      "http://16.170.98.1",
      "http://litleaves.store",
+     "https://litleaves.store",
      "https://16.170.98.1",
      "http://0.0.0.0",
      "https://0.0.0.0",
