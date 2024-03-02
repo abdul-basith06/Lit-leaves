@@ -19,14 +19,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Email configuration
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  
-# EMAIL_PORT = 587  
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'litleaves23@gmail.com'
-# EMAIL_HOST_PASSWORD = 'xqds jioj yaoz qapz'  
-# DEFAULT_FROM_EMAIL ='litleaves23@gmail.com'
+
 
 # Email configuration
 EMAIL_BACKEND = config('EMAIL_BACKEND')
@@ -152,12 +145,12 @@ WSGI_APPLICATION = 'lit_leaves.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'litleaves',
-        'HOST': 'database.cqdmgwndgork.eu-north-1.rds.amazonaws.com',
-        'USER':'admin',
-        'PASSWORD':'AwsrdsdatabaseMaguire#5',
-        'PORT':'3306',
+        'ENGINE': config('ENGINE'),
+        'NAME': config('NAME'),
+        'HOST': config('HOST'),
+        'USER':config('USER'),
+        'PASSWORD':config('PASSWORD'),
+        'PORT':config('PORT'),
     }
 }
 
