@@ -145,14 +145,25 @@ WSGI_APPLICATION = 'lit_leaves.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('ENGINE'),
-        'NAME': config('NAME'),
-        'HOST': config('HOST'),
-        'USER':config('USER'),
-        'PASSWORD':config('PASSWORD'),
-        'PORT':config('PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'litleaves',
+        'USER': 'basi',
+        'PASSWORD': 'basi12369',
+        'HOST': 'localhost',
+        'PORT': '',  # Default PostgreSQL port (5432)
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': config('ENGINE'),
+#         'NAME': config('NAME'),
+#         'HOST': config('HOST'),
+#         'USER':config('USER'),
+#         'PASSWORD':config('PASSWORD'),
+#         'PORT':config('PORT'),
+#     }
+# }
 
 
 # Password validation
